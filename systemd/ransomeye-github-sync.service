@@ -26,6 +26,8 @@ PrivateTmp=true
 # Environment
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment="HOME=/home/ransomeye"
+Environment="GIT_TERMINAL_PROMPT=0"
+Environment="GIT_ASKPASS="
 
 [Install]
 WantedBy=multi-user.target

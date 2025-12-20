@@ -87,13 +87,26 @@ LOCAL_COMMITS=$(git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
 if [ "$LOCAL_COMMITS" -gt 0 ]; then
     log "Local branch is $LOCAL_COMMITS commit(s) ahead of remote. Pushing..."
     
-    # Attempt push
+    # Attempt push with credential helper
+    # Ensure credential helper is available
+    export GIT_TERMINAL_PROMPT=0
+    export GIT_ASKPASS=""
+    
     if git push origin main 2>&1 | tee -a "$LOG_FILE"; then
         log "✓ Successfully pushed to GitHub"
         log "Repository: $(git remote get-url origin)"
     else
-        log "ERROR: Failed to push to GitHub. Check authentication."
-        log "HINT: Run 'git push origin main' manually to authenticate"
+        PUSH_ERROR=$(git push origin main 2>&1)
+        echo "$PUSH_ERROR" | tee -a "$LOG_FILE"
+        
+        # Check if it's an authentication error
+        if echo "$PUSH_ERROR" | grep -q "could not read Username\|Authentication failed\|fatal: could not read"; then
+            log "ERROR: Authentication failed. Credentials may be incorrect."
+            log "HINT: Run './setup_git_credentials.sh' to reconfigure"
+            log "HINT: Or check ~/.git-credentials file format"
+        else
+            log "ERROR: Failed to push to GitHub. Check network connection."
+        fi
         exit 1
     fi
 else
