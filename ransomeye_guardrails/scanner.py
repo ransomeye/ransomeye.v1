@@ -16,6 +16,7 @@ from typing import List, Dict, Tuple, Optional, Set
 from collections import defaultdict
 
 from .fail_closed import fail_closed
+from .rules_schema import validate_rules_file
 
 
 class GuardrailScanner:
@@ -28,9 +29,33 @@ class GuardrailScanner:
         self._allowed_exceptions = self._parse_exceptions()
     
     def _load_rules(self, rules_path: str) -> Dict:
-        """Load rules from YAML file."""
+        """
+        Load rules from YAML file.
+        Validates rules.yaml structure BEFORE loading.
+        Fails-closed if validation fails.
+        """
+        # CRITICAL: Validate rules.yaml schema BEFORE loading
+        if not validate_rules_file(rules_path):
+            # validate_rules_file will fail-closed on errors
+            # This should never be reached, but included for safety
+            fail_closed(
+                "RULES_LOAD_FAILED",
+                f"Rules file validation failed: {rules_path}",
+                file_path=rules_path
+            )
+        
+        # Load validated rules
         with open(rules_path, 'r') as f:
-            return yaml.safe_load(f)
+            rules = yaml.safe_load(f)
+        
+        if rules is None:
+            fail_closed(
+                "RULES_LOAD_FAILED",
+                f"Rules file is empty or invalid: {rules_path}",
+                file_path=rules_path
+            )
+        
+        return rules
     
     def _parse_exceptions(self) -> Dict[str, Set[str]]:
         """Parse allowed exceptions from rules."""
@@ -81,7 +106,10 @@ class GuardrailScanner:
         violations = []
         
         for rule in self.rules.get('hardcoded_patterns', []):
-            pattern = rule['pattern']
+            # Use 'regex' field (preferred) or fallback to 'pattern' (legacy)
+            pattern = rule.get('regex', rule.get('pattern', ''))
+            if not pattern:
+                continue  # Skip invalid rules
             exception = rule.get('exception', '')
             
             # Compile regex
@@ -112,7 +140,10 @@ class GuardrailScanner:
         violations = []
         
         for rule in self.rules.get('path_patterns', []):
-            pattern = rule['pattern']
+            # Use 'regex' field (preferred) or fallback to 'pattern' (legacy)
+            pattern = rule.get('regex', rule.get('pattern', ''))
+            if not pattern:
+                continue  # Skip invalid rules
             exception = rule.get('exception', '')
             
             regex = re.compile(pattern, re.IGNORECASE | re.MULTILINE)
@@ -147,7 +178,10 @@ class GuardrailScanner:
         violations = []
         
         for rule in self.rules.get('ml_patterns', []):
-            pattern = rule['pattern']
+            # Use 'regex' field (preferred) or fallback to 'pattern' (legacy)
+            pattern = rule.get('regex', rule.get('pattern', ''))
+            if not pattern:
+                continue  # Skip invalid rules
             regex = re.compile(pattern, re.IGNORECASE | re.MULTILINE)
             
             for match in regex.finditer(content):

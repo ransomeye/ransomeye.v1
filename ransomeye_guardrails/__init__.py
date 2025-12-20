@@ -7,6 +7,12 @@ RansomEye Guardrails Package
 Provides fail-closed enforcement of security and compliance rules.
 """
 
+# Runtime check must be imported first to validate python3
+from .runtime_check import validate_runtime
+
+# Validate runtime before any other imports
+validate_runtime()
+
 from .fail_closed import fail_closed, GuardrailViolation, validate_and_fail
 from .scanner import GuardrailScanner
 from .header_enforcer import HeaderEnforcer
@@ -16,6 +22,7 @@ from .crypto_enforcer import CryptoEnforcer
 from .retention_enforcer import RetentionEnforcer
 
 __all__ = [
+    'validate_runtime',
     'fail_closed',
     'GuardrailViolation',
     'validate_and_fail',

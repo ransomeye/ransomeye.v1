@@ -115,19 +115,19 @@ Located in `/home/ransomeye/rebuild/ransomeye_trust/`:
 ### Initialize Trust Hierarchy
 
 ```bash
-python -m ransomeye_trust.root_ca_generator --init
+python3 -m ransomeye_trust.root_ca_generator --init
 ```
 
 ### Sign an Artifact
 
 ```bash
-python -m ransomeye_trust.sign_tool <file> --manifest --version 1.0.0
+python3 -m ransomeye_trust.sign_tool <file> --manifest --version 1.0.0
 ```
 
 ### Verify an Artifact
 
 ```bash
-python -m ransomeye_trust.verify_tool <file>
+python3 -m ransomeye_trust.verify_tool <file>
 ```
 
 ---
@@ -213,6 +213,9 @@ python3 -m pip install pyyaml cryptography psycopg2-binary
 ✅ Disk pressure simulation triggers retention logic  
 ✅ AI artifact deletion is BLOCKED  
 ✅ All failures are FAIL-CLOSED  
+✅ `python3` runtime validated before any guardrail logic  
+✅ `python` (without 3) invocation fails-closed  
+✅ CI validates python3 version explicitly  
 
 ---
 

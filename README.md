@@ -164,6 +164,63 @@ python -m ransomeye_guardrails.scanner
 - SHAP explainability for all ML outputs
 - Comprehensive test coverage
 
+## 🔄 GitHub Synchronization
+
+RansomEye includes automatic GitHub synchronization that runs every hour by default.
+
+### Initial Setup
+
+1. **Set up Git credentials** (one-time):
+   ```bash
+   ./setup_git_credentials.sh
+   ```
+   Choose between credential store or SSH authentication.
+
+2. **Enable auto-sync**:
+   ```bash
+   sudo ./setup_auto_sync.sh
+   ```
+
+### Manual Sync
+
+```bash
+# Sync manually
+./github_auto_sync.sh
+
+# Or use the original sync script
+./sync_to_github.sh
+```
+
+### Auto-Sync Management
+
+```bash
+# Check timer status
+sudo systemctl status ransomeye-github-sync.timer
+
+# View sync logs
+sudo journalctl -u ransomeye-github-sync.service -f
+
+# Check log file
+tail -f logs/github_sync.log
+
+# Manually trigger sync
+sudo systemctl start ransomeye-github-sync.service
+
+# Disable auto-sync
+sudo systemctl stop ransomeye-github-sync.timer
+
+# Enable auto-sync
+sudo systemctl start ransomeye-github-sync.timer
+```
+
+### Features
+
+- **Automatic**: Syncs every hour via systemd timer
+- **Safe**: Only pushes if there are changes
+- **Logged**: All operations logged to `logs/github_sync.log`
+- **Lock-protected**: Prevents concurrent sync operations
+- **Git LFS**: Automatically handles large model and dataset files
+
 ## 📞 Support
 
 **Support Email**: Gagan@RansomEye.Tech

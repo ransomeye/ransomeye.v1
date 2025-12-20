@@ -1,0 +1,32 @@
+# Path and File Name : /home/ransomeye/rebuild/systemd/ransomeye-github-sync.service
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Systemd service unit for automatic GitHub synchronization
+
+[Unit]
+Description=RansomEye GitHub Auto-Sync Service
+Documentation=https://github.com/ransomeye/ransomeye.v1
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ransomeye
+Group=ransomeye
+WorkingDirectory=/home/ransomeye/rebuild
+ExecStart=/home/ransomeye/rebuild/github_auto_sync.sh
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=30
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Environment
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="HOME=/home/ransomeye"
+
+[Install]
+WantedBy=multi-user.target
+
