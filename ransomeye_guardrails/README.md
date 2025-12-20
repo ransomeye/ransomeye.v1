@@ -55,33 +55,51 @@ Phase 0 establishes **irreversible, fail-closed guardrails** that enforce securi
 
 ## Usage
 
+### Runtime Requirements
+
+**MANDATORY:** `python3` must be installed and version >= 3.10
+
+Supported platforms:
+- Ubuntu 22.04+ (python3.10+)
+- RHEL 8+ (python3.10+)
+
+Runtime check runs automatically before any guardrail logic.
+
 ### Run All Guardrails Checks
 
+**Canonical invocation:**
 ```bash
 cd /home/ransomeye/rebuild
-python -m ransomeye_guardrails.main
+python3 -m ransomeye_guardrails
 ```
+
+**Alternative:**
+```bash
+python3 -m ransomeye_guardrails.main
+```
+
+**Note:** Using `python` (without 3) is NOT supported and will fail.
 
 ### Run Individual Enforcers
 
 ```bash
 # Static scanner
-python -m ransomeye_guardrails.scanner --rules ransomeye_guardrails/rules.yaml
+python3 -m ransomeye_guardrails.scanner --rules ransomeye_guardrails/rules.yaml
 
 # Header enforcer
-python -m ransomeye_guardrails.header_enforcer
+python3 -m ransomeye_guardrails.header_enforcer
 
 # ENV enforcer
-python -m ransomeye_guardrails.env_enforcer
+python3 -m ransomeye_guardrails.env_enforcer
 
 # ML enforcer
-python -m ransomeye_guardrails.ml_enforcer
+python3 -m ransomeye_guardrails.ml_enforcer
 
 # Crypto enforcer
-python -m ransomeye_guardrails.crypto_enforcer
+python3 -m ransomeye_guardrails.crypto_enforcer
 
 # Retention enforcer
-python -m ransomeye_guardrails.retention_enforcer --dry-run
+python3 -m ransomeye_guardrails.retention_enforcer --dry-run
 ```
 
 ---
@@ -181,7 +199,7 @@ Required Python packages:
 
 Install via:
 ```bash
-pip install pyyaml cryptography psycopg2-binary
+python3 -m pip install pyyaml cryptography psycopg2-binary
 ```
 
 ---

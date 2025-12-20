@@ -155,7 +155,45 @@ This document defines the **immutable security guarantees** enforced by RansomEy
 
 ---
 
-## 8. Fail-Closed Invariant
+## 8. Runtime Determinism Invariant
+
+**Rule:** Python runtime must be explicitly specified and validated. No reliance on `python` command.
+
+**Enforcement:**
+- Runtime check validates `python3` exists before any guardrail logic
+- Minimum version requirement: Python 3.10+
+- Build fails if `python3` is missing or version is insufficient
+- All invocations use `python3` explicitly
+
+**Requirements:**
+- `python3` executable must be available in PATH
+- Version must be >= 3.10
+- Runtime check runs FIRST before any imports or logic
+- No fallback to `python` command
+- No auto-installation of Python runtime
+
+**Supported Platforms:**
+- Ubuntu 22.04+ (python3.10+)
+- RHEL 8+ (python3.10+)
+
+**Invocation:**
+- **Canonical:** `python3 -m ransomeye_guardrails`
+- **Direct:** `python3 -m ransomeye_guardrails.main`
+- **Individual:** `python3 -m ransomeye_guardrails.<enforcer_name>`
+
+**Fail Conditions:**
+- `python3` command not found → Exit 1
+- Python version < 3.10 → Exit 1
+- Attempt to use `python -m` → Not supported (use `python3`)
+
+**Implementation:**
+- `ransomeye_guardrails/runtime_check.py` validates runtime
+- `ransomeye_guardrails/__main__.py` enables module invocation
+- Runtime check executes at import time in `main.py`
+
+---
+
+## 9. Fail-Closed Invariant
 
 **Rule:** Any guardrail violation must fail the build immediately.
 
@@ -173,6 +211,7 @@ This document defines the **immutable security guarantees** enforced by RansomEy
 
 ## Validation Process
 
+0. **Runtime Check:** Validates python3 exists and version >= 3.10 (runs FIRST)
 1. **Static Scanner:** Regex + AST pattern matching
 2. **Header Enforcer:** File header validation
 3. **ENV Enforcer:** Configuration validation
@@ -180,7 +219,7 @@ This document defines the **immutable security guarantees** enforced by RansomEy
 5. **Crypto Enforcer:** Manifest + signature validation
 6. **Retention Enforcer:** Policy configuration validation
 
-All checks run in CI/CD pipeline (`ci/global_guardrails.yml`).
+All checks run in CI/CD pipeline (`ci/global_guardrails.yml`) using `python3` explicitly.
 
 ---
 

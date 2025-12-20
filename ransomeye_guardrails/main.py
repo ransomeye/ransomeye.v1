@@ -10,6 +10,12 @@ Runs all guardrail checks and fails-closed on any violation.
 import sys
 from pathlib import Path
 
+# CRITICAL: Runtime check MUST run first, before any other imports
+from .runtime_check import validate_runtime
+
+# Validate runtime before proceeding
+validate_runtime()
+
 from .scanner import GuardrailScanner
 from .header_enforcer import HeaderEnforcer
 from .env_enforcer import EnvEnforcer
@@ -20,6 +26,7 @@ from .retention_enforcer import RetentionEnforcer
 
 def main():
     """Run all guardrail checks."""
+    # Runtime check already validated at import time
     project_root = "/home/ransomeye/rebuild"
     rules_path = Path(project_root) / "ransomeye_guardrails" / "rules.yaml"
     
