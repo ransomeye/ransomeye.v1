@@ -4,7 +4,7 @@
 
 use std::time::Instant;
 use std::path::PathBuf;
-use crate::{Finding, Severity, ValidationResult};
+use crate::core::{Finding, Severity, ValidationResult};
 use crate::auditor::Auditor;
 use tracing::{info, warn, error};
 
@@ -24,16 +24,17 @@ impl ComplianceSuite {
         let start_time = Instant::now();
         let mut findings = Vec::new();
         
+        let suite_name = "compliance".to_string();
+        
         // Test 1: Evidence integrity
         info!("Testing evidence integrity");
         match self.test_evidence_integrity().await {
             Ok(_) => info!("Evidence integrity: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Critical,
-                    category: "Evidence Integrity".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Evidence integrity violation: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Critical,
                 });
             }
         }
@@ -44,10 +45,9 @@ impl ComplianceSuite {
             Ok(_) => info!("Retention enforcement: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Retention Enforcement".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Retention enforcement violation: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -58,10 +58,9 @@ impl ComplianceSuite {
             Ok(_) => info!("Audit trail completeness: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Audit Completeness".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Audit trail incomplete: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -72,25 +71,17 @@ impl ComplianceSuite {
             Ok(_) => info!("Reproducibility: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Reproducibility".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Reproducibility violation: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
         
-        let duration = start_time.elapsed();
-        let passed = findings.iter()
-            .all(|f| !matches!(f.severity, Severity::Critical | Severity::High));
+        let _duration = start_time.elapsed();
         
-        Ok(ValidationResult {
-            suite_name: "compliance".to_string(),
-            passed,
-            duration_ms: duration.as_millis() as u64,
-            findings,
-            timestamp: chrono::Utc::now(),
-        })
+        // Use ValidationResult::from_findings to determine result based on severity
+        Ok(ValidationResult::from_findings(findings))
     }
     
     async fn test_evidence_integrity(&self) -> Result<(), String> {

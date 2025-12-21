@@ -15,6 +15,7 @@ pub mod verifier;
 pub mod auditor;
 mod suites;
 
+use crate::core::{Finding, Severity, ValidationResult as CoreValidationResult};
 use suites::{
     security::SecuritySuite,
     performance::PerformanceSuite,
@@ -42,37 +43,20 @@ pub enum ValidationError {
     ReportFailed(String),
 }
 
+// Suite result wrapper for reporting
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ValidationResult {
+pub struct SuiteResult {
     pub suite_name: String,
-    pub passed: bool,
-    pub duration_ms: u64,
+    pub result: String, // "Pass", "Hold", or "Fail"
     pub findings: Vec<Finding>,
     pub timestamp: chrono::DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Finding {
-    pub severity: Severity,
-    pub category: String,
-    pub description: String,
-    pub evidence: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Severity {
-    Critical,
-    High,
-    Medium,
-    Low,
-    Info,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReleaseDecision {
     pub decision: Decision,
     pub timestamp: chrono::DateTime<Utc>,
-    pub validation_results: Vec<ValidationResult>,
+    pub suite_results: Vec<SuiteResult>,
     pub justification: String,
     pub signature: Option<String>,
 }
@@ -97,48 +81,48 @@ impl ValidationOrchestrator {
         info!("Starting full validation suite");
         let start_time = Instant::now();
         
-        let mut results = Vec::new();
+        let mut results: Vec<(String, CoreValidationResult)> = Vec::new();
         
         // Security validation
         info!("Running security validation suite");
         let security_result = SecuritySuite::new().run().await
             .map_err(|e| ValidationError::SecurityFailed(e.to_string()))?;
-        results.push(security_result);
+        results.push(("security".to_string(), security_result));
         
         // Performance validation
         info!("Running performance validation suite");
         let perf_result = PerformanceSuite::new().run().await
             .map_err(|e| ValidationError::PerformanceFailed(e.to_string()))?;
-        results.push(perf_result);
+        results.push(("performance".to_string(), perf_result));
         
         // Stress validation
         info!("Running stress validation suite");
         let stress_result = StressSuite::new().run().await
             .map_err(|e| ValidationError::StressFailed(e.to_string()))?;
-        results.push(stress_result);
+        results.push(("stress".to_string(), stress_result));
         
         // Fault injection validation
         info!("Running fault injection validation suite");
         let fault_result = FaultInjectionSuite::new().run().await
             .map_err(|e| ValidationError::FaultInjectionFailed(e.to_string()))?;
-        results.push(fault_result);
+        results.push(("fault_injection".to_string(), fault_result));
         
         // Compliance validation
         info!("Running compliance validation suite");
         let compliance_result = ComplianceSuite::new().run().await
             .map_err(|e| ValidationError::ComplianceFailed(e.to_string()))?;
-        results.push(compliance_result);
+        results.push(("compliance".to_string(), compliance_result));
         
         // Regression validation
         info!("Running regression validation suite");
         let regression_result = RegressionSuite::new().run().await
             .map_err(|e| ValidationError::RegressionFailed(e.to_string()))?;
-        results.push(regression_result);
+        results.push(("regression".to_string(), regression_result));
         
         let duration = start_time.elapsed();
         info!("Validation completed in {:?}", duration);
         
-        // Generate release decision
+        // Generate release decision with fail-closed semantics
         let decision = self.generate_decision(&results)?;
         
         // Generate reports
@@ -147,48 +131,72 @@ impl ValidationOrchestrator {
         Ok(decision)
     }
     
-    fn generate_decision(&self, results: &[ValidationResult]) -> Result<ReleaseDecision, ValidationError> {
+    fn generate_decision(&self, results: &[(String, CoreValidationResult)]) -> Result<ReleaseDecision, ValidationError> {
+        // Fail-closed semantics: Default is BLOCK, explicit ALLOW only if no Fail, no High, no Critical
+        let mut has_fail = false;
+        let mut has_high_or_critical = false;
+        let mut failed_suites = Vec::new();
         let mut critical_count = 0;
         let mut high_count = 0;
-        let mut failed_suites = Vec::new();
+        let mut suite_results = Vec::new();
         
-        for result in results {
-            if !result.passed {
-                failed_suites.push(result.suite_name.clone());
+        for (suite_name, result) in results {
+            let result_str = match result {
+                CoreValidationResult::Pass(_) => "Pass",
+                CoreValidationResult::Hold(_) => "Hold",
+                CoreValidationResult::Fail(_) => "Fail",
+            };
+            
+            if result.is_fail() {
+                has_fail = true;
+                failed_suites.push(suite_name.clone());
             }
             
-            for finding in &result.findings {
-                match finding.severity {
-                    Severity::Critical => critical_count += 1,
-                    Severity::High => high_count += 1,
-                    _ => {}
+            let critical_findings = result.critical_findings();
+            if !critical_findings.is_empty() {
+                has_high_or_critical = true;
+                for finding in critical_findings {
+                    match finding.severity {
+                        Severity::Critical => critical_count += 1,
+                        Severity::High => high_count += 1,
+                        _ => {}
+                    }
                 }
             }
+            
+            suite_results.push(SuiteResult {
+                suite_name: suite_name.clone(),
+                result: result_str.to_string(),
+                findings: result.findings().to_vec(),
+                timestamp: Utc::now(),
+            });
         }
         
-        let decision = if !failed_suites.is_empty() {
+        // Fail-closed decision logic
+        let decision = if has_fail || has_high_or_critical {
             Decision::Block
-        } else if critical_count > 0 || high_count > 0 {
-            Decision::Hold
         } else {
+            // Only ALLOW if no Fail results and no High/Critical findings
             Decision::Allow
         };
         
         let justification = if decision == Decision::Block {
-            format!("Release BLOCKED: {} suite(s) failed: {}", 
-                failed_suites.len(), 
-                failed_suites.join(", "))
-        } else if decision == Decision::Hold {
-            format!("Release HELD: {} critical, {} high severity findings", 
-                critical_count, high_count)
+            if has_fail {
+                format!("Release BLOCKED: {} suite(s) failed: {}", 
+                    failed_suites.len(), 
+                    failed_suites.join(", "))
+            } else {
+                format!("Release BLOCKED: {} critical, {} high severity findings found", 
+                    critical_count, high_count)
+            }
         } else {
-            "All validation suites passed. No critical or high severity findings.".to_string()
+            "All validation suites passed. No failures, no critical or high severity findings.".to_string()
         };
         
         Ok(ReleaseDecision {
             decision,
             timestamp: Utc::now(),
-            validation_results: results.to_vec(),
+            suite_results,
             justification,
             signature: None, // Will be signed by auditor
         })
@@ -196,7 +204,7 @@ impl ValidationOrchestrator {
     
     async fn generate_reports(
         &self,
-        results: &[ValidationResult],
+        results: &[(String, CoreValidationResult)],
         decision: &ReleaseDecision,
     ) -> Result<(), ValidationError> {
         use std::fs;
@@ -249,23 +257,25 @@ impl ValidationOrchestrator {
         Ok(())
     }
     
-    fn generate_security_report(&self, results: &[ValidationResult]) -> Result<String, ValidationError> {
+    fn generate_security_report(&self, results: &[(String, CoreValidationResult)]) -> Result<String, ValidationError> {
         let mut report = String::new();
         report.push_str("# Security Validation Report\n\n");
         report.push_str(&format!("Generated: {}\n\n", Utc::now().to_rfc3339()));
         
-        if let Some(security_result) = results.iter().find(|r| r.suite_name == "security") {
-            report.push_str(&format!("## Status: {}\n\n", 
-                if security_result.passed { "PASS" } else { "FAIL" }));
-            report.push_str(&format!("Duration: {}ms\n\n", security_result.duration_ms));
+        if let Some((_, security_result)) = results.iter().find(|(name, _)| name == "security") {
+            let status = match security_result {
+                CoreValidationResult::Pass(_) => "PASS",
+                CoreValidationResult::Hold(_) => "HOLD",
+                CoreValidationResult::Fail(_) => "FAIL",
+            };
+            report.push_str(&format!("## Status: {}\n\n", status));
             
-            if !security_result.findings.is_empty() {
+            let findings = security_result.findings();
+            if !findings.is_empty() {
                 report.push_str("## Findings\n\n");
-                for finding in &security_result.findings {
-                    report.push_str(&format!("### {} - {}\n", 
-                        format!("{:?}", finding.severity), finding.category));
+                for finding in findings {
+                    report.push_str(&format!("### {:?}\n", finding.severity));
                     report.push_str(&format!("**Description:** {}\n\n", finding.description));
-                    report.push_str(&format!("**Evidence:** {}\n\n", finding.evidence));
                 }
             }
         }
@@ -273,20 +283,24 @@ impl ValidationOrchestrator {
         Ok(report)
     }
     
-    fn generate_performance_report(&self, results: &[ValidationResult]) -> Result<String, ValidationError> {
+    fn generate_performance_report(&self, results: &[(String, CoreValidationResult)]) -> Result<String, ValidationError> {
         let mut report = String::new();
         report.push_str("# Performance Validation Report\n\n");
         report.push_str(&format!("Generated: {}\n\n", Utc::now().to_rfc3339()));
         
-        if let Some(perf_result) = results.iter().find(|r| r.suite_name == "performance") {
-            report.push_str(&format!("## Status: {}\n\n", 
-                if perf_result.passed { "PASS" } else { "FAIL" }));
-            report.push_str(&format!("Duration: {}ms\n\n", perf_result.duration_ms));
+        if let Some((_, perf_result)) = results.iter().find(|(name, _)| name == "performance") {
+            let status = match perf_result {
+                CoreValidationResult::Pass(_) => "PASS",
+                CoreValidationResult::Hold(_) => "HOLD",
+                CoreValidationResult::Fail(_) => "FAIL",
+            };
+            report.push_str(&format!("## Status: {}\n\n", status));
             
-            if !perf_result.findings.is_empty() {
+            let findings = perf_result.findings();
+            if !findings.is_empty() {
                 report.push_str("## Metrics\n\n");
-                for finding in &perf_result.findings {
-                    report.push_str(&format!("- **{}:** {}\n", finding.category, finding.description));
+                for finding in findings {
+                    report.push_str(&format!("- **{:?}:** {}\n", finding.severity, finding.description));
                 }
             }
         }
@@ -294,20 +308,24 @@ impl ValidationOrchestrator {
         Ok(report)
     }
     
-    fn generate_stress_report(&self, results: &[ValidationResult]) -> Result<String, ValidationError> {
+    fn generate_stress_report(&self, results: &[(String, CoreValidationResult)]) -> Result<String, ValidationError> {
         let mut report = String::new();
         report.push_str("# Stress Validation Report\n\n");
         report.push_str(&format!("Generated: {}\n\n", Utc::now().to_rfc3339()));
         
-        if let Some(stress_result) = results.iter().find(|r| r.suite_name == "stress") {
-            report.push_str(&format!("## Status: {}\n\n", 
-                if stress_result.passed { "PASS" } else { "FAIL" }));
-            report.push_str(&format!("Duration: {}ms\n\n", stress_result.duration_ms));
+        if let Some((_, stress_result)) = results.iter().find(|(name, _)| name == "stress") {
+            let status = match stress_result {
+                CoreValidationResult::Pass(_) => "PASS",
+                CoreValidationResult::Hold(_) => "HOLD",
+                CoreValidationResult::Fail(_) => "FAIL",
+            };
+            report.push_str(&format!("## Status: {}\n\n", status));
             
-            if !stress_result.findings.is_empty() {
+            let findings = stress_result.findings();
+            if !findings.is_empty() {
                 report.push_str("## Stress Test Results\n\n");
-                for finding in &stress_result.findings {
-                    report.push_str(&format!("- **{}:** {}\n", finding.category, finding.description));
+                for finding in findings {
+                    report.push_str(&format!("- **{:?}:** {}\n", finding.severity, finding.description));
                 }
             }
         }
@@ -315,20 +333,24 @@ impl ValidationOrchestrator {
         Ok(report)
     }
     
-    fn generate_compliance_report(&self, results: &[ValidationResult]) -> Result<String, ValidationError> {
+    fn generate_compliance_report(&self, results: &[(String, CoreValidationResult)]) -> Result<String, ValidationError> {
         let mut report = String::new();
         report.push_str("# Compliance Validation Report\n\n");
         report.push_str(&format!("Generated: {}\n\n", Utc::now().to_rfc3339()));
         
-        if let Some(compliance_result) = results.iter().find(|r| r.suite_name == "compliance") {
-            report.push_str(&format!("## Status: {}\n\n", 
-                if compliance_result.passed { "PASS" } else { "FAIL" }));
-            report.push_str(&format!("Duration: {}ms\n\n", compliance_result.duration_ms));
+        if let Some((_, compliance_result)) = results.iter().find(|(name, _)| name == "compliance") {
+            let status = match compliance_result {
+                CoreValidationResult::Pass(_) => "PASS",
+                CoreValidationResult::Hold(_) => "HOLD",
+                CoreValidationResult::Fail(_) => "FAIL",
+            };
+            report.push_str(&format!("## Status: {}\n\n", status));
             
-            if !compliance_result.findings.is_empty() {
+            let findings = compliance_result.findings();
+            if !findings.is_empty() {
                 report.push_str("## Compliance Checks\n\n");
-                for finding in &compliance_result.findings {
-                    report.push_str(&format!("- **{}:** {}\n", finding.category, finding.description));
+                for finding in findings {
+                    report.push_str(&format!("- **{:?}:** {}\n", finding.severity, finding.description));
                 }
             }
         }
@@ -344,10 +366,8 @@ impl ValidationOrchestrator {
         report.push_str(&format!("## Justification\n\n{}\n\n", decision.justification));
         
         report.push_str("## Validation Summary\n\n");
-        for result in &decision.validation_results {
-            report.push_str(&format!("- **{}:** {}\n", 
-                result.suite_name, 
-                if result.passed { "PASS" } else { "FAIL" }));
+        for suite_result in &decision.suite_results {
+            report.push_str(&format!("- **{}:** {}\n", suite_result.suite_name, suite_result.result));
         }
         
         report.push_str("\n---\n");

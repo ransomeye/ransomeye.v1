@@ -3,7 +3,7 @@
 // Details of functionality of this file: Stress validation suite - tests system behavior under extreme load conditions
 
 use std::time::Instant;
-use crate::{Finding, Severity, ValidationResult};
+use crate::core::{Finding, Severity, ValidationResult};
 use crate::chaos::ChaosEngine;
 use tracing::{info, warn, error};
 
@@ -23,16 +23,17 @@ impl StressSuite {
         let start_time = Instant::now();
         let mut findings = Vec::new();
         
+        let suite_name = "stress".to_string();
+        
         // Test 1: High event rate
         info!("Testing high event rate");
         match self.test_high_event_rate().await {
             Ok(_) => info!("High event rate: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "High Event Rate".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("System failure under high event rate: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -43,10 +44,9 @@ impl StressSuite {
             Ok(_) => info!("Concurrent connections: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Concurrent Connections".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("System failure under concurrent load: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
@@ -57,10 +57,9 @@ impl StressSuite {
             Ok(_) => info!("Large payload handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Large Payloads".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("System failure with large payloads: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
@@ -71,25 +70,17 @@ impl StressSuite {
             Ok(_) => info!("Sustained load: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Sustained Load".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("System failure under sustained load: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
         
-        let duration = start_time.elapsed();
-        let passed = findings.iter()
-            .all(|f| !matches!(f.severity, Severity::Critical | Severity::High));
+        let _duration = start_time.elapsed();
         
-        Ok(ValidationResult {
-            suite_name: "stress".to_string(),
-            passed,
-            duration_ms: duration.as_millis() as u64,
-            findings,
-            timestamp: chrono::Utc::now(),
-        })
+        // Use ValidationResult::from_findings to determine result based on severity
+        Ok(ValidationResult::from_findings(findings))
     }
     
     async fn test_high_event_rate(&self) -> Result<(), String> {

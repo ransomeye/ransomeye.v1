@@ -47,3 +47,19 @@ path = "src/lib.rs"
 name = "ransomeye_validator"
 path = "src/main.rs"
 
+[[bin]]
+name = "chaos"
+path = "tools/chaos.rs"
+
+[[bin]]
+name = "replay"
+path = "tools/replay.rs"
+
+[[bin]]
+name = "verifier"
+path = "tools/verifier.rs"
+
+[[bin]]
+name = "auditor"
+path = "tools/auditor.rs"
+

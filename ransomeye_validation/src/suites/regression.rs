@@ -4,7 +4,7 @@
 
 use std::time::Instant;
 use std::path::PathBuf;
-use crate::{Finding, Severity, ValidationResult};
+use crate::core::{Finding, Severity, ValidationResult};
 use crate::replay::ReplayEngine;
 use tracing::{info, warn, error};
 
@@ -20,16 +20,17 @@ impl RegressionSuite {
         let start_time = Instant::now();
         let mut findings = Vec::new();
         
+        let suite_name = "regression".to_string();
+        
         // Test 1: Determinism checks
         info!("Testing determinism");
         match self.test_determinism().await {
             Ok(_) => info!("Determinism: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Determinism".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Determinism violation: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -40,10 +41,9 @@ impl RegressionSuite {
             Ok(_) => info!("Replay consistency: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Replay Consistency".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Replay consistency violation: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -54,10 +54,9 @@ impl RegressionSuite {
             Ok(_) => info!("Upgrade safety: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Upgrade Safety".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Upgrade safety issue: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
@@ -68,25 +67,17 @@ impl RegressionSuite {
             Ok(_) => info!("Downgrade safety: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Downgrade Safety".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Downgrade safety issue: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
         
-        let duration = start_time.elapsed();
-        let passed = findings.iter()
-            .all(|f| !matches!(f.severity, Severity::Critical | Severity::High));
+        let _duration = start_time.elapsed();
         
-        Ok(ValidationResult {
-            suite_name: "regression".to_string(),
-            passed,
-            duration_ms: duration.as_millis() as u64,
-            findings,
-            timestamp: chrono::Utc::now(),
-        })
+        // Use ValidationResult::from_findings to determine result based on severity
+        Ok(ValidationResult::from_findings(findings))
     }
     
     async fn test_determinism(&self) -> Result<(), String> {

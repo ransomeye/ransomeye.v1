@@ -67,7 +67,7 @@ impl Auditor {
         Ok(())
     }
     
-    pub fn audit_evidence_integrity(&self) -> Result<bool, AuditError> {
+    pub fn audit_evidence_integrity(&self) -> Result<(), AuditError> {
         info!("Auditing evidence integrity");
         
         // Check that all entries have signatures
@@ -93,10 +93,10 @@ impl Auditor {
             }
         }
         
-        Ok(true)
+        Ok(())
     }
     
-    pub fn audit_retention(&self) -> Result<bool, AuditError> {
+    pub fn audit_retention(&self) -> Result<(), AuditError> {
         info!("Auditing retention policy ({} years)", self.retention_years);
         
         let cutoff_date = Utc::now() - Duration::days(self.retention_years * 365);
@@ -115,10 +115,10 @@ impl Auditor {
             ));
         }
         
-        Ok(true)
+        Ok(())
     }
     
-    pub fn audit_completeness(&self) -> Result<bool, AuditError> {
+    pub fn audit_completeness(&self) -> Result<(), AuditError> {
         info!("Auditing trail completeness");
         
         // Check for gaps in timestamps (more than 1 hour)
@@ -131,8 +131,9 @@ impl Auditor {
         }
         
         if !gaps.is_empty() {
-            warn!("Found {} timestamp gaps in audit trail", gaps.len());
-            // This is a warning, not a failure, unless configured otherwise
+            return Err(AuditError::IncompleteTrail(
+                format!("Found {} timestamp gaps in audit trail: {:?}", gaps.len(), gaps)
+            ));
         }
         
         // Check that critical actions are logged
@@ -147,15 +148,17 @@ impl Auditor {
             }
         }
         
-        // This is informational - not all actions may be present in test data
+        // Fail-closed: missing critical actions is a failure
         if !missing_critical.is_empty() {
-            info!("Critical actions not found in log: {:?}", missing_critical);
+            return Err(AuditError::IncompleteTrail(
+                format!("Critical actions not found in log: {:?}", missing_critical)
+            ));
         }
         
-        Ok(true)
+        Ok(())
     }
     
-    pub fn audit_reproducibility(&self) -> Result<bool, AuditError> {
+    pub fn audit_reproducibility(&self) -> Result<(), AuditError> {
         info!("Auditing reproducibility");
         
         // Check that all entries have sufficient information for replay
@@ -176,42 +179,42 @@ impl Auditor {
             ));
         }
         
-        Ok(true)
+        Ok(())
     }
     
     pub fn run_full_audit(&self) -> Result<AuditResult, AuditError> {
         let mut violations = Vec::new();
         
-        // Integrity check
+        // Integrity check - fail-closed: any error is a failure
         let integrity_passed = match self.audit_evidence_integrity() {
-            Ok(true) => true,
+            Ok(()) => true,
             Err(e) => {
                 violations.push(format!("Integrity: {}", e));
                 false
             }
         };
         
-        // Retention check
+        // Retention check - fail-closed: any error is a failure
         let retention_passed = match self.audit_retention() {
-            Ok(true) => true,
+            Ok(()) => true,
             Err(e) => {
                 violations.push(format!("Retention: {}", e));
                 false
             }
         };
         
-        // Completeness check
+        // Completeness check - fail-closed: any error is a failure
         let completeness_passed = match self.audit_completeness() {
-            Ok(true) => true,
+            Ok(()) => true,
             Err(e) => {
                 violations.push(format!("Completeness: {}", e));
                 false
             }
         };
         
-        // Reproducibility check
+        // Reproducibility check - fail-closed: any error is a failure
         let _reproducibility_passed = match self.audit_reproducibility() {
-            Ok(true) => true,
+            Ok(()) => true,
             Err(e) => {
                 violations.push(format!("Reproducibility: {}", e));
                 false

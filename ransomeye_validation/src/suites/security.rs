@@ -3,7 +3,7 @@
 // Details of functionality of this file: Security validation suite - tests trust boundaries, identity spoofing, signatures, replay attacks, policy bypass
 
 use std::time::Instant;
-use crate::{Finding, Severity, ValidationResult};
+use crate::core::{Finding, Severity, ValidationResult};
 use tracing::{info, warn, error};
 
 pub struct SecuritySuite;
@@ -18,16 +18,17 @@ impl SecuritySuite {
         let start_time = Instant::now();
         let mut findings = Vec::new();
         
+        let suite_name = "security".to_string();
+        
         // Test 1: Trust boundary enforcement
         info!("Testing trust boundary enforcement");
         match self.test_trust_boundaries().await {
             Ok(_) => info!("Trust boundary enforcement: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Critical,
-                    category: "Trust Boundary".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Trust boundary violation: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Critical,
                 });
             }
         }
@@ -38,10 +39,9 @@ impl SecuritySuite {
             Ok(_) => info!("Identity spoofing protection: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Identity Spoofing".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Identity spoofing vulnerability: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -52,10 +52,9 @@ impl SecuritySuite {
             Ok(_) => info!("Signature validation: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Critical,
-                    category: "Signature Validation".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Signature validation failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Critical,
                 });
             }
         }
@@ -66,10 +65,9 @@ impl SecuritySuite {
             Ok(_) => info!("Replay attack protection: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Replay Protection".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Replay attack vulnerability: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -80,25 +78,17 @@ impl SecuritySuite {
             Ok(_) => info!("Policy bypass protection: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Policy Bypass".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Policy bypass vulnerability: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
         
-        let duration = start_time.elapsed();
-        let passed = findings.iter()
-            .all(|f| matches!(f.severity, Severity::Info | Severity::Low));
+        let _duration = start_time.elapsed();
         
-        Ok(ValidationResult {
-            suite_name: "security".to_string(),
-            passed,
-            duration_ms: duration.as_millis() as u64,
-            findings,
-            timestamp: chrono::Utc::now(),
-        })
+        // Use ValidationResult::from_findings to determine result based on severity
+        Ok(ValidationResult::from_findings(findings))
     }
     
     async fn test_trust_boundaries(&self) -> Result<(), String> {

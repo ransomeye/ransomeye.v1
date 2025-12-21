@@ -1,0 +1,60 @@
+# Path and File Name : /home/ransomeye/rebuild/Cargo.toml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Workspace-level Cargo.toml enforcing Rust Edition 2021 across all RansomEye Rust modules. Prevents usage of unstable edition2024 features for enterprise-grade deterministic builds.
+
+[workspace]
+members = [
+    "ransomeye_ai_advisory",
+    "ransomeye_architecture/tests",
+    "ransomeye_correlation",
+    "ransomeye_dpi_probe",
+    "ransomeye_enforcement",
+    "ransomeye_ingestion",
+    "ransomeye_ingestion/tests",
+    "ransomeye_intelligence/tests",
+    "ransomeye_linux_agent",
+    "ransomeye_operations",
+    "ransomeye_policy",
+    "ransomeye_reporting",
+    "ransomeye_validation",
+    "ransomeye_windows_agent",
+]
+resolver = "2"
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+authors = ["RansomEye Team"]
+license = "PROPRIETARY"
+
+[workspace.dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+ring = "0.17"
+base64 = "0.21"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+parking_lot = "0.12"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+hex = "0.4"
+rustls = "0.21"
+rustls-pemfile = "1.0"
+once_cell = "1.19"
+dashmap = "5.0"
+crossbeam-channel = "0.5"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+

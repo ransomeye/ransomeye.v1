@@ -3,7 +3,7 @@
 // Details of functionality of this file: Fault injection validation suite - tests resilience to service crashes, network partitions, disk full, clock skew, certificate revocation
 
 use std::time::Instant;
-use crate::{Finding, Severity, ValidationResult};
+use crate::core::{Finding, Severity, ValidationResult};
 use crate::chaos::ChaosEngine;
 use tracing::{info, warn, error};
 
@@ -23,16 +23,17 @@ impl FaultInjectionSuite {
         let start_time = Instant::now();
         let mut findings = Vec::new();
         
+        let suite_name = "fault_injection".to_string();
+        
         // Test 1: Service crash recovery
         info!("Testing service crash recovery");
         match self.test_service_crash().await {
             Ok(_) => info!("Service crash recovery: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Critical,
-                    category: "Service Crash".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Service crash recovery failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Critical,
                 });
             }
         }
@@ -43,10 +44,9 @@ impl FaultInjectionSuite {
             Ok(_) => info!("Network partition handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Network Partition".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Network partition handling failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -57,10 +57,9 @@ impl FaultInjectionSuite {
             Ok(_) => info!("Disk full handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Disk Full".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Disk full handling failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -71,10 +70,9 @@ impl FaultInjectionSuite {
             Ok(_) => info!("Clock skew handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Clock Skew".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Clock skew handling failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
@@ -85,25 +83,17 @@ impl FaultInjectionSuite {
             Ok(_) => info!("Certificate revocation handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Certificate Revocation".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Certificate revocation handling failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
         
-        let duration = start_time.elapsed();
-        let passed = findings.iter()
-            .all(|f| !matches!(f.severity, Severity::Critical | Severity::High));
+        let _duration = start_time.elapsed();
         
-        Ok(ValidationResult {
-            suite_name: "fault_injection".to_string(),
-            passed,
-            duration_ms: duration.as_millis() as u64,
-            findings,
-            timestamp: chrono::Utc::now(),
-        })
+        // Use ValidationResult::from_findings to determine result based on severity
+        Ok(ValidationResult::from_findings(findings))
     }
     
     async fn test_service_crash(&self) -> Result<(), String> {

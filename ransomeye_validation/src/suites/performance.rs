@@ -3,7 +3,7 @@
 // Details of functionality of this file: Performance validation suite - tests DPI throughput, agent telemetry volume, backpressure, memory/disk pressure
 
 use std::time::Instant;
-use crate::{Finding, Severity, ValidationResult};
+use crate::core::{Finding, Severity, ValidationResult};
 use tracing::{info, warn, error};
 
 pub struct PerformanceSuite;
@@ -18,23 +18,23 @@ impl PerformanceSuite {
         let start_time = Instant::now();
         let mut findings = Vec::new();
         
+        let suite_name = "performance".to_string();
+        
         // Test 1: DPI throughput
         info!("Testing DPI throughput");
         match self.test_dpi_throughput().await {
             Ok(throughput) => {
                 findings.push(Finding {
-                    severity: Severity::Info,
-                    category: "DPI Throughput".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("DPI throughput: {} Gbps", throughput),
-                    evidence: format!("Measured: {} Gbps", throughput),
+                    severity: Severity::Info,
                 });
             }
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "DPI Throughput".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("DPI throughput below threshold: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -44,18 +44,16 @@ impl PerformanceSuite {
         match self.test_telemetry_volume().await {
             Ok(volume) => {
                 findings.push(Finding {
-                    severity: Severity::Info,
-                    category: "Telemetry Volume".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Telemetry volume: {} events/sec", volume),
-                    evidence: format!("Measured: {} events/sec", volume),
+                    severity: Severity::Info,
                 });
             }
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Telemetry Volume".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Telemetry volume issue: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
@@ -66,10 +64,9 @@ impl PerformanceSuite {
             Ok(_) => info!("Backpressure handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::High,
-                    category: "Backpressure".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Backpressure handling failure: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::High,
                 });
             }
         }
@@ -80,10 +77,9 @@ impl PerformanceSuite {
             Ok(_) => info!("Memory pressure handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Memory Pressure".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Memory pressure handling issue: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
@@ -94,25 +90,17 @@ impl PerformanceSuite {
             Ok(_) => info!("Disk pressure handling: PASS"),
             Err(e) => {
                 findings.push(Finding {
-                    severity: Severity::Medium,
-                    category: "Disk Pressure".to_string(),
+                    suite: suite_name.clone(),
                     description: format!("Disk pressure handling issue: {}", e),
-                    evidence: format!("Error: {}", e),
+                    severity: Severity::Medium,
                 });
             }
         }
         
-        let duration = start_time.elapsed();
-        let passed = findings.iter()
-            .all(|f| !matches!(f.severity, Severity::Critical | Severity::High));
+        let _duration = start_time.elapsed();
         
-        Ok(ValidationResult {
-            suite_name: "performance".to_string(),
-            passed,
-            duration_ms: duration.as_millis() as u64,
-            findings,
-            timestamp: chrono::Utc::now(),
-        })
+        // Use ValidationResult::from_findings to determine result based on severity
+        Ok(ValidationResult::from_findings(findings))
     }
     
     async fn test_dpi_throughput(&self) -> Result<f64, String> {
