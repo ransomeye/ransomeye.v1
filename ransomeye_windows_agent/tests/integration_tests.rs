@@ -1,9 +1,9 @@
-// Path and File Name : /home/ransomeye/rebuild/ransomeye_windows_agent/tests/integration_tests.rs
+// Path and File Name : /home/ransomeye/rebuild/ransomeye_linux_agent/tests/integration_tests.rs
 // Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
-// Details of functionality of this file: Integration tests for Windows Agent - identity spoofing, event signing, backpressure, core unavailability, resource exhaustion
+// Details of functionality of this file: Integration tests for Linux Agent - identity spoofing, event signing, backpressure, core unavailability, resource exhaustion
 
 use std::sync::Arc;
-use ransomeye_windows_agent::*;
+use ransomeye_linux_agent::*;
 use tempfile::TempDir;
 
 #[tokio::test]
@@ -50,7 +50,7 @@ async fn test_event_signing() {
     let data = serde_json::json!({
         "event_type": "process",
         "pid": 1234,
-        "process_name": "test.exe",
+        "process_name": "test",
     });
     
     let signed_event = signer.sign_event(data.clone()).unwrap();

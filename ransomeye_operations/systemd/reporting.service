@@ -1,0 +1,30 @@
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_operations/systemd/reporting.service
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Systemd service unit for RansomEye Reporting & Forensics
+
+[Unit]
+Description=RansomEye Reporting & Forensics
+After=network.target ransomeye-enforcement.service
+Requires=network.target ransomeye-enforcement.service
+ConditionPathExists=/home/ransomeye/rebuild/ransomeye_installer/config/install_state.json
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/ransomeye/rebuild
+ExecStart=/usr/bin/ransomeye_operations start ransomeye-reporting
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/ransomeye/rebuild
+
+[Install]
+WantedBy=multi-user.target
+

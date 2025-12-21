@@ -16,6 +16,8 @@ pub struct Config {
     pub backpressure_threshold: usize,
     pub telemetry_interval_seconds: u64,
     pub health_report_interval_seconds: u64,
+    pub monitor_paths: Vec<std::path::PathBuf>,
+    pub monitor_registry_keys: Vec<String>,
 }
 
 #[derive(Debug, Error)]
@@ -28,6 +30,18 @@ pub enum ConfigError {
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
+        let monitor_paths: Vec<std::path::PathBuf> = env::var("MONITOR_PATHS")
+            .unwrap_or_else(|_| "C:\\,C:\\Users".to_string())
+            .split(',')
+            .map(|s| std::path::PathBuf::from(s.trim()))
+            .collect();
+        
+        let monitor_registry_keys: Vec<String> = env::var("MONITOR_REGISTRY_KEYS")
+            .unwrap_or_else(|_| "HKCU\\Software,HKLM\\Software".to_string())
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect();
+        
         Ok(Config {
             core_api_url: env::var("CORE_API_URL")
                 .unwrap_or_else(|_| "https://localhost:8443".to_string()),
@@ -55,6 +69,8 @@ impl Config {
                 .unwrap_or_else(|_| "60".to_string())
                 .parse()
                 .map_err(|_| ConfigError::InvalidValue("HEALTH_REPORT_INTERVAL_SECONDS".to_string()))?,
+            monitor_paths,
+            monitor_registry_keys,
         })
     }
 }
