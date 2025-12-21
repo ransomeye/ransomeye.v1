@@ -1,0 +1,257 @@
+# 📊 RANSOMEYE — PHASE 10
+
+## Reporting, Forensics, Evidence Preservation & Audit Outputs
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 10)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_reporting/`
+
+---
+
+## CONTEXT (LEGAL & FORENSIC GRADE)
+
+This phase produces **evidence**, not dashboards.
+
+All outputs from this phase may be:
+
+* Used in internal incident response
+* Presented to auditors
+* Shared with regulators
+* Submitted in legal proceedings
+
+Therefore:
+
+* **Nothing may be altered**
+* **Nothing may be inferred**
+* **Nothing may be hidden**
+* **Everything must be verifiable**
+
+If this phase is weak, **RansomEye is legally indefensible**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–9C** apply unchanged.
+
+Additional Phase-10 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 10 OBJECTIVE
+
+Build an **audit-grade, forensically sound reporting and evidence system** that:
+
+1. Produces **immutable evidence artifacts**
+2. Preserves full chain-of-custody
+3. Supports **PDF, HTML, CSV**
+4. Cryptographically signs every report
+5. Guarantees reproducibility
+6. Exposes explainability artifacts (from Phase 8)
+7. Never mutates original detection data
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Snapshot validated outputs only
+* Generate cryptographic hashes at capture time
+* Sign evidence and reports
+* Maintain chain-of-custody logs
+* Support independent verification
+* Export in required formats
+
+### MUST NEVER DO
+
+* Re-run detection logic
+* Modify evidence post-capture
+* Hide uncertainty or confidence
+* Aggregate beyond source meaning
+* Allow mutable storage
+
+---
+
+## 📁 PHASE 10 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_reporting/
+```
+
+```
+ransomeye_reporting/
+├── src/
+│   ├── lib.rs
+│   ├── collector.rs
+│   ├── evidence.rs
+│   ├── hash.rs
+│   ├── signature.rs
+│   ├── custody.rs
+│   ├── manifest.rs
+│   └── exporter.rs
+│
+├── formats/
+│   ├── pdf.rs
+│   ├── html.rs
+│   └── csv.rs
+│
+├── schema/
+│   ├── evidence_schema.json
+│   ├── report_schema.json
+│   └── metadata_schema.json
+│
+├── security/
+│   ├── signing.rs
+│   ├── verification.rs
+│   └── key_management.md
+│
+├── docs/
+│   ├── evidence_model.md
+│   ├── chain_of_custody.md
+│   ├── report_contents.md
+│   ├── legal_defensibility.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── immutability_tests.rs
+    ├── hash_verification_tests.rs
+    ├── signature_tests.rs
+    ├── format_parity_tests.rs
+    └── tamper_detection_tests.rs
+```
+
+---
+
+## 🔐 CHAIN OF CUSTODY (MANDATORY)
+
+You MUST implement:
+
+* Evidence ID generation
+* Capture timestamps (monotonic + wall-clock)
+* Hash-at-capture
+* Immutable custody log entries
+* Signed custody transitions
+
+Every access, export, or verification:
+
+* Must append a custody record
+* Must be signed
+* Must be verifiable independently
+
+---
+
+## 📑 REPORT CONTENT (MANDATORY & FIXED)
+
+Each report MUST include:
+
+* Incident identifier
+* Detection timeline
+* Entities involved
+* Kill-chain stages (from Phase 5)
+* Policy decisions (from Phase 6)
+* Enforcement directives & outcomes (Phase 7)
+* AI explainability references (Phase 8)
+* Confidence values
+* Analyst annotations (clearly marked)
+* Cryptographic hashes
+* Verification instructions
+
+No speculative language allowed.
+
+---
+
+## 📤 OUTPUT FORMAT RULES
+
+### PDF
+
+* Human-readable
+* Signed
+* Watermarked with Report ID
+* Embedded hash summary
+
+### HTML
+
+* Self-contained
+* Read-only
+* Embedded verification metadata
+
+### CSV
+
+* Raw data only
+* No interpretation
+* Each row hash-referenced
+
+---
+
+## 🔀 DATA FLOW (STRICT & IMMUTABLE)
+
+Define and enforce:
+
+1. Input selection (validated only)
+2. Evidence snapshot
+3. Hash generation
+4. Signature application
+5. Format rendering
+6. Output sealing
+7. Verification workflow
+
+At no point may data mutate.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Missing evidence
+* Hash mismatch
+* Signature failure
+* Partial export
+* Disk exhaustion
+
+Any failure → **ABORT OUTPUT, PRESERVE ORIGINAL EVIDENCE**
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Prove immutability
+* Detect tampering
+* Validate cross-format parity
+* Verify reproducibility
+* Validate custody integrity
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 10 is INVALID if:
+
+* Evidence can be modified
+* Hashing is optional
+* Reports are unsigned
+* Formats diverge semantically
+* Python mutates evidence
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 10 outputs as:
+
+* **Court-admissible artifacts**
+* **Immutable truth records**
+* **Externally verifiable proof**
+
+If Phase 10 is weak, **RansomEye cannot be trusted beyond SOC dashboards**.
+
+**BUILD PHASE 10 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+

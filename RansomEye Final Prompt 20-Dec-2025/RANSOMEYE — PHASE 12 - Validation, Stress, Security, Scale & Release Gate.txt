@@ -1,0 +1,294 @@
+# 🧪 RANSOMEYE — PHASE 12
+
+## Validation, Stress, Security, Scale & Release Gate
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 12 | FINAL)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_validation/`
+
+---
+
+## CONTEXT (NO COMPROMISE)
+
+This phase decides whether **RansomEye is releasable**.
+
+Nothing ships unless **every prior phase is proven** to:
+
+* Behave deterministically
+* Fail closed
+* Scale to enterprise extremes
+* Remain safe under attack
+* Defend from **Day 1** with **fully trained AI/ML/LLM**
+
+This is not QA.
+This is **operational proof under hostile conditions**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–11** apply unchanged.
+
+Additional Phase-12 rules are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 12 OBJECTIVE
+
+Build a **comprehensive, automated validation and stress framework** that:
+
+1. Verifies **every phase contract**
+2. Stress-tests **50,000+ endpoints**
+3. Validates **40+ Gbps DPI throughput**
+4. Proves **determinism and fail-closed behavior**
+5. Validates **AI/ML/LLM Day-1 readiness**
+6. Simulates **active attacker behavior**
+7. Produces **release certification artifacts**
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* End-to-end validation
+* Adversarial testing
+* Load and stress testing
+* Fault injection
+* Determinism verification
+* Security posture validation
+* Produce signed release reports
+
+### MUST NEVER DO
+
+* Modify production code
+* Relax constraints
+* Skip failing tests
+* Mask nondeterminism
+* Disable safeguards
+
+---
+
+## 📁 PHASE 12 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_validation/
+```
+
+```
+ransomeye_validation/
+├── harness/
+│   ├── orchestrator.rs
+│   ├── environment.rs
+│   ├── fault_injection.rs
+│   └── metrics.rs
+│
+├── scenarios/
+│   ├── ransomware_campaigns/
+│   │   ├── locker_simulation.yaml
+│   │   ├── lateral_movement.yaml
+│   │   └── mass_encryption.yaml
+│   │
+│   ├── benign_load/
+│   │   ├── enterprise_burst.yaml
+│   │   └── maintenance_window.yaml
+│   │
+│   └── attacker_behaviors/
+│       ├── evasion.yaml
+│       ├── replay.yaml
+│       └── poisoning.yaml
+│
+├── scale/
+│   ├── endpoint_scale.rs
+│   ├── dpi_throughput.rs
+│   └── memory_pressure.rs
+│
+├── security/
+│   ├── trust_violation.rs
+│   ├── signature_attack.rs
+│   ├── privilege_escalation.rs
+│   └── tamper_tests.rs
+│
+├── ai_validation/
+│   ├── day1_readiness.rs
+│   ├── shap_coverage.rs
+│   ├── hallucination.rs
+│   └── drift_detection.rs
+│
+├── determinism/
+│   ├── replay_tests.rs
+│   ├── ordering_tests.rs
+│   └── invariant_checks.rs
+│
+├── reports/
+│   ├── release_certificate.md
+│   ├── risk_register.md
+│   ├── coverage_report.md
+│   └── known_limitations.md
+│
+└── tests/
+    ├── end_to_end.rs
+    ├── fail_closed.rs
+    ├── overload.rs
+    ├── rollback.rs
+    └── recovery.rs
+```
+
+---
+
+## 🔄 END-TO-END VALIDATION (MANDATORY)
+
+You MUST validate complete flows:
+
+1. DPI / Agents → Ingestion
+2. Ingestion → Core Correlation
+3. Core → Policy Engine
+4. Policy → Dispatcher
+5. Dispatcher → Stand-alone Agents
+6. Evidence → Reporting
+7. AI → Analyst only (no authority)
+
+Every flow must be:
+
+* Signed
+* Audited
+* Deterministic
+
+---
+
+## 📈 SCALE & STRESS (NON-NEGOTIABLE)
+
+You MUST prove:
+
+* **50,000+ endpoints** simulated concurrently
+* Sustained DPI ingest at **40+ Gbps**
+* Backpressure correctness
+* Bounded memory usage
+* No global lock collapse
+* Swap behavior correct (Core & DPI only)
+
+Failure anywhere → **FAIL RELEASE**
+
+---
+
+## 🔐 SECURITY & ADVERSARIAL TESTING
+
+You MUST simulate:
+
+* Identity spoofing
+* Signature forgery
+* Replay attacks
+* Policy tampering
+* Agent compromise
+* AI poisoning attempts
+
+Expected behavior:
+
+* Detection
+* Rejection
+* Audit
+* No enforcement without authority
+
+---
+
+## 🧠 AI / ML / LLM DAY-1 VALIDATION (MANDATORY)
+
+You MUST prove:
+
+* Baseline models exist and load
+* SHAP generated for every inference
+* LLM operates offline
+* No inference without explainability
+* No AI influence on enforcement
+* No cold-start conditions
+
+AI subsystem failure must:
+
+* Disable AI only
+* Leave Core operational
+
+---
+
+## 🔁 DETERMINISM & FAIL-CLOSED
+
+You MUST prove:
+
+* Identical inputs → identical outputs
+* Order variance handled explicitly
+* No race-condition detection drift
+* Any ambiguity → NO ACTION
+* Any verification failure → FAIL CLOSED
+
+---
+
+## 💥 FAULT INJECTION (MANDATORY)
+
+Inject and validate behavior for:
+
+* Network partitions
+* Disk exhaustion
+* CPU starvation
+* Memory pressure
+* Swap removal (Core/DPI)
+* Partial upgrades
+* Power loss mid-operation
+
+System must:
+
+* Remain safe
+* Recover deterministically
+* Preserve audit trails
+
+---
+
+## 📜 RELEASE ARTIFACTS (MANDATORY)
+
+You MUST produce:
+
+* **Release Certificate** (signed)
+* **Coverage Report**
+* **Risk Register**
+* **Known Limitations**
+* **Reproducibility Instructions**
+
+No release without signed artifacts.
+
+---
+
+## 🛑 RELEASE FAILURE CONDITIONS (ABSOLUTE)
+
+Phase 12 FAILS if:
+
+* Any phase violates contracts
+* Any nondeterminism exists
+* AI is not Day-1 ready
+* Enforcement occurs on ambiguity
+* Swap rules are violated
+* GPL contamination exists
+* EULA enforcement is bypassable
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 12 as:
+
+* A **weapons test range**
+* A **courtroom rehearsal**
+* A **battlefield simulation**
+
+Only if Phase 12 passes **completely** is RansomEye considered:
+
+> **MILITARY-GRADE, ENTERPRISE-READY, DAY-1 DEFENSIVE**
+
+**BUILD PHASE 12 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+## ✅ END OF BUILD PLAN
+
+You now have a **full, end-to-end, phase-wise, military-grade build plan**.
+

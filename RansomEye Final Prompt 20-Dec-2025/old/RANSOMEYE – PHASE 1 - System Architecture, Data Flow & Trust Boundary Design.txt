@@ -1,0 +1,293 @@
+# 🧠 RANSOMEYE – PHASE 1
+
+## System Architecture, Data Flow & Trust Boundary Design
+
+**(MASTER PROMPT – CURSOR EXECUTION)**
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+You are continuing the **ground-up rebuild of RansomEye**.
+
+Phase 0 established **legal, security, and governance enforcement**.
+Phase 1 defines **how the entire system works before a single functional line of code is written**.
+
+This phase is **pure architecture** — but it must be **implementation-aware** and **scale-accurate**.
+
+RansomEye must support:
+
+* **50,000+ endpoints**
+* **Multiple DPI Probes**
+* **Sustained 40+ Gbps traffic**
+* **Air-gapped deployments**
+* **Fail-closed security posture**
+* **Commercial closed-source distribution**
+
+---
+
+## 🚨 GLOBAL HARD RULES (REPEAT & ENFORCE)
+
+These rules are inherited from Phase 0 and **cannot be weakened**:
+
+* GPL / AGPL / unknown licenses are banned
+* ENV-only configuration
+* Mandatory file headers everywhere
+* No Python on hot path
+* No assumptions
+* Linux-agnostic design
+* Static binaries preferred
+* Fail-closed on uncertainty
+* No sample data
+* AI is advisory unless explicitly stated otherwise
+
+---
+
+## 🎯 PHASE 1 OBJECTIVE
+
+Define a **complete, enforceable, phase-accurate system architecture** that:
+
+1. Clearly separates **data plane vs control plane**
+2. Defines **trust boundaries**
+3. Defines **responsibility of each component**
+4. Defines **data contracts and flows**
+5. Prevents architectural drift in later phases
+
+This architecture will be treated as **binding** for all later phases.
+
+---
+
+## 📦 REQUIRED ARCHITECTURAL COMPONENTS
+
+You MUST include and fully define **ALL** of the following:
+
+### 1. DPI Probe
+
+* High-throughput packet processing
+* Stateless where possible
+* No policy decisions
+* No AI
+* No persistence beyond buffering
+
+### 2. Core Engine
+
+* Correlation
+* Kill-chain inference
+* Decision logic
+* Policy evaluation
+* Trust enforcement
+
+### 3. AI / ML Layer
+
+* Training
+* Inference
+* Explainability (SHAP)
+* LLM summarization
+* **NO enforcement authority**
+
+### 4. Agents
+
+* Linux Agent
+* Windows Agent
+* Telemetry
+* Local response actions
+* Secure identity
+
+### 5. Control Plane
+
+* APIs
+* Configuration distribution
+* Health monitoring
+* Orchestration
+
+### 6. Reporting & Forensics
+
+* Evidence generation
+* Chain of custody
+* Export formats
+
+---
+
+## 📁 PHASE 1 FOLDER STRUCTURE (ARCHITECTURAL)
+
+You MUST define and explain the **logical folder structure** (even if empty now):
+
+```
+core/
+├── architecture/
+│   ├── data_flow.md
+│   ├── trust_boundaries.md
+│   ├── failure_domains.md
+│   ├── threat_model.md
+│   └── scalability_model.md
+│
+├── contracts/
+│   ├── event_schema.md
+│   ├── telemetry_schema.md
+│   ├── policy_schema.md
+│   └── identity_schema.md
+│
+dpi_probe/
+├── architecture/
+│   ├── packet_pipeline.md
+│   ├── threading_model.md
+│   ├── memory_model.md
+│   └── kernel_integration.md
+│
+agents/
+├── architecture/
+│   ├── linux_agent.md
+│   ├── windows_agent.md
+│   └── response_model.md
+│
+ai/
+├── architecture/
+│   ├── training_pipeline.md
+│   ├── inference_pipeline.md
+│   ├── explainability.md
+│   └── llm_guardrails.md
+│
+control_plane/
+├── architecture/
+│   ├── api_design.md
+│   ├── auth_model.md
+│   └── config_distribution.md
+```
+
+You must explain **why each folder exists** and **what it forbids**.
+
+---
+
+## 🔀 REQUIRED DATA FLOW DEFINITIONS
+
+You MUST define, in detail:
+
+1. **Packet → Flow → Event**
+2. **Event → Correlation**
+3. **Correlation → Decision**
+4. **Decision → Policy**
+5. **Policy → Response**
+6. **Decision → AI (read-only)**
+7. **AI → Human (SOC)**
+
+Each flow must specify:
+
+* Direction
+* Trust level
+* Authentication
+* Failure behavior
+* Backpressure handling
+
+---
+
+## 🔐 TRUST BOUNDARIES (CRITICAL)
+
+Explicitly define:
+
+* What components trust each other
+* What components never trust each other
+* Where cryptographic verification is mandatory
+* Where fail-closed behavior is enforced
+
+You MUST include:
+
+* DPI → Core trust boundary
+* Agent → Core trust boundary
+* AI → Core boundary (AI never trusted)
+* Control Plane → Core boundary
+
+---
+
+## 💥 FAILURE DOMAIN ANALYSIS
+
+You MUST define:
+
+* What happens if DPI Probe crashes
+* What happens if Core crashes
+* What happens if AI crashes
+* What happens if Control Plane crashes
+* What happens if connectivity is lost
+
+Include:
+
+* Blast radius
+* Recovery behavior
+* Data loss tolerance (if any)
+
+---
+
+## ⚙️ SCALE & PERFORMANCE MODEL
+
+You MUST model:
+
+* CPU scaling
+* Threading assumptions
+* NUMA considerations
+* Memory growth
+* Network throughput
+* Backpressure limits
+
+No numbers may be guessed — use **relative scaling logic**.
+
+---
+
+## 🧠 AI ROLE (STRICT LIMITATION)
+
+You MUST explicitly state:
+
+* AI **cannot**:
+
+  * Enforce policy
+  * Block traffic
+  * Execute response actions
+* AI **can**:
+
+  * Score
+  * Explain
+  * Summarize
+  * Assist humans
+
+This must be enforced architecturally, not by convention.
+
+---
+
+## 📤 EXPECTED OUTPUT FORMAT
+
+You must output:
+
+1. High-level architecture explanation
+2. Component responsibility matrix
+3. Data flow diagrams (ASCII)
+4. Trust boundary definitions
+5. Failure domain analysis
+6. Folder structure explanation
+7. Explicit “what this phase forbids”
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Any component has overlapping responsibility
+* Any trust boundary is implicit
+* AI is allowed to influence enforcement
+* DPI Probe performs policy logic
+* Python appears in hot path
+* Architecture is “conceptual” instead of enforceable
+
+---
+
+## FINAL INSTRUCTION
+
+This architecture is **binding**.
+
+Later phases are **not allowed** to contradict it.
+
+Design this as if:
+
+* It will be audited
+* It will be attacked
+* It will be scaled to failure
+
+**BUILD PHASE 1 COMPLETELY AND EXPLICITLY.**

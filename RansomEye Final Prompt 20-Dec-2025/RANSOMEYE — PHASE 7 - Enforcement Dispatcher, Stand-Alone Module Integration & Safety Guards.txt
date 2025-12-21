@@ -1,0 +1,275 @@
+# 🚚 RANSOMEYE — PHASE 7
+
+## Enforcement Dispatcher, Stand-Alone Module Integration & Safety Guards
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 7)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_dispatcher/`
+
+---
+
+## CONTEXT (CRITICAL SAFETY LAYER)
+
+This phase is the **only bridge** between:
+
+* **Authoritative policy decisions (Phase 6)**
+  and
+* **Stand-alone executors**:
+
+  * DPI Probe
+  * Linux Agent
+  * Windows Agent
+
+This layer **does not decide**, **does not infer**, and **does not enforce locally**.
+
+It **only transports**, **verifies**, **tracks**, and **confirms** enforcement actions.
+
+Any mistake here can:
+
+* Execute the wrong action
+* Execute on the wrong host
+* Execute without rollback
+* Execute without audit
+
+This phase must therefore be **extremely strict and conservative**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–6** apply unchanged.
+
+Additional Phase-7 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 7 OBJECTIVE
+
+Build a **deterministic, cryptographically enforced Enforcement Dispatcher** that:
+
+1. Accepts **only signed directives** from Phase 6
+2. Validates scope, TTL, and preconditions
+3. Delivers directives to correct stand-alone modules
+4. Enforces execution acknowledgment
+5. Enforces rollback if execution fails
+6. Maintains end-to-end auditability
+7. Never executes enforcement itself
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Directive verification
+* Target resolution
+* Secure delivery
+* Execution tracking
+* Acknowledgment verification
+* Timeout handling
+* Rollback coordination
+* Audit logging
+
+### MUST NEVER DO
+
+* Modify directives
+* Re-interpret policy
+* Execute enforcement locally
+* Retry blindly
+* Trust agents implicitly
+
+---
+
+## 📁 PHASE 7 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_dispatcher/
+```
+
+```
+ransomeye_dispatcher/
+├── dispatcher/
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── dispatcher.rs
+│   │   ├── verifier.rs
+│   │   ├── router.rs
+│   │   ├── delivery.rs
+│   │   ├── acknowledgment.rs
+│   │   ├── timeout.rs
+│   │   ├── rollback.rs
+│   │   └── audit.rs
+│   │
+│   └── errors/
+│       └── dispatcher_errors.rs
+│
+├── protocol/
+│   ├── directive_envelope.rs
+│   ├── acknowledgment_schema.json
+│   └── versioning.md
+│
+├── targets/
+│   ├── dpi.rs
+│   ├── linux_agent.rs
+│   └── windows_agent.rs
+│
+├── security/
+│   ├── signature.rs
+│   ├── trust_chain.rs
+│   ├── nonce.rs
+│   └── replay_protection.rs
+│
+├── config/
+│   └── validation.rs
+│
+├── docs/
+│   ├── dispatcher_flow.md
+│   ├── execution_guarantees.md
+│   ├── rollback_model.md
+│   ├── blast_radius.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── directive_validation_tests.rs
+    ├── misrouting_tests.rs
+    ├── timeout_tests.rs
+    ├── rollback_tests.rs
+    └── replay_attack_tests.rs
+```
+
+---
+
+## 🔐 DIRECTIVE VERIFICATION (MANDATORY)
+
+Before delivery, dispatcher MUST verify:
+
+* Policy Engine signature
+* Directive signature
+* Directive TTL
+* Target scope
+* Preconditions hash
+* Nonce freshness
+
+Any failure → **DO NOT DELIVER**
+
+---
+
+## 🎯 TARGET RESOLUTION (STRICT)
+
+Dispatcher MUST:
+
+* Resolve exact target(s)
+* Validate agent identity
+* Validate agent capability
+* Validate platform compatibility
+
+If ambiguity exists → **ABORT**
+
+---
+
+## 🔄 DELIVERY & ACKNOWLEDGMENT FLOW
+
+You MUST implement:
+
+1. Directive verification
+2. Target resolution
+3. Secure delivery (mutual auth)
+4. Agent execution
+5. Signed acknowledgment
+6. Result verification
+7. Audit record append
+
+Missing acknowledgment within TTL → **ROLLBACK INITIATED**
+
+---
+
+## 🧯 ROLLBACK & SAFETY GUARDS
+
+Rollback MUST:
+
+* Be explicit
+* Be signed
+* Restore previous state
+* Be auditable
+* Be time-bounded
+
+Rollback failure → **ESCALATE + ALERT**
+
+---
+
+## 🔍 AUDIT & TRACEABILITY
+
+Dispatcher MUST maintain:
+
+* Delivery receipts
+* Execution acknowledgments
+* Rollback records
+* Hash-chained logs
+
+All records must be:
+
+* Append-only
+* Signed
+* Verifiable
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Invalid directives
+* Agent unreachable
+* Partial execution
+* Timeout without acknowledgment
+* Replay attempts
+* Identity mismatch
+
+Failures must:
+
+* Preserve safety
+* Avoid repeated harm
+* Be observable
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Deliver to wrong agent (must fail)
+* Replay directives
+* Corrupt acknowledgments
+* Force rollback
+* Exhaust retries
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 7 is INVALID if:
+
+* Dispatcher executes enforcement
+* Unsigned directives are delivered
+* Rollback is optional
+* Target ambiguity is tolerated
+* Acknowledgment is best-effort
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 7 as:
+
+* A **weapons safety system**
+* A **dead-man switch**
+* A **blast-radius governor**
+
+If Phase 7 fails, **RansomEye becomes dangerous**.
+
+**BUILD PHASE 7 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---

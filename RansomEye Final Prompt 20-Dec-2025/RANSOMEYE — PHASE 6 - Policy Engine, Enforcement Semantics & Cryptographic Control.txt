@@ -1,0 +1,292 @@
+# 🛡️ RANSOMEYE — PHASE 6
+
+## Policy Engine, Enforcement Semantics & Cryptographic Control
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 6)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_policy/`
+
+---
+
+## CONTEXT (HIGHEST RISK ZONE)
+
+This phase is where **decisions become actions**.
+
+The Policy Engine:
+
+* Is the **only authority** that may authorize enforcement
+* Must be **deterministic, auditable, and fail-closed**
+* Must operate **without AI dependency**
+* Must be **provably correct under ambiguity**
+
+Any ambiguity, unsigned input, or undefined behavior **must result in NO ACTION**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–5** apply unchanged.
+
+Additional Phase-6 rules are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 6 OBJECTIVE
+
+Build a **cryptographically enforced Policy Engine** that:
+
+1. Accepts **only** detections from Phase 5
+2. Loads **only signed policies**
+3. Evaluates policies deterministically
+4. Resolves conflicts explicitly
+5. Emits **explicit, scoped, reversible enforcement directives**
+6. Produces a complete **audit trail**
+7. Fails closed on any uncertainty
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Policy signature verification
+* Schema and version validation
+* Deterministic evaluation
+* Explicit conflict resolution
+* Directive generation with scope & TTL
+* Audit logging (append-only)
+
+### MUST NEVER DO
+
+* Guess intent
+* Modify detections
+* Invoke AI/ML/LLM
+* Execute enforcement locally
+* Continue on verification failure
+
+---
+
+## 📁 PHASE 6 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_policy/
+```
+
+```
+ransomeye_policy/
+├── engine/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── engine.rs
+│   │   ├── evaluator.rs
+│   │   ├── precedence.rs
+│   │   ├── conflict.rs
+│   │   ├── compiler.rs
+│   │   ├── enforcement.rs
+│   │   └── audit.rs
+│   │
+│   └── errors/
+│       └── policy_errors.rs
+│
+├── language/
+│   ├── grammar.md
+│   ├── semantics.md
+│   ├── determinism_rules.md
+│   └── examples/
+│       ├── block_encryption.policy
+│       ├── isolate_host.policy
+│       └── monitor_only.policy
+│
+├── schema/
+│   ├── policy_schema.json
+│   ├── directive_schema.json
+│   └── versioning.md
+│
+├── security/
+│   ├── signature.rs
+│   ├── verification.rs
+│   ├── trust_chain.rs
+│   └── revocation.rs
+│
+├── output/
+│   ├── directive.rs
+│   ├── receipt.rs
+│   └── audit_record.rs
+│
+├── config/
+│   └── validation.rs
+│
+├── docs/
+│   ├── evaluation_pipeline.md
+│   ├── conflict_resolution.md
+│   ├── enforcement_model.md
+│   ├── compliance.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── signed_policy_tests.rs
+    ├── conflict_tests.rs
+    ├── precedence_tests.rs
+    ├── determinism_tests.rs
+    ├── fail_closed_tests.rs
+    └── audit_integrity_tests.rs
+```
+
+---
+
+## 📜 POLICY LANGUAGE (FORMAL & SAFE)
+
+You MUST define a **restricted policy language** with:
+
+* No loops
+* No dynamic execution
+* No external calls
+* No user-defined functions
+* Deterministic evaluation order
+
+Policy MUST define:
+
+* Scope (entity, host, network, time)
+* Preconditions (from Phase 5 outputs)
+* Action(s)
+* TTL / expiration
+* Rollback behavior
+* Priority
+
+---
+
+## 🔐 SIGNING & TRUST (MANDATORY)
+
+Policies MUST:
+
+* Be signed with approved keys
+* Include author, version, scope, validity window
+* Pass trust-chain verification
+* Be rejected if expired, revoked, or malformed
+
+Failure → **NO POLICY LOADED**
+
+---
+
+## 🔀 EVALUATION PIPELINE (EXPLICIT)
+
+Define and implement, in order:
+
+1. Input verification (detections)
+2. Policy signature verification
+3. Schema & version validation
+4. Deterministic evaluation
+5. Conflict detection
+6. Conflict resolution (explicit rules)
+7. Directive creation
+8. Audit record append
+9. Dispatch to Enforcement Dispatcher
+
+Any failure → **ABORT & LOG**
+
+---
+
+## 🧭 CONFLICT RESOLUTION (MANDATORY)
+
+You MUST define:
+
+* Priority rules
+* Specificity rules
+* Time-bound overrides
+* Explicit deny precedence
+* No silent resolution
+
+Conflicts without resolution → **NO ACTION**
+
+---
+
+## 🧾 ENFORCEMENT DIRECTIVES (STRICT)
+
+Directives MUST include:
+
+* Unique ID
+* Target scope
+* Action type
+* TTL
+* Preconditions
+* Rollback instructions
+* Signature
+* Nonce
+
+Directives MUST be:
+
+* Idempotent
+* Reversible
+* Time-bounded
+
+---
+
+## 🔍 AUDIT & NON-REPUDIATION
+
+You MUST implement:
+
+* Append-only audit log
+* Hash-chained records
+* Signed receipts
+* Verifiable replay
+
+Audit failure → **BLOCK ENFORCEMENT**
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Missing policy
+* Invalid signature
+* Conflicting policies
+* Unsupported versions
+* Internal errors
+* Resource exhaustion
+
+All must **fail closed**.
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Reject unsigned policies
+* Enforce determinism
+* Detect conflicts
+* Verify audit immutability
+* Validate rollback semantics
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 6 is INVALID if:
+
+* Unsigned policies are accepted
+* Evaluation order is implicit
+* Conflicts auto-resolve silently
+* AI influences policy
+* Fail-open behavior exists
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 6 as:
+
+* A **legal contract engine**
+* A **safety governor**
+* A **non-repudiable authority**
+
+If Phase 6 is weak, **RansomEye cannot be trusted to act**.
+
+**BUILD PHASE 6 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+

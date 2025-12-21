@@ -1,0 +1,281 @@
+# 🚀 RANSOMEYE – PHASE 3
+
+## DPI PROBE (DATA PLANE) — HIGH-THROUGHPUT PACKET PROCESSING
+
+**(MASTER PROMPT – CURSOR EXECUTION)**
+
+---
+
+## CONTEXT (CRITICAL – READ FIRST)
+
+You are building the **RansomEye DPI Probe**, which is the **highest-risk and highest-performance component** in the entire platform.
+
+This component must reliably process **40+ Gbps sustained traffic**, across **multiple probes**, without packet loss, license risk, or unpredictable latency.
+
+Any mistake here will:
+
+* Break scale guarantees
+* Introduce GPL contamination
+* Cause packet drops
+* Create latency spikes
+* Make RansomEye unsellable
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES (NON-NEGOTIABLE)
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (PRIMARY, REQUIRED)**
+* **C++ (SECONDARY, ONLY where strictly necessary)**
+* **eBPF (kernel space only)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Python
+* Java
+* Go
+* NodeJS
+* Scapy
+* Any interpreted or GC-based language
+
+➡️ **Any use of forbidden languages = INVALID OUTPUT**
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+* GPL / AGPL / SSPL → **BANNED**
+* Scapy → **BANNED**
+* Unknown license → **BANNED**
+* YARA rules → **NOT USED in DPI**
+
+Allowed:
+
+* libpcap (BSD)
+* AF_XDP
+* Hyperscan (BSD)
+* Rust crates (MIT / Apache / BSD only)
+
+---
+
+## 🎯 PHASE 3 OBJECTIVE
+
+Build a **GPL-free, Linux-agnostic, ultra-high-performance DPI Probe** that:
+
+1. Captures packets at line rate
+2. Reconstructs flows
+3. Extracts metadata (NOT decisions)
+4. Performs **NO policy enforcement**
+5. Performs **NO AI inference**
+6. Streams structured events to RansomEye Core
+
+The DPI Probe is a **sensor**, not a brain.
+
+---
+
+## 📦 DPI PROBE RESPONSIBILITIES (EXPLICIT)
+
+### MUST DO
+
+* Packet capture
+* Flow tracking
+* Session reconstruction
+* TLS fingerprint extraction
+* Metadata normalization
+* Secure event streaming
+* Backpressure handling
+
+### MUST NEVER DO
+
+* Policy decisions
+* Blocking traffic
+* AI inference
+* Writing to databases
+* Storing long-term state
+* Trusting upstream components
+
+---
+
+## 📁 PHASE 3 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain the following structure:
+
+```
+dpi_probe/
+├── src/
+│   ├── main.rs
+│   ├── capture/
+│   │   ├── mod.rs
+│   │   ├── pcap.rs
+│   │   ├── af_xdp.rs
+│   │   └── interface.rs
+│   │
+│   ├── pipeline/
+│   │   ├── mod.rs
+│   │   ├── packet_decoder.rs
+│   │   ├── flow_tracker.rs
+│   │   ├── session_reassembly.rs
+│   │   └── metadata_extractor.rs
+│   │
+│   ├── threading/
+│   │   ├── mod.rs
+│   │   ├── cpu_pinning.rs
+│   │   ├── numa.rs
+│   │   └── backpressure.rs
+│   │
+│   ├── output/
+│   │   ├── mod.rs
+│   │   ├── event_schema.rs
+│   │   ├── serializer.rs
+│   │   └── secure_stream.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── attestation.rs
+│   │   └── verification.rs
+│
+├── ebpf/
+│   ├── xdp_program.c
+│   ├── maps.h
+│   └── loader.rs
+│
+├── config/
+│   ├── env_schema.md
+│   └── validation.rs
+│
+├── docs/
+│   ├── packet_pipeline.md
+│   ├── threading_model.md
+│   ├── memory_model.md
+│   ├── failure_modes.md
+│   └── performance_targets.md
+│
+└── tests/
+    ├── synthetic_packets.rs
+    ├── throughput_tests.rs
+    └── failure_tests.rs
+```
+
+---
+
+## ⚙️ PERFORMANCE & THREADING MODEL (MANDATORY)
+
+You MUST define:
+
+* Per-CPU worker model
+* Thread pinning strategy
+* NUMA locality handling
+* Lock-free queues
+* Zero-copy buffers
+* Memory pool reuse
+* Backpressure behavior
+
+🚫 DO NOT:
+
+* Assume swap = RAM
+* Allocate per packet
+* Use global locks
+
+---
+
+## 🔀 PACKET PIPELINE (STEP-BY-STEP)
+
+You MUST explicitly define:
+
+1. NIC → Kernel
+2. Kernel → Userland (AF_XDP / libpcap)
+3. Packet decode
+4. Flow tracking
+5. Session reassembly
+6. Metadata extraction
+7. Event serialization
+8. Secure transmission to Core
+
+Each step must include:
+
+* Input
+* Output
+* Failure behavior
+* Performance impact
+
+---
+
+## 🔐 SECURITY & TRUST (ENFORCED)
+
+* DPI Probe must have its own cryptographic identity
+* Mutual authentication with Core
+* No implicit trust
+* Attestation before streaming events
+* Fail-closed if Core verification fails
+
+---
+
+## 💥 FAILURE MODES (REQUIRED)
+
+Define behavior for:
+
+* Packet overload
+* CPU starvation
+* Memory exhaustion
+* Network disconnect
+* Identity expiration
+* Signature verification failure
+
+All must be **fail-safe and observable**.
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Synthetic packet generators
+* Throughput benchmarks
+* Backpressure tests
+* Crash recovery tests
+* Identity spoofing tests
+
+No real traffic captures allowed.
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. DPI Probe architecture explanation
+2. Folder structure explanation
+3. Threading & memory model
+4. Packet pipeline walkthrough
+5. Security enforcement design
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Python is used anywhere
+* Scapy is referenced
+* Policy logic exists
+* AI logic exists
+* Packet blocking exists
+* GPL components appear
+
+---
+
+## FINAL INSTRUCTION
+
+Treat this as a **carrier-grade DPI system**, not a prototype.
+
+Assume:
+
+* Hostile traffic
+* Hostile network
+* Extreme scale
+* Continuous operation
+
+**BUILD PHASE 3 COMPLETELY, STRICTLY, AND WITHOUT SHORTCUTS.**

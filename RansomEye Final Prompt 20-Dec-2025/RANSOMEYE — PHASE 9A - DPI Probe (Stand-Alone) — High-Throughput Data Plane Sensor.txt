@@ -1,0 +1,319 @@
+# 📡 RANSOMEYE — PHASE 9A
+
+## DPI Probe (Stand-Alone) — High-Throughput Data Plane Sensor
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 9A)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_dpi_probe/`
+
+---
+
+## CONTEXT (DATA PLANE, HOSTILE ENVIRONMENT)
+
+The DPI Probe is a **stand-alone, untrusted-input sensor** operating at **line rate (40+ Gbps)**.
+It **never decides**, **never enforces**, and **never stores long-term state**.
+
+Assumptions:
+
+* Traffic is hostile
+* NICs are saturated
+* CPUs are NUMA
+* Memory pressure exists
+* Kernel features vary across Linux versions
+
+The DPI Probe must protect itself and the Core by **sampling, normalizing, and streaming metadata only**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–8** apply unchanged.
+
+Additional Phase-9A rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 9A OBJECTIVE
+
+Build a **GPL-free, Linux-agnostic, ultra-high-performance DPI Probe** that:
+
+1. Captures packets at line rate
+2. Reconstructs flows/sessions (bounded)
+3. Extracts metadata (no payload storage)
+4. Generates **signed events** only
+5. Applies deterministic backpressure
+6. Streams to Core Ingestion (Phase 4)
+7. Enforces **SWAP policy** at startup
+8. Operates without Python or GC
+
+---
+
+## 🚫 LICENSE & LANGUAGE RULES (STRICT)
+
+### Languages (ONLY)
+
+* **Rust (PRIMARY)**
+* **C++ (ONLY if unavoidable for perf)**
+* **eBPF (kernel space only)**
+
+### Forbidden
+
+* Python
+* Go
+* Java
+* NodeJS
+* Scapy
+* Any GPL userland library
+
+### Allowed Libraries
+
+* libpcap (BSD)
+* AF_XDP
+* Hyperscan (BSD)
+* MIT/BSD/Apache crates only
+
+---
+
+## 💾 SWAP MEMORY POLICY (MANDATORY)
+
+Applicable **ONLY** to:
+
+* DPI Probe
+* Core Engine
+
+Rules:
+
+* Minimum SWAP: **16 GB**
+* OR **equal to physical RAM**, whichever is higher
+* Automatically created during install
+* Verified at startup
+* Missing/insufficient SWAP → **FAIL STARTUP**
+
+Explicitly **FORBIDDEN** for:
+
+* Linux Agent
+* Windows Agent
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Packet capture
+* Flow/session tracking (bounded)
+* Metadata extraction (headers, TLS FP, timing)
+* Event signing
+* Rate limiting
+* Backpressure signaling
+* Self-identity verification
+
+### MUST NEVER DO
+
+* Payload storage
+* Policy enforcement
+* AI inference
+* Traffic blocking
+* Database writes
+* Trust upstream/downstream blindly
+
+---
+
+## 📁 PHASE 9A DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_dpi_probe/
+```
+
+```
+ransomeye_dpi_probe/
+├── src/
+│   ├── main.rs
+│   ├── capture/
+│   │   ├── mod.rs
+│   │   ├── pcap.rs
+│   │   ├── af_xdp.rs
+│   │   └── interface.rs
+│   │
+│   ├── pipeline/
+│   │   ├── packet_decoder.rs
+│   │   ├── flow_tracker.rs
+│   │   ├── session_reassembly.rs
+│   │   └── metadata_extractor.rs
+│   │
+│   ├── threading/
+│   │   ├── cpu_pinning.rs
+│   │   ├── numa.rs
+│   │   └── backpressure.rs
+│   │
+│   ├── output/
+│   │   ├── event_schema.rs
+│   │   ├── serializer.rs
+│   │   └── secure_stream.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── attestation.rs
+│   │   └── signing.rs
+│   │
+│   ├── system/
+│   │   ├── swap_check.rs
+│   │   └── env_validation.rs
+│   │
+│   └── errors/
+│       └── dpi_errors.rs
+│
+├── ebpf/
+│   ├── xdp_program.c
+│   ├── maps.h
+│   └── loader.rs
+│
+├── systemd/
+│   └── ransomeye-dpi-probe.service
+│
+├── docs/
+│   ├── packet_pipeline.md
+│   ├── threading_model.md
+│   ├── memory_model.md
+│   ├── swap_policy.md
+│   ├── kernel_compatibility.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_packets.rs
+    ├── throughput_40gbps.rs
+    ├── backpressure_tests.rs
+    ├── swap_enforcement_tests.rs
+    └── tamper_tests.rs
+```
+
+---
+
+## ⚙️ PERFORMANCE & THREADING MODEL (MANDATORY)
+
+You MUST define and implement:
+
+* Per-CPU worker threads
+* CPU pinning
+* NUMA locality
+* Zero-copy buffers
+* Lock-free queues
+* Fixed memory pools
+
+🚫 No per-packet allocation
+🚫 No global locks
+🚫 No unbounded buffers
+
+---
+
+## 🔀 PACKET → EVENT PIPELINE (EXPLICIT)
+
+Define step-by-step:
+
+1. NIC → Kernel (AF_XDP/libpcap)
+2. Kernel → Userland
+3. Packet decode
+4. Flow/session tracking
+5. Metadata extraction
+6. Event normalization
+7. Signature generation
+8. Secure stream to Phase 4
+
+Each step must specify:
+
+* Input
+* Output
+* Failure behavior
+* Performance impact
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+* Unique cryptographic identity per probe
+* Mutual auth with Core ingestion
+* Attestation before streaming
+* Signature on every event
+* Replay protection
+
+Failure → **STOP STREAMING**
+
+---
+
+## 🧠 AI / ML / LLM (STRICTLY ADVISORY)
+
+DPI Probe:
+
+* **DOES NOT RUN AI**
+* **DOES NOT INFER**
+* **DOES NOT SCORE**
+
+Allowed:
+
+* Embedding metadata fields required by AI later
+* Feature-ready extraction only
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Packet overload
+* CPU starvation
+* Memory pressure
+* Swap missing
+* Core unreachable
+* Identity invalid
+* Kernel feature missing
+
+Failures must:
+
+* Be observable
+* Be safe
+* Avoid packet corruption
+* Never block traffic
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Prove 40+ Gbps sustained ingest (synthetic)
+* Validate swap enforcement
+* Detect signature tampering
+* Validate backpressure
+* Validate kernel compatibility
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 9A is INVALID if:
+
+* GPL appears anywhere
+* Swap is optional
+* Python exists
+* DPI enforces policy
+* Packets are stored
+* Silent drops exist
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 9A as:
+
+* A **carrier-grade sensor**
+* A **blast-shield**
+* A **data-plane appliance**
+
+If DPI fails, **Core must survive**.
+
+**BUILD PHASE 9A COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---

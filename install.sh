@@ -102,7 +102,107 @@ while true; do
 done
 
 # ============================================================================
-# 3. CORE STACK INSTALLATION
+# 3. CREATE RANSOMEYE USER AND GROUP (ROOTLESS RUNTIME)
+# ============================================================================
+log "Creating ransomeye user and group for rootless runtime"
+
+echo ""
+echo "==========================================================================="
+echo "CREATING RANSOMEYE USER/GROUP"
+echo "==========================================================================="
+echo ""
+
+# Check if ransomeye user exists
+if id "ransomeye" &>/dev/null; then
+    success "ransomeye user already exists"
+else
+    log "Creating ransomeye user and group"
+    
+    # Create ransomeye group
+    if ! getent group ransomeye > /dev/null 2>&1; then
+        groupadd -r ransomeye
+        success "ransomeye group created"
+    else
+        success "ransomeye group already exists"
+    fi
+    
+    # Create ransomeye user (system user, no login shell, home directory)
+    useradd -r -g ransomeye -d /home/ransomeye -s /usr/sbin/nologin -c "RansomEye Service User" ransomeye 2>&1 | tee -a "$LOG_FILE"
+    
+    if id "ransomeye" &>/dev/null; then
+        success "ransomeye user created"
+        
+        # Set ownership of project directory
+        chown -R ransomeye:ransomeye "$PROJECT_ROOT" 2>&1 | tee -a "$LOG_FILE" || warning "Could not set ownership of project directory"
+        
+        # Create runtime and state directories
+        mkdir -p /run/ransomeye /var/lib/ransomeye
+        chown -R ransomeye:ransomeye /run/ransomeye /var/lib/ransomeye
+        chmod 755 /run/ransomeye /var/lib/ransomeye
+        success "Runtime and state directories created"
+    else
+        error "Failed to create ransomeye user"
+    fi
+fi
+
+# ============================================================================
+# 4. BUILD AND INSTALL CORE BINARIES
+# ============================================================================
+log "Building and installing core binaries"
+
+echo ""
+echo "==========================================================================="
+echo "BUILDING CORE BINARIES"
+echo "==========================================================================="
+echo ""
+
+# Build and install ransomeye_operations binary
+if [[ -d "$PROJECT_ROOT/ransomeye_operations" ]]; then
+    log "Building ransomeye_operations binary"
+    cd "$PROJECT_ROOT/ransomeye_operations"
+    
+    # Check if cargo is available
+    if ! command -v cargo &> /dev/null; then
+        error "Rust/Cargo is required but not found. Please install Rust toolchain."
+    fi
+    
+    # Build release binary
+    if cargo build --release 2>&1 | tee -a "$LOG_FILE"; then
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        if [[ $BUILD_EXIT_CODE -eq 0 ]]; then
+            # Install binary to /usr/bin
+            BINARY_SOURCE="$PROJECT_ROOT/ransomeye_operations/target/release/ransomeye_operations"
+            BINARY_TARGET="/usr/bin/ransomeye_operations"
+            
+            if [[ -f "$BINARY_SOURCE" ]]; then
+                cp "$BINARY_SOURCE" "$BINARY_TARGET"
+                chmod +x "$BINARY_TARGET"
+                
+                # Verify installation
+                if [[ -f "$BINARY_TARGET" && -x "$BINARY_TARGET" ]]; then
+                    # Get version for verification
+                    VERSION_OUTPUT=$("$BINARY_TARGET" --version 2>&1 || echo "unknown")
+                    success "ransomeye_operations binary installed to $BINARY_TARGET (version: $VERSION_OUTPUT)"
+                else
+                    error "Failed to verify binary installation: $BINARY_TARGET"
+                fi
+            else
+                error "Built binary not found at expected path: $BINARY_SOURCE"
+            fi
+        else
+            error "Binary build failed with exit code: $BUILD_EXIT_CODE"
+        fi
+    else
+        error "Failed to execute cargo build"
+    fi
+    
+    cd "$PROJECT_ROOT"
+else
+    error "ransomeye_operations module not found. Expected: $PROJECT_ROOT/ransomeye_operations/"
+fi
+
+# ============================================================================
+# 5. CORE STACK INSTALLATION
 # ============================================================================
 log "Installing RansomEye core stack"
 
@@ -137,7 +237,7 @@ else
 fi
 
 # ============================================================================
-# 4. OPTIONAL STANDALONE MODULES
+# 6. OPTIONAL STANDALONE MODULES
 # ============================================================================
 log "Checking for optional standalone modules"
 
@@ -196,7 +296,7 @@ else
 fi
 
 # ============================================================================
-# 5. POST-INSTALL VALIDATION
+# 7. POST-INSTALL VALIDATION
 # ============================================================================
 log "Running post-install validation"
 
@@ -226,7 +326,7 @@ else
 fi
 
 # ============================================================================
-# 6. COMPLETION
+# 8. COMPLETION
 # ============================================================================
 log "Installation process completed"
 

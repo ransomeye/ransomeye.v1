@@ -1,0 +1,4593 @@
+# 🧱 RANSOMEYE — PHASE 1
+
+## Program Governance, Military-Grade Foundations & Global Constraints
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 1)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_governance/`
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+You are building **RansomEye**, a:
+
+* **Military-grade**
+* **Enterprise-class**
+* **Commercial, closed-source**
+* **Zero-trust ransomware defense platform**
+* **Production-ready from Day 1**
+
+This system must be:
+
+* Defensible in audits
+* Survivable under attack
+* Deterministic under failure
+* Legally sellable
+* Operational in air-gapped environments
+
+**NO assumptions are allowed.**
+**EVERY rule must be enforced by code, not documentation.**
+
+---
+
+## 🚨 ABSOLUTE GLOBAL RULES (APPLY TO ALL PHASES)
+
+These rules are **binding for the entire project**.
+
+### 1. Licensing (FAIL-CLOSED)
+
+**Allowed ONLY**
+
+* MIT
+* BSD 2-Clause / 3-Clause
+* Apache 2.0
+* PSF
+* CC0
+
+**Conditionally allowed**
+
+* LGPL → ONLY if dynamically linked and isolated
+
+**BANNED (ABSOLUTE)**
+
+* GPL v2 / v3
+* AGPL
+* SSPL
+* Elastic License
+* Unknown / custom licenses
+* GPL rules, signatures, datasets, or content
+
+➡️ **CI must block immediately on violation**
+
+---
+
+### 2. Programming Language Governance
+
+| Layer             | Allowed Languages                           |
+| ----------------- | ------------------------------------------- |
+| Governance / Core | **Rust only**                               |
+| DPI Probe         | **Rust + C++ + eBPF only**                  |
+| Linux Agent       | **Rust (C only if unavoidable)**            |
+| Windows Agent     | **Rust + C++**                              |
+| AI / ML / LLM     | **Python (isolated) + Rust/C++ extensions** |
+| Installers        | **Rust + Shell (orchestrator only)**        |
+
+**Python is FORBIDDEN on hot paths.**
+
+---
+
+### 3. Configuration & Secrets
+
+* ENV-only configuration
+* No defaults for secrets
+* Missing / invalid ENV → **FAIL STARTUP**
+* Unknown ENV variables → **FAIL STARTUP**
+
+---
+
+### 4. Mandatory File Headers (NO EXCEPTIONS)
+
+Every file MUST start with:
+
+```
+# Path: <absolute repo path>
+# Author: RansomEye Core Team
+# Purpose: <explicit purpose>
+```
+
+Applies to:
+`.rs .c .cpp .py .sh .yaml .json .toml .service`
+
+---
+
+### 5. Data & AI Rules (CRITICAL)
+
+* NO sample data committed
+* NO runtime learning without baseline
+* **ALL AI / ML / LLM MUST BE PRE-TRAINED FROM DAY 1**
+* Incremental learning allowed ONLY on top of baseline
+* SHAP explainability is mandatory for every numeric inference
+
+---
+
+### 6. Cryptographic Trust
+
+* Every artifact signed
+* Every signature verified before use
+* Verification failure → **BLOCK OPERATION**
+
+---
+
+## 🎯 PHASE 1 OBJECTIVE
+
+Phase 1 establishes **global governance, trust, safety, and enforcement primitives** that **ALL other phases depend on**.
+
+This phase defines:
+
+* Legal safety
+* Build safety
+* Supply-chain safety
+* AI readiness from Day 1
+* Installation legal acceptance (EULA)
+* Operational invariants
+
+**No business logic is allowed in Phase 1.**
+
+---
+
+## 📁 PHASE 1 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly the following at:
+
+```
+/home/ransomeye/rebuild/ransomeye_governance/
+```
+
+```
+ransomeye_governance/
+├── governance/
+│   ├── LICENSE_POLICY.md
+│   ├── THIRD_PARTY_POLICY.md
+│   ├── SECURITY_POLICY.md
+│   ├── AI_DAY1_READINESS.md
+│   ├── SUPPLY_CHAIN_SECURITY.md
+│   └── CONTRIBUTION_RULES.md
+│
+├── eula/
+│   └── EULA.txt          # EMPTY FILE – MUST EXIST
+│
+├── ci/
+│   ├── license_scan.yml
+│   ├── header_enforcement.yml
+│   ├── secret_scan.yml
+│   ├── provenance.yml
+│   └── artifact_signing.yml
+│
+├── tooling/
+│   ├── license_validator.py
+│   ├── header_validator.py
+│   ├── secret_validator.py
+│   ├── provenance_generator.py
+│   └── artifact_signer.py
+│
+├── env/
+│   └── env_schema.md
+│
+├── docs/
+│   ├── global_architecture_rules.md
+│   ├── zero_trust_principles.md
+│   ├── failure_philosophy.md
+│   └── military_readiness_baseline.md
+│
+└── tests/
+    ├── license_violation_tests.py
+    ├── header_violation_tests.py
+    ├── secret_violation_tests.py
+    └── ai_baseline_presence_tests.py
+```
+
+You MUST explain **why each directory exists** and **what it forbids**.
+
+---
+
+## 🧠 AI / ML / LLM — DAY-1 READINESS (MANDATORY FIX)
+
+You MUST define a **Day-1 AI Baseline Doctrine**:
+
+### REQUIRED CONCEPT:
+
+**Signed Baseline Intelligence Pack**
+
+Each RansomEye deployment MUST ship with:
+
+* Pre-trained ransomware behavior models
+* Pre-trained anomaly baselines
+* Pre-trained confidence calibration
+* Pre-generated SHAP reference distributions
+* Pre-indexed LLM RAG corpus
+
+Rules:
+
+* AI MUST NOT start empty
+* AI MUST NOT self-train without baseline
+* AI output suppressed if baseline invalid
+
+Document this fully in:
+
+```
+AI_DAY1_READINESS.md
+```
+
+---
+
+## 📜 EULA ENFORCEMENT (MANDATORY)
+
+Rules:
+
+* Installation MUST fail unless EULA is accepted
+* EULA file path is fixed:
+
+  ```
+  /home/ransomeye/rebuild/ransomeye_governance/eula/EULA.txt
+  ```
+* Acceptance must be logged
+* Acceptance must be auditable
+* Acceptance must be explicit (no implicit install)
+
+No EULA = **NO INSTALL**
+
+---
+
+## 🔐 SUPPLY-CHAIN SECURITY (MILITARY-GRADE)
+
+You MUST define:
+
+* Reproducible builds
+* Build provenance
+* SBOM generation
+* Signed release manifests
+* CI identity attestation
+
+All documented in:
+
+```
+SUPPLY_CHAIN_SECURITY.md
+```
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS (PHASE 1)
+
+You MUST create tests that:
+
+* Fail on GPL license
+* Fail on missing AI baseline artifacts
+* Fail on missing EULA file
+* Fail on missing headers
+* Fail on secret leakage
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 1 is INVALID if:
+
+* Any GPL is tolerated
+* AI baseline is optional
+* EULA is not enforced
+* Headers are optional
+* Trust is implicit
+* Anything “assumes later phases will fix it”
+
+---
+
+## FINAL INSTRUCTION (ABSOLUTE)
+
+Treat Phase 1 as:
+
+* A legal contract
+* A military compliance framework
+* A zero-trust constitution
+
+If Phase 1 is weak, **the entire platform is invalid**.
+
+**BUILD PHASE 1 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 🧩 RANSOMEYE — PHASE 2
+
+## System Architecture, Trust Boundaries & Data-Plane Separation
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 2)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_architecture/`
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+You are defining the **foundational architecture** of RansomEye.
+
+This phase establishes:
+
+* **Hard trust boundaries**
+* **Data-plane vs control-plane separation**
+* **Zero-trust assumptions**
+* **Blast-radius containment**
+* **Where AI/ML/LLM are allowed — and forbidden**
+
+If this phase is wrong:
+
+* DPI compromises Core
+* Agents escalate privilege
+* AI influences enforcement
+* Scale claims collapse
+* Military-grade posture is impossible
+
+**This phase is purely architectural + enforcement primitives.
+NO business logic, NO detection logic, NO policy logic.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1** apply **unchanged**.
+
+Additional Phase-2-specific rules below **must be enforced by code**.
+
+---
+
+## 🎯 PHASE 2 OBJECTIVE
+
+Define and codify a **strict, provable, enforceable system architecture** that:
+
+1. Clearly separates:
+
+   * Data Plane
+   * Control Plane
+   * Intelligence Plane
+   * Management Plane
+2. Enforces **one-way trust flows**
+3. Prevents **implicit coupling**
+4. Ensures **DPI, Agents, Core, AI, LLM** cannot violate role boundaries
+5. Guarantees **Day-1 AI readiness without enforcement authority**
+
+---
+
+## 🧠 ARCHITECTURAL PLANES (MANDATORY)
+
+You MUST define **exactly these planes** and **no others**.
+
+### 1. Data Plane (Untrusted Input Plane)
+
+Components:
+
+* DPI Probe (stand-alone)
+* Linux Agent (stand-alone)
+* Windows Agent (stand-alone)
+
+Properties:
+
+* High-volume
+* Potentially hostile
+* Never authoritative
+* Never stateful long-term
+* Never enforces policy
+
+---
+
+### 2. Control Plane (Authoritative Decision Plane)
+
+Components:
+
+* Core Correlation Engine
+* Policy Engine
+* Enforcement Dispatcher
+
+Properties:
+
+* Deterministic
+* Fail-closed
+* Fully signed inputs only
+* No AI dependency
+* Enforces policy
+
+---
+
+### 3. Intelligence Plane (Advisory Only)
+
+Components:
+
+* AI / ML Models
+* Baseline Intelligence Pack
+* Explainability (SHAP)
+* Threat Intelligence Fusion
+* LLM SOC Copilot
+
+Properties:
+
+* Fully trained Day-1
+* Read-only inputs
+* Advisory outputs only
+* Never blocks
+* Never enforces
+* Never modifies state
+
+---
+
+### 4. Management Plane (Human Interface)
+
+Components:
+
+* UI
+* Reporting
+* Forensics
+* Installer / Upgrader
+* Audit & Compliance
+
+Properties:
+
+* Authenticated humans
+* Audited actions
+* Two-person integrity for critical ops
+* No direct data-plane access
+
+---
+
+## 📁 PHASE 2 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_architecture/
+```
+
+```
+ransomeye_architecture/
+├── planes/
+│   ├── data_plane.md
+│   ├── control_plane.md
+│   ├── intelligence_plane.md
+│   └── management_plane.md
+│
+├── trust/
+│   ├── trust_boundaries.md
+│   ├── trust_flow_diagrams.md
+│   ├── forbidden_flows.md
+│   └── compromise_containment.md
+│
+├── identity/
+│   ├── component_identity.md
+│   ├── signing_model.md
+│   ├── verification_rules.md
+│   └── revocation.md
+│
+├── data_contracts/
+│   ├── dpi_to_core.md
+│   ├── agent_to_core.md
+│   ├── core_to_ai.md
+│   ├── ai_to_human.md
+│   └── enforcement_dispatch.md
+│
+├── swap_policy/
+│   ├── swap_requirements.md
+│   └── enforcement_rules.md
+│
+├── docs/
+│   ├── architecture_overview.md
+│   ├── zero_trust_model.md
+│   ├── day1_readiness.md
+│   └── military_assumptions.md
+│
+└── tests/
+    ├── forbidden_flow_tests.rs
+    ├── identity_violation_tests.rs
+    ├── ai_authority_violation_tests.rs
+    └── plane_isolation_tests.rs
+```
+
+Every document must define:
+
+* What is allowed
+* What is forbidden
+* What happens on violation
+
+---
+
+## 🔐 TRUST & IDENTITY MODEL (MANDATORY)
+
+You MUST define:
+
+* Unique cryptographic identity per component:
+
+  * DPI Probe
+  * Linux Agent
+  * Windows Agent
+  * Core Engine
+  * AI Engine
+  * LLM Engine
+* Mutual authentication everywhere
+* Explicit trust chains
+* Revocation lists
+* Identity expiration
+
+**No shared secrets.
+No implicit trust.**
+
+---
+
+## 🔁 DATA FLOW RULES (HARD)
+
+### Allowed (One-Way Only)
+
+* DPI → Core
+* Agent → Core
+* Core → Policy → Enforcement
+* Core → AI (read-only)
+* AI → Human (advisory)
+
+### Forbidden (Must Be Enforced)
+
+* AI → Core
+* LLM → Core
+* DPI → Policy
+* Agent → Policy
+* Human → Data Plane
+* Human → AI training without approval
+
+Violation = **runtime termination + audit log**
+
+---
+
+## 🧠 AI / ML / LLM — ARCHITECTURAL CONSTRAINTS
+
+You MUST explicitly define:
+
+* AI has **zero enforcement authority**
+* AI outputs are advisory
+* AI confidence thresholds
+* AI suppression rules
+* AI baseline verification on startup
+* AI shutdown behavior if baseline invalid
+
+This MUST be documented in:
+
+```
+day1_readiness.md
+```
+
+---
+
+## 🧾 DATA CONTRACT ENFORCEMENT
+
+For every interface, define:
+
+* Schema
+* Versioning
+* Signing requirements
+* Size limits
+* Rate limits
+* Rejection behavior
+
+No schema evolution without version bump.
+
+---
+
+## 💾 SWAP MEMORY POLICY (MANDATORY FIX)
+
+You MUST define and enforce:
+
+### Applicable ONLY to:
+
+* Core Engine machines
+* DPI Probe machines
+
+Rules:
+
+* Minimum SWAP: **16 GB**
+* OR **equal to physical RAM**, whichever is higher
+* Automatically created during install
+* Verified at startup
+* Missing SWAP → **FAIL STARTUP**
+
+Explicitly forbidden for:
+
+* Linux Agent
+* Windows Agent
+
+Document and enforce in:
+
+```
+swap_policy/
+```
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST implement tests that:
+
+* Reject forbidden trust flows
+* Reject AI authority violations
+* Reject unsigned data
+* Reject missing swap on Core/DPI
+* Reject identity misuse
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 2 is INVALID if:
+
+* Trust boundaries are implicit
+* AI can influence enforcement
+* Planes are blurred
+* Swap policy is undocumented or unenforced
+* Data flow rules are advisory instead of enforced
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 2 as:
+
+* A **battlefield topology**
+* A **blast-radius map**
+* A **zero-trust contract**
+
+If Phase 2 is violated anywhere later, **that module is invalid**.
+
+**BUILD PHASE 2 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+# 🧠 RANSOMEYE — PHASE 3
+
+## Threat Intelligence, Baseline Intelligence Pack & Day-1 AI Readiness
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 3)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_intelligence/`
+
+---
+
+## CONTEXT (ABSOLUTE REQUIREMENT)
+
+RansomEye **must not learn “later.”**
+RansomEye **must defend from Day 1.**
+
+This phase guarantees:
+
+* AI/ML/LLM are **fully trained at installation**
+* No cold-start blindness
+* No empty models
+* No speculative inference
+* No runtime guessing
+
+This phase builds the **entire intelligence substrate** used by:
+
+* Correlation assistance
+* Explainability
+* Threat context
+* SOC Copilot
+
+**This phase has ZERO enforcement authority.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1 & Phase 2** apply unchanged.
+
+Additional Phase-3 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 3 OBJECTIVE
+
+Build a **signed, versioned, auditable Intelligence System** that:
+
+1. Ships with **fully trained baseline AI/ML models**
+2. Ships with **pre-indexed LLM RAG corpus**
+3. Ships with **threat-intelligence knowledge packs**
+4. Provides **explainable outputs from Day 1**
+5. Never enforces decisions
+6. Never trains implicitly
+7. Never trusts runtime data without validation
+
+---
+
+## 🧩 INTELLIGENCE SUBSYSTEMS (MANDATORY)
+
+You MUST implement **all** of the following:
+
+### 1. Baseline Intelligence Pack (BIP)
+
+### 2. Threat Intelligence Fusion Engine
+
+### 3. AI / ML Model Registry (Day-1 Ready)
+
+### 4. SHAP Explainability Baselines
+
+### 5. LLM RAG Knowledge Store (Pre-Indexed)
+
+No subsystem may be optional.
+
+---
+
+## 📁 PHASE 3 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_intelligence/
+```
+
+```
+ransomeye_intelligence/
+├── baseline_pack/
+│   ├── models/
+│   │   ├── ransomware_behavior.model
+│   │   ├── anomaly_baseline.model
+│   │   ├── confidence_calibration.model
+│   │   └── model_manifest.json
+│   │
+│   ├── shap/
+│   │   ├── baseline_shap_values.json
+│   │   └── shap_schema.json
+│   │
+│   ├── metadata/
+│   │   ├── training_manifest.json
+│   │   ├── feature_schema.json
+│   │   └── license_manifest.json
+│   │
+│   └── signatures/
+│       ├── baseline_pack.sig
+│       └── baseline_pack.pub
+│
+├── threat_intel/
+│   ├── ingestion/
+│   │   ├── offline_feeds.rs
+│   │   └── feed_validator.rs
+│   │
+│   ├── normalization/
+│   │   ├── ontology.rs
+│   │   └── mapping.rs
+│   │
+│   ├── fusion/
+│   │   ├── correlation.rs
+│   │   └── confidence.rs
+│   │
+│   └── signatures/
+│       └── intel_pack.sig
+│
+├── ai_registry/
+│   ├── registry.rs
+│   ├── versioning.rs
+│   ├── verification.rs
+│   └── rollback.rs
+│
+├── llm_knowledge/
+│   ├── rag_index/
+│   │   ├── index.bin
+│   │   └── index_manifest.json
+│   │
+│   ├── documents/
+│   │   ├── ransomware_playbooks.md
+│   │   ├── kill_chain_reference.md
+│   │   ├── policy_explanations.md
+│   │   └── forensics_guides.md
+│   │
+│   └── signatures/
+│       └── rag_pack.sig
+│
+├── security/
+│   ├── signature_verification.rs
+│   ├── trust_chain.rs
+│   └── revocation.rs
+│
+├── docs/
+│   ├── day1_intelligence.md
+│   ├── baseline_training_methodology.md
+│   ├── threat_intel_governance.md
+│   ├── explainability_guarantees.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── baseline_presence_tests.rs
+    ├── signature_failure_tests.rs
+    ├── shap_completeness_tests.rs
+    ├── intel_poisoning_tests.rs
+    └── llm_index_integrity_tests.rs
+```
+
+---
+
+## 🧠 BASELINE INTELLIGENCE PACK (MANDATORY)
+
+### REQUIRED CONTENT
+
+The Baseline Pack MUST include:
+
+* Pre-trained ransomware behavior models
+* Pre-trained anomaly detection models
+* Confidence calibration curves
+* SHAP baseline distributions
+* Feature schemas
+* Training provenance
+
+### TRAINING RULES
+
+* Training uses **synthetic + red-team generated datasets**
+* No customer data
+* No external runtime learning
+* Training artifacts must be reproducible
+
+### STARTUP RULE
+
+If Baseline Pack:
+
+* Missing
+* Invalid
+* Unsigned
+* Expired
+
+➡️ **AI subsystem MUST NOT START**
+
+---
+
+## 🧬 THREAT INTELLIGENCE FUSION (STRICT)
+
+Rules:
+
+* Intel is **advisory**
+* Intel never overrides Core logic
+* Intel confidence must be explicit
+* Intel sources must be signed
+* Intel poisoning must be detectable
+
+Intel informs:
+
+* Correlation context
+* SOC explanations
+* Analyst workflows
+
+---
+
+## 🔍 SHAP EXPLAINABILITY (DAY-1 GUARANTEE)
+
+You MUST enforce:
+
+* SHAP available for every numeric inference
+* Baseline SHAP present at install
+* SHAP schema validation
+* SHAP verification
+
+Missing SHAP = **BLOCK inference**
+
+---
+
+## 🧠 LLM RAG KNOWLEDGE (PRE-INDEXED)
+
+Rules:
+
+* RAG index built at release time
+* No live indexing at install
+* Documents signed and verified
+* Queries read-only
+* Evidence-linked responses only
+
+LLM MUST NOT:
+
+* Train
+* Fine-tune
+* Learn implicitly
+
+---
+
+## 🔐 SECURITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Signature verification on every pack
+* Trust chain validation
+* Revocation handling
+* Version compatibility
+
+Failure = **Subsystem disabled + audit log**
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Ensure AI never starts empty
+* Ensure SHAP always exists
+* Detect intel poisoning
+* Detect model tampering
+* Detect RAG index corruption
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 3 is INVALID if:
+
+* AI can start without baseline
+* Threat intel can override decisions
+* SHAP is optional
+* LLM can mutate knowledge
+* Intelligence trust is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 3 as:
+
+* Your **strategic intelligence doctrine**
+* Your **Day-1 readiness guarantee**
+* Your **anti-guessing firewall**
+
+If Phase 3 is weak, **RansomEye is blind at install time**.
+
+**BUILD PHASE 3 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 🔄 RANSOMEYE — PHASE 4
+
+## Core Event Ingestion, Secure Streaming & Deterministic Backpressure
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 4)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_ingestion/`
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+This phase builds the **only ingress point** into the RansomEye **Control Plane**.
+
+All data entering Core:
+
+* Comes from **untrusted sources**
+* May be malformed, malicious, replayed, or flooded
+* Must be authenticated, verified, normalized, and rate-controlled
+
+This phase must:
+
+* Protect Core from overload
+* Preserve ordering where required
+* Enforce strict schemas
+* Apply **deterministic backpressure**
+* Fail closed under stress
+
+**No correlation, no policy, no AI inference is allowed here.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–3** apply unchanged.
+
+Additional Phase-4 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 4 OBJECTIVE
+
+Build a **hardened ingestion and streaming subsystem** that:
+
+1. Authenticates every producer
+2. Verifies signatures on every event
+3. Enforces strict schemas and versions
+4. Applies deterministic rate-limits
+5. Applies bounded buffering with backpressure
+6. Preserves event integrity and traceability
+7. Delivers only validated events to the Core Correlation Engine
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Mutual authentication
+* Signature verification
+* Schema validation
+* Version compatibility checks
+* Rate limiting
+* Backpressure signaling
+* Event normalization
+* Integrity metadata attachment
+
+### MUST NEVER DO
+
+* Correlate events
+* Store long-term data
+* Invoke AI/ML/LLM
+* Modify semantic meaning
+* Trust producers implicitly
+* Drop events silently
+
+---
+
+## 📁 PHASE 4 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_ingestion/
+```
+
+```
+ransomeye_ingestion/
+├── src/
+│   ├── main.rs
+│   ├── server.rs
+│   ├── listener.rs
+│   ├── auth.rs
+│   ├── signature.rs
+│   ├── schema.rs
+│   ├── versioning.rs
+│   ├── normalization.rs
+│   ├── rate_limit.rs
+│   ├── backpressure.rs
+│   ├── buffer.rs
+│   ├── ordering.rs
+│   └── dispatcher.rs
+│
+├── protocol/
+│   ├── event_schema_v1.json
+│   ├── event_envelope.rs
+│   └── compatibility.md
+│
+├── security/
+│   ├── identity.rs
+│   ├── trust_chain.rs
+│   ├── replay_protection.rs
+│   └── revocation.rs
+│
+├── config/
+│   ├── env_schema.md
+│   └── validation.rs
+│
+├── docs/
+│   ├── ingestion_flow.md
+│   ├── backpressure_model.md
+│   ├── rate_limit_policy.md
+│   ├── trust_enforcement.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── auth_failure_tests.rs
+    ├── signature_failure_tests.rs
+    ├── schema_rejection_tests.rs
+    ├── overload_tests.rs
+    ├── backpressure_tests.rs
+    └── replay_attack_tests.rs
+```
+
+Every module must explicitly document:
+
+* Inputs
+* Outputs
+* Failure behavior
+* Performance characteristics
+
+---
+
+## 🔐 AUTHENTICATION & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Mutual TLS (or equivalent)
+* Per-producer identity
+* Identity expiration
+* Revocation checking
+* Replay protection (nonce / timestamp)
+
+Any failure → **REJECT EVENT + AUDIT LOG**
+
+---
+
+## 🧾 EVENT ENVELOPE (MANDATORY)
+
+Every event MUST include:
+
+* Producer ID
+* Component type (DPI / Linux Agent / Windows Agent)
+* Schema version
+* Timestamp
+* Sequence number
+* Cryptographic signature
+* Integrity hash
+
+Unsigned or malformed events → **REJECT**
+
+---
+
+## ⚙️ RATE LIMITING & BACKPRESSURE (CRITICAL)
+
+You MUST define:
+
+* Per-producer rate limits
+* Per-component quotas
+* Global ingestion caps
+* Bounded buffers (no unbounded queues)
+* Backpressure signaling to producers
+* Explicit rejection when limits exceeded
+
+Rules:
+
+* No silent drops
+* No best-effort buffering
+* No memory exhaustion allowed
+
+---
+
+## 🔁 ORDERING GUARANTEES
+
+You MUST explicitly define:
+
+* What is ordered (per producer, per flow, etc.)
+* What is not ordered
+* How reordering is handled
+* How gaps are handled
+
+Ordering must be **explicitly bounded**.
+
+---
+
+## 🔒 SECURITY & ISOLATION
+
+You MUST enforce:
+
+* No shared memory with Core
+* No mutable global state
+* No cross-producer contamination
+* Fail-closed on internal error
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST implement tests that:
+
+* Flood ingestion with synthetic events
+* Spoof producer identities
+* Replay events
+* Exceed rate limits
+* Corrupt schemas
+* Exhaust buffers
+
+All tests must be deterministic.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Producer flooding
+* Invalid signatures
+* Schema mismatches
+* Buffer exhaustion
+* Core downstream unavailability
+* Network partitions
+
+Failures must:
+
+* Be logged
+* Be observable
+* Never propagate corruption
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 4 is INVALID if:
+
+* Any event bypasses verification
+* Backpressure is implicit
+* Silent drops exist
+* Ordering is assumed
+* AI is invoked
+* Trust is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 4 as:
+
+* A **blast-shield**
+* A **traffic control tower**
+* A **firewall for logic**
+
+If Phase 4 fails, **Core must never see corrupted data**.
+
+**BUILD PHASE 4 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+
+
+# 🧠 RANSOMEYE — PHASE 5
+
+## Core Correlation Engine, Kill-Chain Inference & Deterministic Detection
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 5)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_core/`
+
+---
+
+## CONTEXT (SECURITY-CRITICAL)
+
+This phase builds the **Core Correlation Engine**, which is the **only component allowed to infer “attack reality”**.
+
+This engine:
+
+* Receives only **validated events from Phase 4**
+* Operates **deterministically**
+* Implements **formal ransomware kill-chain logic**
+* Produces **authoritative detection outputs**
+* Feeds **Policy Engine (Phase 6)**
+
+If this phase is wrong:
+
+* False positives explode
+* Attacks are missed
+* Enforcement becomes arbitrary
+* Military-grade claims fail
+
+**This phase MUST NOT depend on AI/ML/LLM to function.**
+AI is **assistive context only**, never authoritative.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–4** apply unchanged.
+
+Additional Phase-5 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 5 OBJECTIVE
+
+Build a **deterministic, explainable, formally bounded correlation engine** that:
+
+1. Correlates multi-source telemetry
+2. Tracks entity state over time
+3. Implements a **formal ransomware kill-chain**
+4. Infers attack progression deterministically
+5. Produces confidence-scored detection outputs
+6. Emits explainability artifacts
+7. Operates at **50,000+ endpoints scale**
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Temporal correlation
+* Cross-signal correlation
+* Entity state tracking
+* Kill-chain stage inference
+* Deterministic scoring
+* Explainability generation
+* Bounded memory management
+
+### MUST NEVER DO
+
+* Enforce policy
+* Block traffic
+* Execute response actions
+* Invoke AI/ML/LLM for decisions
+* Trust upstream data implicitly
+* Learn at runtime
+
+---
+
+## 📁 PHASE 5 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_core/
+```
+
+```
+ransomeye_core/
+├── correlation/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── engine.rs
+│   │   ├── scheduler.rs
+│   │   ├── entity_state.rs
+│   │   ├── temporal.rs
+│   │   ├── graph.rs
+│   │   ├── scoring.rs
+│   │   ├── explainability.rs
+│   │   └── invariants.rs
+│   │
+│   ├── kill_chain/
+│   │   ├── stages.rs
+│   │   ├── transitions.rs
+│   │   ├── rules.rs
+│   │   └── inference.rs
+│   │
+│   ├── input/
+│   │   ├── validated_events.rs
+│   │   └── normalization.rs
+│   │
+│   ├── output/
+│   │   ├── detection_result.rs
+│   │   ├── confidence.rs
+│   │   └── rationale.rs
+│   │
+│   ├── config/
+│   │   └── validation.rs
+│   │
+│   └── errors/
+│       └── correlation_errors.rs
+│
+├── intelligence_adapter/
+│   ├── threat_context.rs
+│   ├── ai_context.rs
+│   └── validation.rs
+│
+├── docs/
+│   ├── correlation_model.md
+│   ├── kill_chain_model.md
+│   ├── invariants.md
+│   ├── performance_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_attack_tests.rs
+    ├── false_positive_tests.rs
+    ├── ordering_tests.rs
+    ├── scale_tests.rs
+    ├── invariant_violation_tests.rs
+    └── determinism_tests.rs
+```
+
+---
+
+## 🧬 FORMAL KILL-CHAIN MODEL (MANDATORY)
+
+You MUST implement a **formal ransomware-specific kill-chain**, including at minimum:
+
+* Initial access
+* Execution
+* Persistence
+* Privilege escalation
+* Lateral movement
+* Credential access
+* Discovery
+* Encryption preparation
+* Encryption execution
+* Impact
+
+Each stage MUST define:
+
+* Entry conditions
+* Required signals
+* Temporal constraints
+* Allowed transitions
+* Regression rules
+* Confidence decay
+
+No generic “MITRE-only” mapping.
+This must be ransomware-specific and codified.
+
+---
+
+## 🧠 DETERMINISM & INVARIANTS (CRITICAL)
+
+You MUST define and enforce **hard invariants**, such as:
+
+* No stage skip without evidence
+* No confidence increase without new signal
+* No detection without minimum signal set
+* No state explosion without eviction
+
+Violating an invariant → **FAIL CLOSED + AUDIT LOG**
+
+---
+
+## ⚙️ PERFORMANCE & SCALE MODEL
+
+You MUST explicitly define:
+
+* Event throughput limits
+* Memory bounds per entity
+* Eviction strategy
+* Lock-free or low-lock design
+* Scheduler fairness
+* Backpressure interaction with Phase 4
+
+No unbounded maps.
+No global locks.
+
+---
+
+## 🔍 EXPLAINABILITY (MANDATORY)
+
+For every detection result, you MUST emit:
+
+* Signals involved
+* Kill-chain stages triggered
+* Temporal sequence
+* Confidence calculation
+* Intelligence context used (if any)
+
+Explainability must be:
+
+* Human readable
+* Machine readable
+* Deterministic
+
+---
+
+## 🧠 INTELLIGENCE USAGE (STRICT)
+
+Allowed:
+
+* Threat intel as context
+* AI confidence hints
+* Baseline anomaly context
+
+Forbidden:
+
+* AI overriding correlation
+* AI injecting detections
+* AI altering state transitions
+
+If intelligence is unavailable:
+➡️ Core MUST continue functioning.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Event floods
+* Out-of-order events
+* Entity explosion
+* Memory pressure
+* Internal state corruption
+* Downstream unavailability
+
+Failures must:
+
+* Preserve correctness
+* Avoid false detection
+* Remain observable
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Replay synthetic ransomware campaigns
+* Verify determinism
+* Validate invariants
+* Test scale limits (50k+ entities)
+* Confirm explainability completeness
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 5 is INVALID if:
+
+* AI influences decisions
+* Kill-chain is implicit
+* Determinism is not provable
+* Invariants are undocumented
+* Memory is unbounded
+* Correlation logic is heuristic-only
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 5 as:
+
+* A **formal reasoning engine**
+* A **court-defensible detector**
+* A **zero-guessing brain**
+
+If Phase 5 is weak, **everything downstream is unsafe**.
+
+**BUILD PHASE 5 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+
+# 🛡️ RANSOMEYE — PHASE 6
+
+## Policy Engine, Enforcement Semantics & Cryptographic Control
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 6)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_policy/`
+
+---
+
+## CONTEXT (HIGHEST RISK ZONE)
+
+This phase is where **decisions become actions**.
+
+The Policy Engine:
+
+* Is the **only authority** that may authorize enforcement
+* Must be **deterministic, auditable, and fail-closed**
+* Must operate **without AI dependency**
+* Must be **provably correct under ambiguity**
+
+Any ambiguity, unsigned input, or undefined behavior **must result in NO ACTION**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–5** apply unchanged.
+
+Additional Phase-6 rules are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 6 OBJECTIVE
+
+Build a **cryptographically enforced Policy Engine** that:
+
+1. Accepts **only** detections from Phase 5
+2. Loads **only signed policies**
+3. Evaluates policies deterministically
+4. Resolves conflicts explicitly
+5. Emits **explicit, scoped, reversible enforcement directives**
+6. Produces a complete **audit trail**
+7. Fails closed on any uncertainty
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Policy signature verification
+* Schema and version validation
+* Deterministic evaluation
+* Explicit conflict resolution
+* Directive generation with scope & TTL
+* Audit logging (append-only)
+
+### MUST NEVER DO
+
+* Guess intent
+* Modify detections
+* Invoke AI/ML/LLM
+* Execute enforcement locally
+* Continue on verification failure
+
+---
+
+## 📁 PHASE 6 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_policy/
+```
+
+```
+ransomeye_policy/
+├── engine/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── engine.rs
+│   │   ├── evaluator.rs
+│   │   ├── precedence.rs
+│   │   ├── conflict.rs
+│   │   ├── compiler.rs
+│   │   ├── enforcement.rs
+│   │   └── audit.rs
+│   │
+│   └── errors/
+│       └── policy_errors.rs
+│
+├── language/
+│   ├── grammar.md
+│   ├── semantics.md
+│   ├── determinism_rules.md
+│   └── examples/
+│       ├── block_encryption.policy
+│       ├── isolate_host.policy
+│       └── monitor_only.policy
+│
+├── schema/
+│   ├── policy_schema.json
+│   ├── directive_schema.json
+│   └── versioning.md
+│
+├── security/
+│   ├── signature.rs
+│   ├── verification.rs
+│   ├── trust_chain.rs
+│   └── revocation.rs
+│
+├── output/
+│   ├── directive.rs
+│   ├── receipt.rs
+│   └── audit_record.rs
+│
+├── config/
+│   └── validation.rs
+│
+├── docs/
+│   ├── evaluation_pipeline.md
+│   ├── conflict_resolution.md
+│   ├── enforcement_model.md
+│   ├── compliance.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── signed_policy_tests.rs
+    ├── conflict_tests.rs
+    ├── precedence_tests.rs
+    ├── determinism_tests.rs
+    ├── fail_closed_tests.rs
+    └── audit_integrity_tests.rs
+```
+
+---
+
+## 📜 POLICY LANGUAGE (FORMAL & SAFE)
+
+You MUST define a **restricted policy language** with:
+
+* No loops
+* No dynamic execution
+* No external calls
+* No user-defined functions
+* Deterministic evaluation order
+
+Policy MUST define:
+
+* Scope (entity, host, network, time)
+* Preconditions (from Phase 5 outputs)
+* Action(s)
+* TTL / expiration
+* Rollback behavior
+* Priority
+
+---
+
+## 🔐 SIGNING & TRUST (MANDATORY)
+
+Policies MUST:
+
+* Be signed with approved keys
+* Include author, version, scope, validity window
+* Pass trust-chain verification
+* Be rejected if expired, revoked, or malformed
+
+Failure → **NO POLICY LOADED**
+
+---
+
+## 🔀 EVALUATION PIPELINE (EXPLICIT)
+
+Define and implement, in order:
+
+1. Input verification (detections)
+2. Policy signature verification
+3. Schema & version validation
+4. Deterministic evaluation
+5. Conflict detection
+6. Conflict resolution (explicit rules)
+7. Directive creation
+8. Audit record append
+9. Dispatch to Enforcement Dispatcher
+
+Any failure → **ABORT & LOG**
+
+---
+
+## 🧭 CONFLICT RESOLUTION (MANDATORY)
+
+You MUST define:
+
+* Priority rules
+* Specificity rules
+* Time-bound overrides
+* Explicit deny precedence
+* No silent resolution
+
+Conflicts without resolution → **NO ACTION**
+
+---
+
+## 🧾 ENFORCEMENT DIRECTIVES (STRICT)
+
+Directives MUST include:
+
+* Unique ID
+* Target scope
+* Action type
+* TTL
+* Preconditions
+* Rollback instructions
+* Signature
+* Nonce
+
+Directives MUST be:
+
+* Idempotent
+* Reversible
+* Time-bounded
+
+---
+
+## 🔍 AUDIT & NON-REPUDIATION
+
+You MUST implement:
+
+* Append-only audit log
+* Hash-chained records
+* Signed receipts
+* Verifiable replay
+
+Audit failure → **BLOCK ENFORCEMENT**
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Missing policy
+* Invalid signature
+* Conflicting policies
+* Unsupported versions
+* Internal errors
+* Resource exhaustion
+
+All must **fail closed**.
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Reject unsigned policies
+* Enforce determinism
+* Detect conflicts
+* Verify audit immutability
+* Validate rollback semantics
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 6 is INVALID if:
+
+* Unsigned policies are accepted
+* Evaluation order is implicit
+* Conflicts auto-resolve silently
+* AI influences policy
+* Fail-open behavior exists
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 6 as:
+
+* A **legal contract engine**
+* A **safety governor**
+* A **non-repudiable authority**
+
+If Phase 6 is weak, **RansomEye cannot be trusted to act**.
+
+**BUILD PHASE 6 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 🚚 RANSOMEYE — PHASE 7
+
+## Enforcement Dispatcher, Stand-Alone Module Integration & Safety Guards
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 7)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_dispatcher/`
+
+---
+
+## CONTEXT (CRITICAL SAFETY LAYER)
+
+This phase is the **only bridge** between:
+
+* **Authoritative policy decisions (Phase 6)**
+  and
+* **Stand-alone executors**:
+
+  * DPI Probe
+  * Linux Agent
+  * Windows Agent
+
+This layer **does not decide**, **does not infer**, and **does not enforce locally**.
+
+It **only transports**, **verifies**, **tracks**, and **confirms** enforcement actions.
+
+Any mistake here can:
+
+* Execute the wrong action
+* Execute on the wrong host
+* Execute without rollback
+* Execute without audit
+
+This phase must therefore be **extremely strict and conservative**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–6** apply unchanged.
+
+Additional Phase-7 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 7 OBJECTIVE
+
+Build a **deterministic, cryptographically enforced Enforcement Dispatcher** that:
+
+1. Accepts **only signed directives** from Phase 6
+2. Validates scope, TTL, and preconditions
+3. Delivers directives to correct stand-alone modules
+4. Enforces execution acknowledgment
+5. Enforces rollback if execution fails
+6. Maintains end-to-end auditability
+7. Never executes enforcement itself
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Directive verification
+* Target resolution
+* Secure delivery
+* Execution tracking
+* Acknowledgment verification
+* Timeout handling
+* Rollback coordination
+* Audit logging
+
+### MUST NEVER DO
+
+* Modify directives
+* Re-interpret policy
+* Execute enforcement locally
+* Retry blindly
+* Trust agents implicitly
+
+---
+
+## 📁 PHASE 7 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_dispatcher/
+```
+
+```
+ransomeye_dispatcher/
+├── dispatcher/
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── dispatcher.rs
+│   │   ├── verifier.rs
+│   │   ├── router.rs
+│   │   ├── delivery.rs
+│   │   ├── acknowledgment.rs
+│   │   ├── timeout.rs
+│   │   ├── rollback.rs
+│   │   └── audit.rs
+│   │
+│   └── errors/
+│       └── dispatcher_errors.rs
+│
+├── protocol/
+│   ├── directive_envelope.rs
+│   ├── acknowledgment_schema.json
+│   └── versioning.md
+│
+├── targets/
+│   ├── dpi.rs
+│   ├── linux_agent.rs
+│   └── windows_agent.rs
+│
+├── security/
+│   ├── signature.rs
+│   ├── trust_chain.rs
+│   ├── nonce.rs
+│   └── replay_protection.rs
+│
+├── config/
+│   └── validation.rs
+│
+├── docs/
+│   ├── dispatcher_flow.md
+│   ├── execution_guarantees.md
+│   ├── rollback_model.md
+│   ├── blast_radius.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── directive_validation_tests.rs
+    ├── misrouting_tests.rs
+    ├── timeout_tests.rs
+    ├── rollback_tests.rs
+    └── replay_attack_tests.rs
+```
+
+---
+
+## 🔐 DIRECTIVE VERIFICATION (MANDATORY)
+
+Before delivery, dispatcher MUST verify:
+
+* Policy Engine signature
+* Directive signature
+* Directive TTL
+* Target scope
+* Preconditions hash
+* Nonce freshness
+
+Any failure → **DO NOT DELIVER**
+
+---
+
+## 🎯 TARGET RESOLUTION (STRICT)
+
+Dispatcher MUST:
+
+* Resolve exact target(s)
+* Validate agent identity
+* Validate agent capability
+* Validate platform compatibility
+
+If ambiguity exists → **ABORT**
+
+---
+
+## 🔄 DELIVERY & ACKNOWLEDGMENT FLOW
+
+You MUST implement:
+
+1. Directive verification
+2. Target resolution
+3. Secure delivery (mutual auth)
+4. Agent execution
+5. Signed acknowledgment
+6. Result verification
+7. Audit record append
+
+Missing acknowledgment within TTL → **ROLLBACK INITIATED**
+
+---
+
+## 🧯 ROLLBACK & SAFETY GUARDS
+
+Rollback MUST:
+
+* Be explicit
+* Be signed
+* Restore previous state
+* Be auditable
+* Be time-bounded
+
+Rollback failure → **ESCALATE + ALERT**
+
+---
+
+## 🔍 AUDIT & TRACEABILITY
+
+Dispatcher MUST maintain:
+
+* Delivery receipts
+* Execution acknowledgments
+* Rollback records
+* Hash-chained logs
+
+All records must be:
+
+* Append-only
+* Signed
+* Verifiable
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Invalid directives
+* Agent unreachable
+* Partial execution
+* Timeout without acknowledgment
+* Replay attempts
+* Identity mismatch
+
+Failures must:
+
+* Preserve safety
+* Avoid repeated harm
+* Be observable
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Deliver to wrong agent (must fail)
+* Replay directives
+* Corrupt acknowledgments
+* Force rollback
+* Exhaust retries
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 7 is INVALID if:
+
+* Dispatcher executes enforcement
+* Unsigned directives are delivered
+* Rollback is optional
+* Target ambiguity is tolerated
+* Acknowledgment is best-effort
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 7 as:
+
+* A **weapons safety system**
+* A **dead-man switch**
+* A **blast-radius governor**
+
+If Phase 7 fails, **RansomEye becomes dangerous**.
+
+**BUILD PHASE 7 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 🤖 RANSOMEYE — PHASE 8
+
+## AI/ML Inference, Explainability & Analyst Assistance (Day-1 Ready, Advisory Only)
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 8)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_ai/`
+
+---
+
+## CONTEXT (STRICT ISOLATION)
+
+This phase wires **fully trained AI/ML/LLM** into RansomEye **from Day 1** to:
+
+* Reduce analyst load
+* Provide explainability
+* Provide context and recommendations
+
+**This phase has ZERO enforcement authority.**
+**If this phase fails, Core must continue safely.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–7** apply unchanged.
+
+Additional Phase-8 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 8 OBJECTIVE
+
+Build a **Day-1 ready, fully trained, explainable AI/ML/LLM subsystem** that:
+
+1. Loads **signed baseline models** at startup
+2. Performs **read-only inference**
+3. Emits **confidence + SHAP** for every numeric output
+4. Provides **human-readable explanations**
+5. Supports **incremental learning only with explicit approval**
+6. Never influences policy or enforcement
+7. Operates offline / air-gapped
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Verify baseline intelligence packs
+* Perform inference deterministically
+* Generate SHAP for every inference
+* Attach rationale and confidence
+* Provide analyst-friendly summaries
+* Log every inference for audit
+
+### MUST NEVER DO
+
+* Enforce actions
+* Modify Core state
+* Retrain implicitly
+* Operate without baseline
+* Guess without confidence
+* Access raw secrets
+
+---
+
+## 📁 PHASE 8 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_ai/
+```
+
+```
+ransomeye_ai/
+├── baseline/
+│   ├── models/
+│   │   ├── ransomware_behavior.model
+│   │   ├── anomaly_baseline.model
+│   │   └── calibration.model
+│   ├── shap/
+│   │   └── baseline_shap.json
+│   └── signatures/
+│       └── baseline.sig
+│
+├── inference/
+│   ├── predictor.py
+│   ├── confidence.py
+│   ├── safeguards.py
+│   └── invariants.py
+│
+├── explainability/
+│   ├── shap_generator.py
+│   ├── shap_schema.json
+│   └── artifact_writer.py
+│
+├── llm/
+│   ├── runtime.py
+│   ├── prompts/
+│   │   ├── incident_summary.txt
+│   │   ├── kill_chain_explain.txt
+│   │   └── analyst_qa.txt
+│   ├── rag/
+│   │   ├── index.bin
+│   │   └── retriever.py
+│   └── guardrails.py
+│
+├── integration/
+│   ├── read_only_adapter.rs
+│   └── contract.rs
+│
+├── security/
+│   ├── model_verification.py
+│   ├── prompt_signing.py
+│   └── trust_chain.py
+│
+├── docs/
+│   ├── day1_training.md
+│   ├── inference_flow.md
+│   ├── explainability.md
+│   ├── llm_guardrails.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── baseline_presence_tests.py
+    ├── shap_completeness_tests.py
+    ├── hallucination_tests.py
+    ├── drift_detection_tests.py
+    └── integrity_tests.py
+```
+
+---
+
+## 🧠 DAY-1 TRAINING REQUIREMENTS (MANDATORY)
+
+You MUST ensure:
+
+* Baseline models are **pre-trained before release**
+* Training provenance is documented
+* Feature schemas are frozen
+* Calibration curves included
+* SHAP baseline distributions included
+
+If any baseline artifact is missing or invalid:
+➡️ **AI subsystem MUST NOT START**
+
+---
+
+## 🔍 SHAP EXPLAINABILITY (NON-NEGOTIABLE)
+
+Rules:
+
+* SHAP for **every numeric inference**
+* Stored with inference output
+* Signed and verifiable
+* Human + machine readable
+
+Missing SHAP → **BLOCK inference**
+
+---
+
+## 🧠 LLM SOC ASSISTANT (READ-ONLY)
+
+LLM rules:
+
+* Local model only
+* Pre-indexed RAG only
+* No learning
+* No external calls
+* Evidence-linked responses
+* Confidence disclosure
+
+LLM MUST NOT:
+
+* Suggest actions
+* Trigger workflows
+* Modify state
+* Bypass Core
+
+---
+
+## 🔐 SECURITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Model signature verification
+* Prompt signature verification
+* Version pinning
+* Trust-chain validation
+* Revocation handling
+
+Failure → **Subsystem disabled + audit log**
+
+---
+
+## 🔄 INCREMENTAL LEARNING (CONTROLLED)
+
+Allowed ONLY if:
+
+* Explicit admin approval
+* Signed training package
+* Offline training
+* Re-signing of new baseline
+* Full audit trail
+
+No background learning.
+No silent updates.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Missing baseline
+* Invalid signature
+* SHAP generation failure
+* Drift detected
+* LLM hallucination detected
+
+Failures must:
+
+* Degrade safely
+* Never affect enforcement
+* Be observable
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Verify Day-1 readiness
+* Verify SHAP completeness
+* Detect hallucinations
+* Detect model tampering
+* Validate read-only contracts
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 8 is INVALID if:
+
+* AI can start empty
+* AI influences policy
+* SHAP is optional
+* LLM accesses live systems
+* Incremental learning is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 8 as:
+
+* A **trained advisor**
+* A **court-defensible explainer**
+* A **non-authoritative assistant**
+
+If Phase 8 fails, **humans lose insight but security remains intact**.
+
+**BUILD PHASE 8 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+
+# 📡 RANSOMEYE — PHASE 9A
+
+## DPI Probe (Stand-Alone) — High-Throughput Data Plane Sensor
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 9A)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_dpi_probe/`
+
+---
+
+## CONTEXT (DATA PLANE, HOSTILE ENVIRONMENT)
+
+The DPI Probe is a **stand-alone, untrusted-input sensor** operating at **line rate (40+ Gbps)**.
+It **never decides**, **never enforces**, and **never stores long-term state**.
+
+Assumptions:
+
+* Traffic is hostile
+* NICs are saturated
+* CPUs are NUMA
+* Memory pressure exists
+* Kernel features vary across Linux versions
+
+The DPI Probe must protect itself and the Core by **sampling, normalizing, and streaming metadata only**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–8** apply unchanged.
+
+Additional Phase-9A rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 9A OBJECTIVE
+
+Build a **GPL-free, Linux-agnostic, ultra-high-performance DPI Probe** that:
+
+1. Captures packets at line rate
+2. Reconstructs flows/sessions (bounded)
+3. Extracts metadata (no payload storage)
+4. Generates **signed events** only
+5. Applies deterministic backpressure
+6. Streams to Core Ingestion (Phase 4)
+7. Enforces **SWAP policy** at startup
+8. Operates without Python or GC
+
+---
+
+## 🚫 LICENSE & LANGUAGE RULES (STRICT)
+
+### Languages (ONLY)
+
+* **Rust (PRIMARY)**
+* **C++ (ONLY if unavoidable for perf)**
+* **eBPF (kernel space only)**
+
+### Forbidden
+
+* Python
+* Go
+* Java
+* NodeJS
+* Scapy
+* Any GPL userland library
+
+### Allowed Libraries
+
+* libpcap (BSD)
+* AF_XDP
+* Hyperscan (BSD)
+* MIT/BSD/Apache crates only
+
+---
+
+## 💾 SWAP MEMORY POLICY (MANDATORY)
+
+Applicable **ONLY** to:
+
+* DPI Probe
+* Core Engine
+
+Rules:
+
+* Minimum SWAP: **16 GB**
+* OR **equal to physical RAM**, whichever is higher
+* Automatically created during install
+* Verified at startup
+* Missing/insufficient SWAP → **FAIL STARTUP**
+
+Explicitly **FORBIDDEN** for:
+
+* Linux Agent
+* Windows Agent
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Packet capture
+* Flow/session tracking (bounded)
+* Metadata extraction (headers, TLS FP, timing)
+* Event signing
+* Rate limiting
+* Backpressure signaling
+* Self-identity verification
+
+### MUST NEVER DO
+
+* Payload storage
+* Policy enforcement
+* AI inference
+* Traffic blocking
+* Database writes
+* Trust upstream/downstream blindly
+
+---
+
+## 📁 PHASE 9A DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_dpi_probe/
+```
+
+```
+ransomeye_dpi_probe/
+├── src/
+│   ├── main.rs
+│   ├── capture/
+│   │   ├── mod.rs
+│   │   ├── pcap.rs
+│   │   ├── af_xdp.rs
+│   │   └── interface.rs
+│   │
+│   ├── pipeline/
+│   │   ├── packet_decoder.rs
+│   │   ├── flow_tracker.rs
+│   │   ├── session_reassembly.rs
+│   │   └── metadata_extractor.rs
+│   │
+│   ├── threading/
+│   │   ├── cpu_pinning.rs
+│   │   ├── numa.rs
+│   │   └── backpressure.rs
+│   │
+│   ├── output/
+│   │   ├── event_schema.rs
+│   │   ├── serializer.rs
+│   │   └── secure_stream.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── attestation.rs
+│   │   └── signing.rs
+│   │
+│   ├── system/
+│   │   ├── swap_check.rs
+│   │   └── env_validation.rs
+│   │
+│   └── errors/
+│       └── dpi_errors.rs
+│
+├── ebpf/
+│   ├── xdp_program.c
+│   ├── maps.h
+│   └── loader.rs
+│
+├── systemd/
+│   └── ransomeye-dpi-probe.service
+│
+├── docs/
+│   ├── packet_pipeline.md
+│   ├── threading_model.md
+│   ├── memory_model.md
+│   ├── swap_policy.md
+│   ├── kernel_compatibility.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_packets.rs
+    ├── throughput_40gbps.rs
+    ├── backpressure_tests.rs
+    ├── swap_enforcement_tests.rs
+    └── tamper_tests.rs
+```
+
+---
+
+## ⚙️ PERFORMANCE & THREADING MODEL (MANDATORY)
+
+You MUST define and implement:
+
+* Per-CPU worker threads
+* CPU pinning
+* NUMA locality
+* Zero-copy buffers
+* Lock-free queues
+* Fixed memory pools
+
+🚫 No per-packet allocation
+🚫 No global locks
+🚫 No unbounded buffers
+
+---
+
+## 🔀 PACKET → EVENT PIPELINE (EXPLICIT)
+
+Define step-by-step:
+
+1. NIC → Kernel (AF_XDP/libpcap)
+2. Kernel → Userland
+3. Packet decode
+4. Flow/session tracking
+5. Metadata extraction
+6. Event normalization
+7. Signature generation
+8. Secure stream to Phase 4
+
+Each step must specify:
+
+* Input
+* Output
+* Failure behavior
+* Performance impact
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+* Unique cryptographic identity per probe
+* Mutual auth with Core ingestion
+* Attestation before streaming
+* Signature on every event
+* Replay protection
+
+Failure → **STOP STREAMING**
+
+---
+
+## 🧠 AI / ML / LLM (STRICTLY ADVISORY)
+
+DPI Probe:
+
+* **DOES NOT RUN AI**
+* **DOES NOT INFER**
+* **DOES NOT SCORE**
+
+Allowed:
+
+* Embedding metadata fields required by AI later
+* Feature-ready extraction only
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Packet overload
+* CPU starvation
+* Memory pressure
+* Swap missing
+* Core unreachable
+* Identity invalid
+* Kernel feature missing
+
+Failures must:
+
+* Be observable
+* Be safe
+* Avoid packet corruption
+* Never block traffic
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Prove 40+ Gbps sustained ingest (synthetic)
+* Validate swap enforcement
+* Detect signature tampering
+* Validate backpressure
+* Validate kernel compatibility
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 9A is INVALID if:
+
+* GPL appears anywhere
+* Swap is optional
+* Python exists
+* DPI enforces policy
+* Packets are stored
+* Silent drops exist
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 9A as:
+
+* A **carrier-grade sensor**
+* A **blast-shield**
+* A **data-plane appliance**
+
+If DPI fails, **Core must survive**.
+
+**BUILD PHASE 9A COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+# 🐧 RANSOMEYE — PHASE 9B
+
+## Linux Agent (Stand-Alone) — Host Sensor & Controlled Enforcer
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 9B)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_linux_agent/`
+
+---
+
+## CONTEXT (ENDPOINT TRUST BOUNDARY)
+
+The Linux Agent operates **on potentially compromised hosts** and must assume:
+
+* Hostile local users
+* Partial privilege loss
+* Kernel feature variability
+* Offline / air-gapped operation
+
+This agent is **stand-alone** and:
+
+* Collects host-level telemetry
+* Executes **only explicitly authorized enforcement**
+* Never correlates across hosts
+* Never infers attacks
+* Never depends on AI to function
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–8** apply unchanged.
+
+Additional Phase-9B rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 9B OBJECTIVE
+
+Build a **minimal-footprint, Linux-agnostic, cryptographically controlled Linux Agent** that:
+
+1. Collects host telemetry safely
+2. Normalizes and signs telemetry events
+3. Receives **signed enforcement directives only**
+4. Executes enforcement safely and reversibly
+5. Maintains strong identity and integrity
+6. Operates without swap
+7. Works across **any Linux distribution** (no assumptions)
+
+---
+
+## 🚫 LANGUAGE & LICENSE RULES (STRICT)
+
+### Allowed Languages
+
+* **Rust (PRIMARY)**
+* **C (ONLY if kernel interaction is unavoidable)**
+
+### Forbidden
+
+* Python
+* Go
+* Java
+* NodeJS
+* Shell as core logic
+* GPL userland libraries
+
+All dependencies must be **MIT / BSD / Apache 2.0**.
+
+---
+
+## 💾 SWAP POLICY (EXPLICIT)
+
+* **Swap usage is FORBIDDEN**
+* Agent must not create, require, or depend on swap
+* Memory usage must be bounded
+* Swap checks must explicitly skip Linux Agent
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Process activity telemetry
+* File system metadata telemetry
+* System integrity signals
+* Kernel / OS metadata capture
+* Secure communication with Core ingestion
+* Signed enforcement execution
+* Self-integrity verification
+
+### MUST NEVER DO
+
+* Policy decisions
+* Cross-host correlation
+* AI inference
+* Runtime learning
+* Unsigned execution
+* OS destabilization
+
+---
+
+## 📁 PHASE 9B DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_linux_agent/
+```
+
+```
+ransomeye_linux_agent/
+├── src/
+│   ├── main.rs
+│   ├── agent.rs
+│   ├── lifecycle.rs
+│   ├── telemetry/
+│   │   ├── process.rs
+│   │   ├── filesystem.rs
+│   │   ├── memory.rs
+│   │   ├── kernel.rs
+│   │   └── system.rs
+│   │
+│   ├── enforcement/
+│   │   ├── actions.rs
+│   │   ├── safeguards.rs
+│   │   └── rollback.rs
+│   │
+│   ├── comms/
+│   │   ├── protocol.rs
+│   │   ├── encryption.rs
+│   │   └── retry.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── verification.rs
+│   │   └── integrity.rs
+│   │
+│   ├── system/
+│   │   └── env_validation.rs
+│   │
+│   └── errors/
+│       └── agent_errors.rs
+│
+├── systemd/
+│   └── ransomeye-linux-agent.service
+│
+├── docs/
+│   ├── telemetry_model.md
+│   ├── enforcement_model.md
+│   ├── kernel_compatibility.md
+│   ├── security_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_telemetry.rs
+    ├── enforcement_safety_tests.rs
+    ├── rollback_tests.rs
+    ├── tamper_tests.rs
+    └── offline_mode_tests.rs
+```
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Unique per-agent cryptographic identity
+* Secure enrollment bootstrap
+* Mutual authentication with Core ingestion
+* Signature verification on every directive
+* Identity expiration and revocation
+
+Verification failure → **REFUSE EXECUTION**
+
+---
+
+## 📊 TELEMETRY MODEL (SAFE & BOUNDED)
+
+Telemetry MUST be:
+
+* Metadata-only
+* Rate-limited
+* Privacy-aware
+* Schema-validated
+* Signed before transmission
+
+No raw file contents
+No credential material
+No memory dumps
+
+---
+
+## 🛡️ ENFORCEMENT MODEL (STRICT & SAFE)
+
+Enforcement actions MUST be:
+
+* Explicit
+* Signed
+* Scoped
+* Time-bounded
+* Reversible
+
+Agent MUST refuse:
+
+* Unsigned directives
+* Over-broad scope
+* Unsafe operations
+* Missing rollback instructions
+
+---
+
+## 🔍 AI / ML / LLM INTERACTION (ADVISORY ONLY)
+
+Linux Agent:
+
+* **Does NOT run AI**
+* **Does NOT infer**
+* **Does NOT score**
+
+Allowed:
+
+* Emit telemetry fields required by AI later
+* Receive human-visible context (never actions)
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Kernel feature unavailable
+* Privilege loss
+* Disk full
+* Network isolation
+* Identity expiration
+* Binary tampering
+
+Agent must:
+
+* Remain observable
+* Avoid OS instability
+* Fail safely without blocking host
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Validate Linux distro neutrality
+* Validate no-swap enforcement
+* Validate signed enforcement only
+* Validate rollback correctness
+* Validate offline operation
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 9B is INVALID if:
+
+* Swap is used
+* Python exists
+* Enforcement is implicit
+* Identity trust is assumed
+* Kernel assumptions exist
+* Unsigned actions execute
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the Linux Agent as:
+
+* A **low-trust execution surface**
+* A **high-integrity sensor**
+* A **surgical enforcer**
+
+If the Linux Agent fails, **it must not damage the host**.
+
+**BUILD PHASE 9B COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 🪟 RANSOMEYE — PHASE 9C
+
+## Windows Agent (Stand-Alone) — Native Endpoint Sensor & Controlled Enforcer
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 9C)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_windows_agent/`
+
+---
+
+## CONTEXT (WINDOWS ENDPOINT TRUST BOUNDARY)
+
+The Windows Agent operates on **enterprise-hardened and potentially compromised Windows hosts**.
+
+Assumptions:
+
+* Hostile local users may exist
+* Privileges may be restricted or revoked
+* System is protected by AV/EDR/Defender
+* System may be offline or air-gapped
+
+The Windows Agent is **stand-alone** and:
+
+* Collects **native Windows telemetry**
+* Executes **only explicitly authorized enforcement**
+* Never correlates across hosts
+* Never infers attacks
+* Never depends on AI/ML/LLM to function
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–8** apply unchanged.
+
+Additional Phase-9C rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 9C OBJECTIVE
+
+Build a **native, low-overhead, cryptographically controlled Windows Agent** that:
+
+1. Collects Windows-native telemetry safely
+2. Normalizes and signs telemetry events
+3. Receives **signed enforcement directives only**
+4. Executes enforcement safely and reversibly
+5. Maintains strong identity and self-integrity
+6. Operates without swap
+7. Works across **supported Windows Server & Desktop versions**
+
+---
+
+## 🚫 LANGUAGE & LICENSE RULES (STRICT)
+
+### Allowed Languages
+
+* **Rust (PRIMARY orchestration & security)**
+* **C++ (MANDATORY for Windows-native subsystems)**
+
+### Forbidden
+
+* Python
+* Java
+* Go
+* NodeJS
+* PowerShell as core logic
+* Any interpreter-based runtime
+
+Allowed libraries:
+
+* Windows SDK
+* ETW APIs
+* MIT / BSD / Apache 2.0 libraries only
+
+---
+
+## 💾 SWAP POLICY (EXPLICIT)
+
+* **Swap usage is FORBIDDEN**
+* Agent must not create, require, or depend on swap
+* Memory usage must be bounded
+* Swap checks must explicitly skip Windows Agent
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Process & thread telemetry
+* File system metadata telemetry
+* Registry activity telemetry
+* ETW-based event capture
+* Secure communication with Core ingestion
+* Signed enforcement execution
+* Self-integrity & tamper detection
+
+### MUST NEVER DO
+
+* Policy decisions
+* Cross-host correlation
+* AI inference
+* Runtime learning
+* Unsigned execution
+* OS destabilization
+
+---
+
+## 📁 PHASE 9C DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_windows_agent/
+```
+
+```
+ransomeye_windows_agent/
+├── src/
+│   ├── main.rs
+│   ├── agent.rs
+│   ├── lifecycle.rs
+│   ├── telemetry/
+│   │   ├── process.cpp
+│   │   ├── filesystem.cpp
+│   │   ├── registry.cpp
+│   │   ├── etw.cpp
+│   │   ├── memory.cpp
+│   │   └── system.cpp
+│   │
+│   ├── enforcement/
+│   │   ├── actions.rs
+│   │   ├── safeguards.rs
+│   │   └── rollback.rs
+│   │
+│   ├── comms/
+│   │   ├── protocol.rs
+│   │   ├── encryption.rs
+│   │   └── retry.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── verification.rs
+│   │   └── integrity.rs
+│   │
+│   ├── system/
+│   │   └── env_validation.rs
+│   │
+│   └── errors/
+│       └── agent_errors.rs
+│
+├── installer/
+│   ├── msi/
+│   ├── service/
+│   │   └── ransomeye-windows-agent.service
+│   └── upgrade.md
+│
+├── docs/
+│   ├── telemetry_model.md
+│   ├── etw_model.md
+│   ├── enforcement_model.md
+│   ├── security_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_telemetry.rs
+    ├── etw_failure_tests.rs
+    ├── enforcement_safety_tests.rs
+    ├── rollback_tests.rs
+    └── offline_mode_tests.rs
+```
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Unique per-agent cryptographic identity
+* Secure enrollment & bootstrap
+* Mutual authentication with Core ingestion
+* Signature verification on every directive
+* Identity expiration & revocation
+
+Verification failure → **REFUSE EXECUTION**
+
+---
+
+## 📊 TELEMETRY MODEL (SAFE & BOUNDED)
+
+Telemetry MUST be:
+
+* Metadata-only
+* Rate-limited
+* Privacy-aware
+* Schema-validated
+* Signed before transmission
+
+Explicitly forbidden:
+
+* Credential harvesting
+* Raw memory dumps
+* File content exfiltration
+
+---
+
+## 🛡️ ENFORCEMENT MODEL (STRICT & SAFE)
+
+Enforcement actions MUST be:
+
+* Explicit
+* Signed
+* Scoped
+* Time-bounded
+* Reversible
+
+Agent MUST refuse:
+
+* Unsigned directives
+* Over-broad scope
+* Unsafe operations
+* Missing rollback instructions
+
+---
+
+## 🔍 AI / ML / LLM INTERACTION (ADVISORY ONLY)
+
+Windows Agent:
+
+* **DOES NOT run AI**
+* **DOES NOT infer**
+* **DOES NOT score**
+
+Allowed:
+
+* Emit telemetry fields required by AI later
+* Display human-readable advisory context
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* ETW provider failure
+* Privilege loss
+* Service restart
+* Disk exhaustion
+* Network isolation
+* Identity expiration
+* Binary tampering
+
+Agent must:
+
+* Remain observable
+* Avoid OS instability
+* Fail safely without blocking Windows
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Validate supported Windows versions
+* Validate no-swap enforcement
+* Validate signed enforcement only
+* Validate rollback correctness
+* Validate offline operation
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 9C is INVALID if:
+
+* Swap is used
+* Python exists
+* Enforcement is implicit
+* Identity trust is assumed
+* ETW is replaced with polling
+* Unsigned actions execute
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the Windows Agent as:
+
+* A **high-value target**
+* A **low-trust environment component**
+* A **precise execution surface**
+
+If the Windows Agent fails, **it must not destabilize the OS**.
+
+**BUILD PHASE 9C COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 📊 RANSOMEYE — PHASE 10
+
+## Reporting, Forensics, Evidence Preservation & Audit Outputs
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 10)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_reporting/`
+
+---
+
+## CONTEXT (LEGAL & FORENSIC GRADE)
+
+This phase produces **evidence**, not dashboards.
+
+All outputs from this phase may be:
+
+* Used in internal incident response
+* Presented to auditors
+* Shared with regulators
+* Submitted in legal proceedings
+
+Therefore:
+
+* **Nothing may be altered**
+* **Nothing may be inferred**
+* **Nothing may be hidden**
+* **Everything must be verifiable**
+
+If this phase is weak, **RansomEye is legally indefensible**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–9C** apply unchanged.
+
+Additional Phase-10 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 10 OBJECTIVE
+
+Build an **audit-grade, forensically sound reporting and evidence system** that:
+
+1. Produces **immutable evidence artifacts**
+2. Preserves full chain-of-custody
+3. Supports **PDF, HTML, CSV**
+4. Cryptographically signs every report
+5. Guarantees reproducibility
+6. Exposes explainability artifacts (from Phase 8)
+7. Never mutates original detection data
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Snapshot validated outputs only
+* Generate cryptographic hashes at capture time
+* Sign evidence and reports
+* Maintain chain-of-custody logs
+* Support independent verification
+* Export in required formats
+
+### MUST NEVER DO
+
+* Re-run detection logic
+* Modify evidence post-capture
+* Hide uncertainty or confidence
+* Aggregate beyond source meaning
+* Allow mutable storage
+
+---
+
+## 📁 PHASE 10 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_reporting/
+```
+
+```
+ransomeye_reporting/
+├── src/
+│   ├── lib.rs
+│   ├── collector.rs
+│   ├── evidence.rs
+│   ├── hash.rs
+│   ├── signature.rs
+│   ├── custody.rs
+│   ├── manifest.rs
+│   └── exporter.rs
+│
+├── formats/
+│   ├── pdf.rs
+│   ├── html.rs
+│   └── csv.rs
+│
+├── schema/
+│   ├── evidence_schema.json
+│   ├── report_schema.json
+│   └── metadata_schema.json
+│
+├── security/
+│   ├── signing.rs
+│   ├── verification.rs
+│   └── key_management.md
+│
+├── docs/
+│   ├── evidence_model.md
+│   ├── chain_of_custody.md
+│   ├── report_contents.md
+│   ├── legal_defensibility.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── immutability_tests.rs
+    ├── hash_verification_tests.rs
+    ├── signature_tests.rs
+    ├── format_parity_tests.rs
+    └── tamper_detection_tests.rs
+```
+
+---
+
+## 🔐 CHAIN OF CUSTODY (MANDATORY)
+
+You MUST implement:
+
+* Evidence ID generation
+* Capture timestamps (monotonic + wall-clock)
+* Hash-at-capture
+* Immutable custody log entries
+* Signed custody transitions
+
+Every access, export, or verification:
+
+* Must append a custody record
+* Must be signed
+* Must be verifiable independently
+
+---
+
+## 📑 REPORT CONTENT (MANDATORY & FIXED)
+
+Each report MUST include:
+
+* Incident identifier
+* Detection timeline
+* Entities involved
+* Kill-chain stages (from Phase 5)
+* Policy decisions (from Phase 6)
+* Enforcement directives & outcomes (Phase 7)
+* AI explainability references (Phase 8)
+* Confidence values
+* Analyst annotations (clearly marked)
+* Cryptographic hashes
+* Verification instructions
+
+No speculative language allowed.
+
+---
+
+## 📤 OUTPUT FORMAT RULES
+
+### PDF
+
+* Human-readable
+* Signed
+* Watermarked with Report ID
+* Embedded hash summary
+
+### HTML
+
+* Self-contained
+* Read-only
+* Embedded verification metadata
+
+### CSV
+
+* Raw data only
+* No interpretation
+* Each row hash-referenced
+
+---
+
+## 🔀 DATA FLOW (STRICT & IMMUTABLE)
+
+Define and enforce:
+
+1. Input selection (validated only)
+2. Evidence snapshot
+3. Hash generation
+4. Signature application
+5. Format rendering
+6. Output sealing
+7. Verification workflow
+
+At no point may data mutate.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Missing evidence
+* Hash mismatch
+* Signature failure
+* Partial export
+* Disk exhaustion
+
+Any failure → **ABORT OUTPUT, PRESERVE ORIGINAL EVIDENCE**
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Prove immutability
+* Detect tampering
+* Validate cross-format parity
+* Verify reproducibility
+* Validate custody integrity
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 10 is INVALID if:
+
+* Evidence can be modified
+* Hashing is optional
+* Reports are unsigned
+* Formats diverge semantically
+* Python mutates evidence
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 10 outputs as:
+
+* **Court-admissible artifacts**
+* **Immutable truth records**
+* **Externally verifiable proof**
+
+If Phase 10 is weak, **RansomEye cannot be trusted beyond SOC dashboards**.
+
+**BUILD PHASE 10 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# ⚙️ RANSOMEYE — PHASE 11
+
+## Unified Installer, Uninstaller, EULA Enforcement & Operations
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 11)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_installer/`
+
+**Scope Note (STRICT):**
+This phase applies to **ALL modules** via a **unified installer/uninstaller** **EXCEPT**:
+
+* **DPI Probe** (stand-alone)
+* **Linux Agent** (stand-alone)
+* **Windows Agent** (stand-alone)
+
+Those stand-alone modules have **their own installers** and are **explicitly excluded** from unified installer logic.
+
+---
+
+## CONTEXT (ENTERPRISE & LEGAL CRITICAL)
+
+This phase determines whether RansomEye can be:
+
+* Installed safely
+* Operated in air-gapped environments
+* Upgraded without outages
+* Rolled back deterministically
+* Uninstalled cleanly
+* Legally distributed (EULA)
+
+Any mistake here can:
+
+* Brick hosts
+* Violate license terms
+* Break trust with customers
+* Prevent rollback during incidents
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–10** apply unchanged.
+
+Additional Phase-11 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 11 OBJECTIVE
+
+Build a **transactional, deterministic, legally enforced installer/uninstaller** that:
+
+1. Enforces **explicit EULA acceptance**
+2. Performs **preflight validation**
+3. Creates and validates **SWAP** (Core & DPI only)
+4. Installs all **non-stand-alone modules**
+5. Verifies **signatures & integrity**
+6. Supports **upgrade, rollback, uninstall**
+7. Works **offline / air-gapped**
+8. Centralizes **systemd units**
+9. Leaves system safe on failure
+
+---
+
+## 📦 INSTALLER RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Display and require EULA acceptance
+* Validate environment before install
+* Verify signatures for every artifact
+* Enforce version compatibility
+* Perform atomic installs
+* Create/verify swap (Core only here)
+* Support rollback on failure
+* Log deterministically
+
+### MUST NEVER DO
+
+* Assume internet access
+* Modify OS security silently
+* Proceed on validation failure
+* Leave partial installs
+* Skip EULA
+* Install stand-alone modules
+
+---
+
+## 📁 PHASE 11 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_installer/
+```
+
+```
+ransomeye_installer/
+├── src/
+│   ├── main.rs
+│   ├── eula.rs
+│   ├── preflight.rs
+│   ├── verify.rs
+│   ├── install.rs
+│   ├── upgrade.rs
+│   ├── rollback.rs
+│   ├── uninstall.rs
+│   ├── swap.rs
+│   └── logging.rs
+│
+├── packages/
+│   ├── core/
+│   ├── ingestion/
+│   ├── policy/
+│   ├── dispatcher/
+│   ├── ai/
+│   ├── reporting/
+│   └── intelligence/
+│
+├── systemd/
+│   ├── ransomeye-core.service
+│   ├── ransomeye-ingestion.service
+│   ├── ransomeye-policy.service
+│   ├── ransomeye-dispatcher.service
+│   ├── ransomeye-ai.service
+│   └── ransomeye-reporting.service
+│
+├── eula/
+│   └── EULA.txt   # EMPTY FILE — MUST EXIST & BE ACCEPTED
+│
+├── config/
+│   └── install_schema.md
+│
+├── scripts/
+│   ├── install.sh
+│   ├── upgrade.sh
+│   ├── rollback.sh
+│   ├── uninstall.sh
+│   └── verify.sh
+│
+├── docs/
+│   ├── installation_guide.md
+│   ├── upgrade_guide.md
+│   ├── rollback_guide.md
+│   ├── uninstall_guide.md
+│   ├── airgap_guide.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── preflight_tests.rs
+    ├── eula_enforcement_tests.rs
+    ├── swap_creation_tests.rs
+    ├── upgrade_failure_tests.rs
+    ├── rollback_tests.rs
+    └── uninstall_tests.rs
+```
+
+---
+
+## 📜 EULA ENFORCEMENT (MANDATORY, NON-NEGOTIABLE)
+
+Rules:
+
+* EULA file path is fixed:
+
+  ```
+  /home/ransomeye/rebuild/ransomeye_installer/eula/EULA.txt
+  ```
+* Installer MUST:
+
+  * Display EULA
+  * Require explicit acceptance (yes/no)
+  * Record acceptance (timestamp, user, host)
+* No acceptance → **ABORT INSTALL**
+* Acceptance must be auditable
+
+No silent installs.
+
+---
+
+## 🔍 PREFLIGHT VALIDATION (MANDATORY)
+
+You MUST validate:
+
+* OS compatibility
+* Kernel features
+* Disk space
+* Memory availability
+* Required capabilities
+* Conflicting services
+* Existing versions
+* Architecture compatibility
+
+Any failure → **ABORT**
+
+---
+
+## 💾 SWAP MANAGEMENT (MANDATORY)
+
+### Applies ONLY to:
+
+* **Core Engine**
+* **DPI Probe** (handled by DPI installer; unified installer validates Core only)
+
+Rules for Core:
+
+* Minimum SWAP: **16 GB**
+* OR **equal to physical RAM**, whichever is higher
+* Create swap file deterministically
+* Persist across reboot
+* Verify at startup
+
+Failure → **ABORT INSTALL**
+
+Explicitly forbidden for:
+
+* Linux Agent
+* Windows Agent
+
+---
+
+## 🔐 SECURITY & INTEGRITY (MANDATORY)
+
+Installer MUST:
+
+* Verify signatures for every package
+* Verify checksums
+* Validate trust chain
+* Reject unsigned or modified artifacts
+
+Any failure → **ABORT**
+
+---
+
+## 🔄 UPGRADE & ROLLBACK (TRANSACTIONAL)
+
+You MUST implement:
+
+* Rolling upgrades (where applicable)
+* Mixed-version compatibility checks
+* Config migration with backup
+* Automatic rollback on failure
+
+Rollback MUST:
+
+* Restore binaries
+* Restore configs
+* Restore services
+* Leave system operational
+
+---
+
+## 🧹 UNINSTALL (CLEAN & SAFE)
+
+Uninstall MUST:
+
+* Stop services
+* Remove binaries
+* Preserve logs (optional, configurable)
+* Remove swap ONLY if created by installer
+* Leave OS unchanged otherwise
+
+No orphaned services.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Power loss mid-install
+* Disk full mid-install
+* Invalid EULA
+* Signature failure
+* Version mismatch
+* Partial upgrade
+
+System must always be recoverable.
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Enforce EULA acceptance
+* Verify swap creation
+* Simulate upgrade failures
+* Verify rollback correctness
+* Validate uninstall safety
+* Validate air-gapped install
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 11 is INVALID if:
+
+* EULA can be bypassed
+* Swap is optional for Core
+* Partial installs persist
+* Rollback is best-effort
+* Stand-alone modules are installed here
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 11 as:
+
+* A **legal gate**
+* An **operational safety system**
+* A **transaction manager**
+
+If Phase 11 fails, **enterprises will not trust deployment**.
+
+**BUILD PHASE 11 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+
+# 🧪 RANSOMEYE — PHASE 12
+
+## Validation, Stress, Security, Scale & Release Gate
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 12 | FINAL)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_validation/`
+
+---
+
+## CONTEXT (NO COMPROMISE)
+
+This phase decides whether **RansomEye is releasable**.
+
+Nothing ships unless **every prior phase is proven** to:
+
+* Behave deterministically
+* Fail closed
+* Scale to enterprise extremes
+* Remain safe under attack
+* Defend from **Day 1** with **fully trained AI/ML/LLM**
+
+This is not QA.
+This is **operational proof under hostile conditions**.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–11** apply unchanged.
+
+Additional Phase-12 rules are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 12 OBJECTIVE
+
+Build a **comprehensive, automated validation and stress framework** that:
+
+1. Verifies **every phase contract**
+2. Stress-tests **50,000+ endpoints**
+3. Validates **40+ Gbps DPI throughput**
+4. Proves **determinism and fail-closed behavior**
+5. Validates **AI/ML/LLM Day-1 readiness**
+6. Simulates **active attacker behavior**
+7. Produces **release certification artifacts**
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* End-to-end validation
+* Adversarial testing
+* Load and stress testing
+* Fault injection
+* Determinism verification
+* Security posture validation
+* Produce signed release reports
+
+### MUST NEVER DO
+
+* Modify production code
+* Relax constraints
+* Skip failing tests
+* Mask nondeterminism
+* Disable safeguards
+
+---
+
+## 📁 PHASE 12 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_validation/
+```
+
+```
+ransomeye_validation/
+├── harness/
+│   ├── orchestrator.rs
+│   ├── environment.rs
+│   ├── fault_injection.rs
+│   └── metrics.rs
+│
+├── scenarios/
+│   ├── ransomware_campaigns/
+│   │   ├── locker_simulation.yaml
+│   │   ├── lateral_movement.yaml
+│   │   └── mass_encryption.yaml
+│   │
+│   ├── benign_load/
+│   │   ├── enterprise_burst.yaml
+│   │   └── maintenance_window.yaml
+│   │
+│   └── attacker_behaviors/
+│       ├── evasion.yaml
+│       ├── replay.yaml
+│       └── poisoning.yaml
+│
+├── scale/
+│   ├── endpoint_scale.rs
+│   ├── dpi_throughput.rs
+│   └── memory_pressure.rs
+│
+├── security/
+│   ├── trust_violation.rs
+│   ├── signature_attack.rs
+│   ├── privilege_escalation.rs
+│   └── tamper_tests.rs
+│
+├── ai_validation/
+│   ├── day1_readiness.rs
+│   ├── shap_coverage.rs
+│   ├── hallucination.rs
+│   └── drift_detection.rs
+│
+├── determinism/
+│   ├── replay_tests.rs
+│   ├── ordering_tests.rs
+│   └── invariant_checks.rs
+│
+├── reports/
+│   ├── release_certificate.md
+│   ├── risk_register.md
+│   ├── coverage_report.md
+│   └── known_limitations.md
+│
+└── tests/
+    ├── end_to_end.rs
+    ├── fail_closed.rs
+    ├── overload.rs
+    ├── rollback.rs
+    └── recovery.rs
+```
+
+---
+
+## 🔄 END-TO-END VALIDATION (MANDATORY)
+
+You MUST validate complete flows:
+
+1. DPI / Agents → Ingestion
+2. Ingestion → Core Correlation
+3. Core → Policy Engine
+4. Policy → Dispatcher
+5. Dispatcher → Stand-alone Agents
+6. Evidence → Reporting
+7. AI → Analyst only (no authority)
+
+Every flow must be:
+
+* Signed
+* Audited
+* Deterministic
+
+---
+
+## 📈 SCALE & STRESS (NON-NEGOTIABLE)
+
+You MUST prove:
+
+* **50,000+ endpoints** simulated concurrently
+* Sustained DPI ingest at **40+ Gbps**
+* Backpressure correctness
+* Bounded memory usage
+* No global lock collapse
+* Swap behavior correct (Core & DPI only)
+
+Failure anywhere → **FAIL RELEASE**
+
+---
+
+## 🔐 SECURITY & ADVERSARIAL TESTING
+
+You MUST simulate:
+
+* Identity spoofing
+* Signature forgery
+* Replay attacks
+* Policy tampering
+* Agent compromise
+* AI poisoning attempts
+
+Expected behavior:
+
+* Detection
+* Rejection
+* Audit
+* No enforcement without authority
+
+---
+
+## 🧠 AI / ML / LLM DAY-1 VALIDATION (MANDATORY)
+
+You MUST prove:
+
+* Baseline models exist and load
+* SHAP generated for every inference
+* LLM operates offline
+* No inference without explainability
+* No AI influence on enforcement
+* No cold-start conditions
+
+AI subsystem failure must:
+
+* Disable AI only
+* Leave Core operational
+
+---
+
+## 🔁 DETERMINISM & FAIL-CLOSED
+
+You MUST prove:
+
+* Identical inputs → identical outputs
+* Order variance handled explicitly
+* No race-condition detection drift
+* Any ambiguity → NO ACTION
+* Any verification failure → FAIL CLOSED
+
+---
+
+## 💥 FAULT INJECTION (MANDATORY)
+
+Inject and validate behavior for:
+
+* Network partitions
+* Disk exhaustion
+* CPU starvation
+* Memory pressure
+* Swap removal (Core/DPI)
+* Partial upgrades
+* Power loss mid-operation
+
+System must:
+
+* Remain safe
+* Recover deterministically
+* Preserve audit trails
+
+---
+
+## 📜 RELEASE ARTIFACTS (MANDATORY)
+
+You MUST produce:
+
+* **Release Certificate** (signed)
+* **Coverage Report**
+* **Risk Register**
+* **Known Limitations**
+* **Reproducibility Instructions**
+
+No release without signed artifacts.
+
+---
+
+## 🛑 RELEASE FAILURE CONDITIONS (ABSOLUTE)
+
+Phase 12 FAILS if:
+
+* Any phase violates contracts
+* Any nondeterminism exists
+* AI is not Day-1 ready
+* Enforcement occurs on ambiguity
+* Swap rules are violated
+* GPL contamination exists
+* EULA enforcement is bypassable
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 12 as:
+
+* A **weapons test range**
+* A **courtroom rehearsal**
+* A **battlefield simulation**
+
+Only if Phase 12 passes **completely** is RansomEye considered:
+
+> **MILITARY-GRADE, ENTERPRISE-READY, DAY-1 DEFENSIVE**
+
+**BUILD PHASE 12 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+# 🔴 RANSOMEYE — RED-TEAM PLAYBOOKS
+
+## (Authoritative Adversarial Validation Set)
+
+---
+
+## 🎯 RED-TEAM OBJECTIVES (NON-NEGOTIABLE)
+
+Each playbook MUST attempt to:
+
+1. Bypass trust boundaries
+2. Cause false enforcement
+3. Suppress real detection
+4. Break determinism
+5. Poison intelligence
+6. Exploit scale (50k+ endpoints)
+7. Force fail-open behavior
+
+**Success is defined as:**
+RansomEye **detects, resists, fails closed, logs, and recovers**.
+
+---
+
+# PLAYBOOK GROUP A — DATA PLANE ATTACKS
+
+*(DPI + Agents)*
+
+---
+
+## 🔴 RT-01: DPI FLOOD & MEMORY EXHAUSTION
+
+**Goal:**
+Crash DPI or force silent packet drops at 40+ Gbps.
+
+**Attack Simulation:**
+
+* Mixed packet sizes (64B–9KB)
+* TCP/UDP/QUIC blend
+* Out-of-order fragments
+* Burst floods > NIC capacity
+
+**Validation Criteria:**
+
+* No payload storage
+* No memory growth
+* Backpressure engaged
+* Core remains unaffected
+* Audit logs present
+
+**FAIL IF:**
+
+* DPI crashes
+* Silent drops occur
+* Core ingestion stalls
+
+---
+
+## 🔴 RT-02: DPI EVENT SPOOFING
+
+**Goal:**
+Inject forged DPI metadata events.
+
+**Attack Simulation:**
+
+* Replay valid event envelopes
+* Modify fields post-signature
+* Forge producer IDs
+
+**Expected Outcome:**
+
+* Signature verification fails
+* Events rejected
+* Replay detected
+* No Core state change
+
+---
+
+## 🔴 RT-03: AGENT IDENTITY TAKEOVER
+
+**Goal:**
+Impersonate Linux/Windows Agent.
+
+**Attack Simulation:**
+
+* Copy agent cert
+* Modify agent binary
+* Replay enforcement ACKs
+
+**Expected Outcome:**
+
+* Identity revocation
+* Execution refusal
+* Audit log
+* No enforcement
+
+---
+
+# PLAYBOOK GROUP B — INGESTION & STREAMING
+
+---
+
+## 🔴 RT-04: INGESTION BACKPRESSURE COLLAPSE
+
+**Goal:**
+Overflow ingestion buffers.
+
+**Attack Simulation:**
+
+* Burst telemetry from 10k agents
+* Schema-valid but high-rate
+* Slow Core downstream
+
+**Expected Outcome:**
+
+* Bounded buffers
+* Deterministic rejection
+* No memory exhaustion
+* No silent drops
+
+---
+
+## 🔴 RT-05: EVENT REORDERING & GAPS
+
+**Goal:**
+Break temporal correlation assumptions.
+
+**Attack Simulation:**
+
+* Reordered sequences
+* Missing sequence numbers
+* Clock skew injection
+
+**Expected Outcome:**
+
+* Explicit reordering handling
+* No false detection
+* Confidence decay applied
+* Audit entries recorded
+
+---
+
+# PLAYBOOK GROUP C — CORE CORRELATION
+
+---
+
+## 🔴 RT-06: KILL-CHAIN SKIP ATTACK
+
+**Goal:**
+Trigger late-stage ransomware detection without early signals.
+
+**Attack Simulation:**
+
+* Emit encryption-like telemetry
+* Skip lateral movement & privilege escalation signals
+
+**Expected Outcome:**
+
+* Invariant violation
+* Detection refused
+* No policy trigger
+
+---
+
+## 🔴 RT-07: ENTITY EXPLOSION ATTACK
+
+**Goal:**
+Exhaust Core memory with fake entities.
+
+**Attack Simulation:**
+
+* Random host/process IDs
+* High churn identity creation
+
+**Expected Outcome:**
+
+* Eviction strategy applied
+* Memory bounded
+* Core survives
+* Detection accuracy preserved
+
+---
+
+## 🔴 RT-08: NON-DETERMINISM PROBE
+
+**Goal:**
+Force different outcomes from same input.
+
+**Attack Simulation:**
+
+* Replay identical event streams
+* Alter thread timing
+* Change arrival order
+
+**Expected Outcome:**
+
+* Identical outputs
+* Identical confidence
+* Identical explainability
+
+---
+
+# PLAYBOOK GROUP D — POLICY & ENFORCEMENT
+
+---
+
+## 🔴 RT-09: POLICY CONFLICT AMBIGUITY
+
+**Goal:**
+Force ambiguous enforcement.
+
+**Attack Simulation:**
+
+* Two signed policies with overlapping scope
+* Opposing actions
+
+**Expected Outcome:**
+
+* Conflict detected
+* No enforcement
+* Audit entry
+
+---
+
+## 🔴 RT-10: UNSIGNED POLICY INJECTION
+
+**Goal:**
+Execute enforcement without valid policy.
+
+**Attack Simulation:**
+
+* Inject unsigned policy
+* Expired signature
+* Revoked key
+
+**Expected Outcome:**
+
+* Policy rejected
+* Enforcement blocked
+* Alert logged
+
+---
+
+## 🔴 RT-11: ROLLBACK FAILURE ATTACK
+
+**Goal:**
+Cause partial enforcement without rollback.
+
+**Attack Simulation:**
+
+* Kill agent mid-execution
+* Network drop after action
+* ACK suppression
+
+**Expected Outcome:**
+
+* Rollback initiated
+* Partial state reversed
+* No repeated harm
+
+---
+
+# PLAYBOOK GROUP E — AI / ML / LLM ATTACKS
+
+---
+
+## 🔴 RT-12: AI POISONING ATTEMPT
+
+**Goal:**
+Influence detection via AI.
+
+**Attack Simulation:**
+
+* Feed misleading telemetry
+* Try to bias AI confidence
+
+**Expected Outcome:**
+
+* AI advisory only
+* Core unaffected
+* AI confidence bounded
+* No enforcement change
+
+---
+
+## 🔴 RT-13: SHAP SUPPRESSION
+
+**Goal:**
+Force inference without explainability.
+
+**Attack Simulation:**
+
+* Corrupt SHAP artifact
+* Remove SHAP baseline
+
+**Expected Outcome:**
+
+* AI inference blocked
+* Core unaffected
+* Audit log present
+
+---
+
+## 🔴 RT-14: LLM HALLUCINATION TEST
+
+**Goal:**
+Force LLM to suggest enforcement.
+
+**Attack Simulation:**
+
+* Prompt injection
+* Leading analyst queries
+
+**Expected Outcome:**
+
+* Guardrails block
+* Advisory language only
+* No action suggestion
+
+---
+
+# PLAYBOOK GROUP F — FORENSICS & REPORTING
+
+---
+
+## 🔴 RT-15: EVIDENCE TAMPERING
+
+**Goal:**
+Modify stored evidence.
+
+**Attack Simulation:**
+
+* Alter CSV rows
+* Edit PDF metadata
+* Change timestamps
+
+**Expected Outcome:**
+
+* Hash mismatch detected
+* Verification fails
+* Evidence invalidated visibly
+
+---
+
+## 🔴 RT-16: CHAIN-OF-CUSTODY BREAK
+
+**Goal:**
+Hide access or export.
+
+**Attack Simulation:**
+
+* Access evidence without logging
+* Delete custody entry
+
+**Expected Outcome:**
+
+* Access blocked
+* Audit alert
+* Custody remains intact
+
+---
+
+# PLAYBOOK GROUP G — INSTALLER & OPS
+
+---
+
+## 🔴 RT-17: EULA BYPASS
+
+**Goal:**
+Install without EULA acceptance.
+
+**Attack Simulation:**
+
+* Non-interactive install
+* Scripted bypass
+
+**Expected Outcome:**
+
+* Install aborted
+* No services installed
+
+---
+
+## 🔴 RT-18: SWAP REMOVAL ATTACK
+
+**Goal:**
+Run Core/DPI without swap.
+
+**Attack Simulation:**
+
+* Remove swap after install
+* Boot Core
+
+**Expected Outcome:**
+
+* Startup failure
+* Explicit error
+* No degraded run
+
+---
+
+## 🔴 RT-19: PARTIAL UPGRADE CORRUPTION
+
+**Goal:**
+Break version compatibility.
+
+**Attack Simulation:**
+
+* Interrupt upgrade mid-way
+* Mix versions
+
+**Expected Outcome:**
+
+* Rollback executed
+* System restored
+* Audit recorded
+
+---
+
+# PLAYBOOK GROUP H — SCALE & BATTLEFIELD
+
+---
+
+## 🔴 RT-20: FULL ENTERPRISE CAMPAIGN
+
+**Goal:**
+Simulate real ransomware across 50k endpoints.
+
+**Attack Simulation:**
+
+* Initial access → lateral → encryption
+* Mixed OS
+* Concurrent benign load
+
+**Expected Outcome:**
+
+* Correct kill-chain detection
+* Controlled enforcement
+* No collateral damage
+* Complete forensic trail
+
+---
+
+# ✅ RED-TEAM SUCCESS CRITERIA
+
+RansomEye PASSES if:
+
+* No phase fails open
+* No enforcement occurs on ambiguity
+* AI never overrides logic
+* Memory & CPU remain bounded
+* All attacks are logged
+* Recovery is deterministic
+* Evidence is defensible
+
+---
+
+

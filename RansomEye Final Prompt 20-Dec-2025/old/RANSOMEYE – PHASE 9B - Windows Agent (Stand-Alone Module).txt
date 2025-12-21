@@ -1,0 +1,305 @@
+# 🪟 RANSOMEYE – PHASE 9B
+
+## Windows Agent (Stand-Alone Module)
+
+### **(PROMPT NUMBER 9B OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (STAND-ALONE MODULE – CRITICAL)
+
+You are building the **RansomEye Windows Agent**.
+
+This agent is a **fully stand-alone deployable component**, independently installable, upgradeable, and removable, with **no runtime dependency on Python**.
+
+The Windows Agent must:
+
+* Run on **supported Windows Server and Desktop versions**
+* Use **native Windows telemetry mechanisms**
+* Be **fail-closed**
+* Operate in **restricted, enterprise-hardened environments**
+* Function in **offline / air-gapped deployments**
+
+This agent operates at a **high-risk trust boundary** and must assume:
+
+* The endpoint may already be partially compromised
+* Network conditions are hostile
+* Privileges may be reduced at runtime
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (MANDATORY, PRIMARY)**
+* **C++ (MANDATORY for Windows-native subsystems)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Python
+* Java
+* Go
+* NodeJS
+* PowerShell as core logic
+* Any interpreter-based runtime
+
+➡️ Any violation = **INVALID OUTPUT**
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+* Microsoft Windows SDK / OS EULA
+
+BANNED:
+
+* GPL / AGPL / SSPL
+* Unknown or ambiguous licenses
+* Copyleft userland libraries
+
+---
+
+## 🎯 PHASE 9B OBJECTIVE
+
+Build a **native, low-overhead, cryptographically secured Windows Agent** that:
+
+1. Collects deep host telemetry using native APIs
+2. Observes ransomware-relevant behaviors
+3. Executes enforcement actions **only when explicitly instructed**
+4. Maintains a strong cryptographic identity
+5. Survives reboots, updates, and partial failures
+6. Never makes autonomous policy decisions
+
+---
+
+## 📦 WINDOWS AGENT RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Process and thread telemetry
+* File system activity monitoring
+* Registry activity monitoring
+* ETW-based event capture
+* Memory and handle observation (metadata only)
+* Secure communication with Core
+* Signed enforcement execution
+* Self-integrity and tamper detection
+
+### MUST NEVER DO
+
+* Correlate multi-host data
+* Train or run ML models
+* Make autonomous decisions
+* Execute unsigned instructions
+* Depend on external runtimes
+
+---
+
+## 📁 PHASE 9B FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+agents/
+└── windows/
+    ├── src/
+    │   ├── main.rs
+    │   ├── agent.rs
+    │   ├── lifecycle.rs
+    │   ├── telemetry/
+    │   │   ├── mod.rs
+    │   │   ├── process.cpp
+    │   │   ├── filesystem.cpp
+    │   │   ├── registry.cpp
+    │   │   ├── etw.cpp
+    │   │   └── memory.cpp
+    │   │
+    │   ├── enforcement/
+    │   │   ├── mod.rs
+    │   │   ├── actions.rs
+    │   │   └── safeguards.rs
+    │   │
+    │   ├── security/
+    │   │   ├── identity.rs
+    │   │   ├── verification.rs
+    │   │   └── integrity.rs
+    │   │
+    │   ├── comms/
+    │   │   ├── protocol.rs
+    │   │   ├── encryption.rs
+    │   │   └── retry.rs
+    │   │
+    │   ├── config/
+    │   │   └── validation.rs
+    │   │
+    │   └── errors/
+    │       └── agent_errors.rs
+    │
+    ├── installer/
+    │   ├── msi/
+    │   ├── service/
+    │   │   └── ransomeye-windows-agent.service
+    │   └── upgrade.md
+    │
+    ├── docs/
+    │   ├── telemetry_model.md
+    │   ├── enforcement_model.md
+    │   ├── etw_usage.md
+    │   ├── failure_modes.md
+    │   └── security_model.md
+    │
+    └── tests/
+        ├── synthetic_telemetry.rs
+        ├── enforcement_tests.rs
+        ├── tamper_tests.rs
+        ├── privilege_drop_tests.rs
+        └── recovery_tests.rs
+```
+
+You MUST explain:
+
+* Why Rust vs C++ is used in each area
+* How FFI boundaries are secured
+* What is forbidden in each module
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+You MUST implement:
+
+* Per-agent cryptographic identity
+* Secure enrollment and bootstrap
+* Mutual authentication with Core
+* Command signature verification
+* Revocation and expiration handling
+
+Any verification failure = **REFUSE EXECUTION**
+
+---
+
+## 📊 TELEMETRY MODEL
+
+You MUST define:
+
+* Telemetry categories (process, FS, registry, ETW, memory)
+* Event normalization
+* Rate limiting
+* Backpressure handling
+* Privacy and data minimization rules
+
+No raw memory dumps.
+No credential harvesting.
+Metadata only.
+
+---
+
+## 🛡️ ENFORCEMENT MODEL (STRICT)
+
+Enforcement actions:
+
+* Must be **explicit**
+* Must be **signed**
+* Must be **scoped**
+* Must be **time-bounded**
+* Must be **reversible**
+
+Agent must refuse:
+
+* Unsigned actions
+* Over-broad scopes
+* Actions violating host safety
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* ETW provider failure
+* Privilege reduction
+* Service restart
+* Disk exhaustion
+* Network isolation
+* Identity expiration
+* Binary tampering
+
+Agent must:
+
+* Remain observable
+* Avoid OS instability
+* Fail safely without blocking Windows
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Synthetic telemetry generators
+* ETW failure simulations
+* Enforcement safety tests
+* Tamper and integrity tests
+* Offline operation tests
+* Upgrade / rollback tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Windows Agent architecture
+2. Folder structure explanation
+3. Telemetry model
+4. ETW integration design
+5. Enforcement safeguards
+6. Identity & trust flow
+7. Failure handling matrix
+8. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Python is used anywhere
+* ETW is replaced by polling
+* Commands are unsigned
+* Agent trusts Core blindly
+* Enforcement is implicit
+* License ambiguity exists
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the Windows Agent as:
+
+* A high-value target
+* A low-trust environment component
+* A security-sensitive service
+
+Design it to survive:
+
+* Endpoint compromise attempts
+* Privilege fluctuations
+* Operator misconfiguration
+
+**BUILD PHASE 9B COMPLETELY, STRICTLY, AND NATIVELY.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 9B OF 12**
+

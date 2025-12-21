@@ -1,0 +1,282 @@
+# 📡 RANSOMEYE – PHASE 4
+
+## Event Ingestion, Secure Streaming & Backpressure Control
+
+### **(PROMPT NUMBER 4 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (CRITICAL)
+
+You are building the **Event Ingestion and Streaming Backbone** of RansomEye.
+
+This layer sits **between DPI Probes / Agents and the Core Engine** and is responsible for:
+
+* Handling **massive event volume**
+* Maintaining **ordering and integrity**
+* Applying **backpressure correctly**
+* Ensuring **zero trust between producers and consumers**
+
+This layer determines whether RansomEye:
+
+* Scales cleanly to **50,000+ endpoints**, or
+* Collapses under load
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (PRIMARY, REQUIRED)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Python
+* Java
+* Go
+* NodeJS
+* Any GC-based runtime
+
+➡️ Any violation = **INVALID OUTPUT**
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+* GPL / AGPL / SSPL → **BANNED**
+* Unknown licenses → **BANNED**
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+
+---
+
+## 🎯 PHASE 4 OBJECTIVE
+
+Build a **secure, high-throughput, backpressure-aware ingestion layer** that:
+
+1. Accepts events from:
+
+   * DPI Probes
+   * Linux Agents
+   * Windows Agents
+2. Authenticates every producer
+3. Preserves integrity and ordering
+4. Prevents overload propagation
+5. Feeds the Core Engine deterministically
+
+This layer **does not**:
+
+* Make decisions
+* Store long-term state
+* Perform AI inference
+
+---
+
+## 📦 RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Secure event intake
+* Identity verification
+* Rate control
+* Backpressure signaling
+* Event normalization
+* Temporary buffering
+
+### MUST NEVER DO
+
+* Policy evaluation
+* Correlation
+* Persistence
+* Trust producers implicitly
+
+---
+
+## 📁 PHASE 4 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+core/
+├── ingestion/
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── server.rs
+│   │   ├── auth.rs
+│   │   ├── rate_limit.rs
+│   │   ├── backpressure.rs
+│   │   ├── buffer.rs
+│   │   ├── ordering.rs
+│   │   └── dispatcher.rs
+│   │
+│   ├── protocol/
+│   │   ├── event_schema.rs
+│   │   ├── versioning.rs
+│   │   └── validation.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── signature.rs
+│   │   └── trust_enforcement.rs
+│   │
+│   ├── config/
+│   │   └── validation.rs
+│   │
+│   └── errors/
+│       └── ingest_errors.rs
+│
+├── docs/
+│   ├── ingestion_flow.md
+│   ├── backpressure_model.md
+│   ├── trust_boundaries.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_events.rs
+    ├── overload_tests.rs
+    ├── auth_failure_tests.rs
+    └── ordering_tests.rs
+```
+
+You MUST justify:
+
+* Why each module exists
+* What it enforces
+* What it forbids
+
+---
+
+## 🔀 EVENT FLOW (STEP-BY-STEP)
+
+You MUST explicitly define:
+
+1. Producer authentication
+2. Event signature verification
+3. Schema validation
+4. Rate limiting
+5. Buffering
+6. Ordering guarantees
+7. Dispatch to Core Engine
+
+Each step must include:
+
+* Input
+* Output
+* Failure behavior
+* Backpressure behavior
+
+---
+
+## ⚙️ BACKPRESSURE MODEL (CRITICAL)
+
+You MUST define:
+
+* Producer throttling
+* Buffer limits
+* Drop policy (if any)
+* Feedback mechanism to DPI/Agents
+* Recovery behavior
+
+🚫 NO silent drops allowed.
+
+---
+
+## 🔐 SECURITY ENFORCEMENT
+
+Mandatory:
+
+* Mutual authentication
+* Signature verification
+* Replay protection
+* Version compatibility checks
+* Fail-closed behavior
+
+---
+
+## 💥 FAILURE MODES (REQUIRED)
+
+Define behavior for:
+
+* Producer flooding
+* Invalid signatures
+* Schema mismatch
+* Buffer exhaustion
+* Core Engine unavailability
+* Network partitions
+
+All failures must be:
+
+* Explicit
+* Logged
+* Observable
+* Fail-safe
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Synthetic event generators
+* High-rate ingestion tests
+* Backpressure stress tests
+* Identity spoofing attempts
+* Replay attack tests
+
+No production data.
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Ingestion architecture explanation
+2. Folder structure explanation
+3. Event flow walkthrough
+4. Backpressure model
+5. Security enforcement
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Python appears anywhere
+* Events bypass authentication
+* Backpressure is vague
+* Silent drops exist
+* Ordering is undefined
+* Trust is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+This ingestion layer is the **shock absorber** of RansomEye.
+
+Design it as if:
+
+* Producers misbehave
+* Traffic spikes unpredictably
+* Attackers attempt flooding
+
+**BUILD PHASE 4 COMPLETELY AND STRICTLY.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 4 OF 12**
+
+When ready, say **“Proceed to next prompt”** and I will deliver **PROMPT NUMBER 5 OF 12**.

@@ -11,10 +11,12 @@ ConditionPathExists=/opt/ransomeye/linux_agent/.install_receipt.json
 
 [Service]
 Type=simple
-# Start as root for privilege downgrade (binary has SetUID)
-User=root
-Group=root
+# Rootless runtime enforcement - run as ransomeye user
+User=ransomeye
+Group=ransomeye
 WorkingDirectory=/opt/ransomeye/linux_agent
+RuntimeDirectory=ransomeye/linux_agent
+StateDirectory=ransomeye/linux_agent
 ExecStart=/opt/ransomeye/linux_agent/bin/ransomeye_linux_agent
 Restart=always
 RestartSec=10
@@ -28,16 +30,17 @@ LimitNPROC=4096
 MemoryMax=2G
 MemorySwapMax=0
 
-# Security hardening
-NoNewPrivileges=false  # SetUID binary needs this
+# Security hardening - Rootless runtime enforcement
+NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/ransomeye/linux_agent /var/lib/ransomeye/linux_agent
+ReadWritePaths=/opt/ransomeye/linux_agent /var/lib/ransomeye/linux_agent /run/ransomeye/linux_agent
 
-# Capabilities (minimal - only what's needed)
-CapabilityBoundingSet=CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+# Capability-based privileges (no root required)
+CapabilityBoundingSet=CAP_SYS_PTRACE CAP_DAC_READ_SEARCH CAP_NET_RAW CAP_NET_ADMIN
 AmbientCapabilities=
+PrivateUsers=false
 
 # Memory policy (NO swap)
 # Systemd will enforce MemorySwapMax=0 above

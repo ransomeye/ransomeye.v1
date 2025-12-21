@@ -1,0 +1,347 @@
+# 🧩 RANSOMEYE — PHASE 2
+
+## System Architecture, Trust Boundaries & Data-Plane Separation
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 2)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_architecture/`
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+You are defining the **foundational architecture** of RansomEye.
+
+This phase establishes:
+
+* **Hard trust boundaries**
+* **Data-plane vs control-plane separation**
+* **Zero-trust assumptions**
+* **Blast-radius containment**
+* **Where AI/ML/LLM are allowed — and forbidden**
+
+If this phase is wrong:
+
+* DPI compromises Core
+* Agents escalate privilege
+* AI influences enforcement
+* Scale claims collapse
+* Military-grade posture is impossible
+
+**This phase is purely architectural + enforcement primitives.
+NO business logic, NO detection logic, NO policy logic.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1** apply **unchanged**.
+
+Additional Phase-2-specific rules below **must be enforced by code**.
+
+---
+
+## 🎯 PHASE 2 OBJECTIVE
+
+Define and codify a **strict, provable, enforceable system architecture** that:
+
+1. Clearly separates:
+
+   * Data Plane
+   * Control Plane
+   * Intelligence Plane
+   * Management Plane
+2. Enforces **one-way trust flows**
+3. Prevents **implicit coupling**
+4. Ensures **DPI, Agents, Core, AI, LLM** cannot violate role boundaries
+5. Guarantees **Day-1 AI readiness without enforcement authority**
+
+---
+
+## 🧠 ARCHITECTURAL PLANES (MANDATORY)
+
+You MUST define **exactly these planes** and **no others**.
+
+### 1. Data Plane (Untrusted Input Plane)
+
+Components:
+
+* DPI Probe (stand-alone)
+* Linux Agent (stand-alone)
+* Windows Agent (stand-alone)
+
+Properties:
+
+* High-volume
+* Potentially hostile
+* Never authoritative
+* Never stateful long-term
+* Never enforces policy
+
+---
+
+### 2. Control Plane (Authoritative Decision Plane)
+
+Components:
+
+* Core Correlation Engine
+* Policy Engine
+* Enforcement Dispatcher
+
+Properties:
+
+* Deterministic
+* Fail-closed
+* Fully signed inputs only
+* No AI dependency
+* Enforces policy
+
+---
+
+### 3. Intelligence Plane (Advisory Only)
+
+Components:
+
+* AI / ML Models
+* Baseline Intelligence Pack
+* Explainability (SHAP)
+* Threat Intelligence Fusion
+* LLM SOC Copilot
+
+Properties:
+
+* Fully trained Day-1
+* Read-only inputs
+* Advisory outputs only
+* Never blocks
+* Never enforces
+* Never modifies state
+
+---
+
+### 4. Management Plane (Human Interface)
+
+Components:
+
+* UI
+* Reporting
+* Forensics
+* Installer / Upgrader
+* Audit & Compliance
+
+Properties:
+
+* Authenticated humans
+* Audited actions
+* Two-person integrity for critical ops
+* No direct data-plane access
+
+---
+
+## 📁 PHASE 2 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_architecture/
+```
+
+```
+ransomeye_architecture/
+├── planes/
+│   ├── data_plane.md
+│   ├── control_plane.md
+│   ├── intelligence_plane.md
+│   └── management_plane.md
+│
+├── trust/
+│   ├── trust_boundaries.md
+│   ├── trust_flow_diagrams.md
+│   ├── forbidden_flows.md
+│   └── compromise_containment.md
+│
+├── identity/
+│   ├── component_identity.md
+│   ├── signing_model.md
+│   ├── verification_rules.md
+│   └── revocation.md
+│
+├── data_contracts/
+│   ├── dpi_to_core.md
+│   ├── agent_to_core.md
+│   ├── core_to_ai.md
+│   ├── ai_to_human.md
+│   └── enforcement_dispatch.md
+│
+├── swap_policy/
+│   ├── swap_requirements.md
+│   └── enforcement_rules.md
+│
+├── docs/
+│   ├── architecture_overview.md
+│   ├── zero_trust_model.md
+│   ├── day1_readiness.md
+│   └── military_assumptions.md
+│
+└── tests/
+    ├── forbidden_flow_tests.rs
+    ├── identity_violation_tests.rs
+    ├── ai_authority_violation_tests.rs
+    └── plane_isolation_tests.rs
+```
+
+Every document must define:
+
+* What is allowed
+* What is forbidden
+* What happens on violation
+
+---
+
+## 🔐 TRUST & IDENTITY MODEL (MANDATORY)
+
+You MUST define:
+
+* Unique cryptographic identity per component:
+
+  * DPI Probe
+  * Linux Agent
+  * Windows Agent
+  * Core Engine
+  * AI Engine
+  * LLM Engine
+* Mutual authentication everywhere
+* Explicit trust chains
+* Revocation lists
+* Identity expiration
+
+**No shared secrets.
+No implicit trust.**
+
+---
+
+## 🔁 DATA FLOW RULES (HARD)
+
+### Allowed (One-Way Only)
+
+* DPI → Core
+* Agent → Core
+* Core → Policy → Enforcement
+* Core → AI (read-only)
+* AI → Human (advisory)
+
+### Forbidden (Must Be Enforced)
+
+* AI → Core
+* LLM → Core
+* DPI → Policy
+* Agent → Policy
+* Human → Data Plane
+* Human → AI training without approval
+
+Violation = **runtime termination + audit log**
+
+---
+
+## 🧠 AI / ML / LLM — ARCHITECTURAL CONSTRAINTS
+
+You MUST explicitly define:
+
+* AI has **zero enforcement authority**
+* AI outputs are advisory
+* AI confidence thresholds
+* AI suppression rules
+* AI baseline verification on startup
+* AI shutdown behavior if baseline invalid
+
+This MUST be documented in:
+
+```
+day1_readiness.md
+```
+
+---
+
+## 🧾 DATA CONTRACT ENFORCEMENT
+
+For every interface, define:
+
+* Schema
+* Versioning
+* Signing requirements
+* Size limits
+* Rate limits
+* Rejection behavior
+
+No schema evolution without version bump.
+
+---
+
+## 💾 SWAP MEMORY POLICY (MANDATORY FIX)
+
+You MUST define and enforce:
+
+### Applicable ONLY to:
+
+* Core Engine machines
+* DPI Probe machines
+
+Rules:
+
+* Minimum SWAP: **16 GB**
+* OR **equal to physical RAM**, whichever is higher
+* Automatically created during install
+* Verified at startup
+* Missing SWAP → **FAIL STARTUP**
+
+Explicitly forbidden for:
+
+* Linux Agent
+* Windows Agent
+
+Document and enforce in:
+
+```
+swap_policy/
+```
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST implement tests that:
+
+* Reject forbidden trust flows
+* Reject AI authority violations
+* Reject unsigned data
+* Reject missing swap on Core/DPI
+* Reject identity misuse
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 2 is INVALID if:
+
+* Trust boundaries are implicit
+* AI can influence enforcement
+* Planes are blurred
+* Swap policy is undocumented or unenforced
+* Data flow rules are advisory instead of enforced
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 2 as:
+
+* A **battlefield topology**
+* A **blast-radius map**
+* A **zero-trust contract**
+
+If Phase 2 is violated anywhere later, **that module is invalid**.
+
+**BUILD PHASE 2 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---

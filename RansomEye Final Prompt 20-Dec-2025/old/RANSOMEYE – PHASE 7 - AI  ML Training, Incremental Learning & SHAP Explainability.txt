@@ -1,0 +1,311 @@
+# 🤖 RANSOMEYE – PHASE 7
+
+## AI / ML Training, Incremental Learning & SHAP Explainability
+
+### **(PROMPT NUMBER 7 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (STRICT BOUNDARIES)
+
+You are now building the **AI / ML layer** of RansomEye.
+
+This layer **assists humans and downstream logic**, but **must never have enforcement authority**.
+It must be **fully auditable, reproducible, explainable, and replaceable**.
+
+This phase exists to:
+
+* Improve signal quality
+* Reduce false positives
+* Provide explainability
+* Support SOC analysts
+
+If this phase violates boundaries:
+
+* Trust model breaks
+* Legal defensibility collapses
+* Determinism is lost
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Python (MANDATORY for AI/ML)**
+* **Rust / C++ (ONLY as performance extensions via FFI)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Java
+* Go
+* NodeJS
+* Any JVM-based runtime
+* Any service embedding Python in hot path
+
+➡️ Python is **ISOLATED** to AI layer only.
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+* PSF
+
+BANNED:
+
+* GPL / AGPL / SSPL
+* Unknown licenses
+* Copyleft datasets
+
+All datasets must be **synthetic or customer-provided at runtime**.
+
+---
+
+## 🎯 PHASE 7 OBJECTIVE
+
+Build a **fully trainable, incrementally updatable, explainable AI/ML system** that:
+
+1. Trains models on labeled telemetry
+2. Supports incremental / continual learning
+3. Produces **SHAP explanations for every numeric inference**
+4. Emits confidence scores and rationale
+5. Operates offline and air-gapped
+6. Never blocks or enforces actions directly
+
+---
+
+## 📦 AI/ML RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Feature extraction
+* Model training
+* Incremental updates
+* Inference (read-only)
+* Explainability artifact generation
+* Model versioning & metadata
+* Reproducible pipelines
+
+### MUST NEVER DO
+
+* Enforce policy
+* Trigger response actions
+* Bypass Core decisions
+* Train on committed datasets
+* Hide or suppress explanations
+
+---
+
+## 📁 PHASE 7 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+ai/
+├── training/
+│   ├── pipelines/
+│   │   ├── feature_engineering.py
+│   │   ├── train_model.py
+│   │   ├── incremental_update.py
+│   │   └── validation.py
+│   │
+│   ├── models/
+│   │   ├── metadata_schema.json
+│   │   ├── versioning.py
+│   │   └── registry.py
+│   │
+│   ├── datasets/
+│   │   └── generators.py   # synthetic only
+│   │
+│   └── config/
+│       └── training_config.py
+│
+├── inference/
+│   ├── predictor.py
+│   ├── confidence.py
+│   └── safeguards.py
+│
+├── explainability/
+│   ├── shap_generator.py
+│   ├── shap_schema.json
+│   └── artifact_writer.py
+│
+├── integration/
+│   ├── core_adapter.py
+│   └── read_only_contract.py
+│
+├── security/
+│   ├── model_signing.py
+│   ├── verification.py
+│   └── trust_validation.py
+│
+├── docs/
+│   ├── model_types.md
+│   ├── training_flow.md
+│   ├── incremental_learning.md
+│   ├── explainability.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_training_tests.py
+    ├── explainability_tests.py
+    ├── drift_tests.py
+    └── integrity_tests.py
+```
+
+---
+
+## 🧠 MODEL REQUIREMENTS (MANDATORY)
+
+You MUST define:
+
+* Supported model types (tree, linear, ensemble, etc.)
+* Feature constraints
+* Labeling strategy
+* Drift detection
+* Retraining triggers
+
+All models MUST:
+
+* Be trainable
+* Support incremental updates
+* Emit confidence scores
+* Emit SHAP explanations
+
+---
+
+## 🔍 SHAP EXPLAINABILITY (NON-NEGOTIABLE)
+
+You MUST ensure:
+
+* SHAP generated for **every numeric inference**
+* Stored alongside prediction
+* Schema-defined
+* Verifiable and signed
+* Human-readable and machine-readable
+
+No “best effort” explanations allowed.
+
+---
+
+## 🔐 MODEL SECURITY & TRUST
+
+You MUST implement:
+
+* Model signing
+* Model verification before load
+* Version pinning
+* Rollback capability
+* Tamper detection
+
+Model verification failure = **BLOCK inference**
+
+---
+
+## 🔀 AI ↔ CORE INTERACTION (STRICT)
+
+Define:
+
+* Read-only interface
+* Explicit data contract
+* One-way flow (Core → AI → Human)
+* No feedback loops without validation
+
+AI output:
+
+* Scores
+* Explanations
+* Recommendations
+
+Never commands.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Missing model
+* Invalid signature
+* Drift detected
+* Inference error
+* SHAP generation failure
+
+All failures must:
+
+* Be explicit
+* Be logged
+* Degrade safely
+* Never block Core execution
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Synthetic dataset tests
+* Incremental learning tests
+* Explainability completeness tests
+* Model tamper tests
+* Determinism tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. AI/ML architecture
+2. Folder structure explanation
+3. Training & inference pipelines
+4. Incremental learning design
+5. SHAP explainability flow
+6. Security & signing model
+7. Failure handling matrix
+8. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* AI enforces decisions
+* SHAP is optional
+* Models are not trainable
+* Training data is committed
+* Python leaks into hot path
+* Model trust is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat AI as:
+
+* Assistive
+* Replaceable
+* Auditable
+* Non-authoritative
+
+Design it so:
+
+* Regulators can audit it
+* SOC can trust it
+* Engineers can replace it
+
+**BUILD PHASE 7 COMPLETELY, EXPLICITLY, AND SAFELY.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 7 OF 12**

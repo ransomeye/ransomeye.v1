@@ -1,0 +1,298 @@
+# 🧠 RANSOMEYE — PHASE 5
+
+## Core Correlation Engine, Kill-Chain Inference & Deterministic Detection
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 5)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_core/`
+
+---
+
+## CONTEXT (SECURITY-CRITICAL)
+
+This phase builds the **Core Correlation Engine**, which is the **only component allowed to infer “attack reality”**.
+
+This engine:
+
+* Receives only **validated events from Phase 4**
+* Operates **deterministically**
+* Implements **formal ransomware kill-chain logic**
+* Produces **authoritative detection outputs**
+* Feeds **Policy Engine (Phase 6)**
+
+If this phase is wrong:
+
+* False positives explode
+* Attacks are missed
+* Enforcement becomes arbitrary
+* Military-grade claims fail
+
+**This phase MUST NOT depend on AI/ML/LLM to function.**
+AI is **assistive context only**, never authoritative.
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–4** apply unchanged.
+
+Additional Phase-5 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 5 OBJECTIVE
+
+Build a **deterministic, explainable, formally bounded correlation engine** that:
+
+1. Correlates multi-source telemetry
+2. Tracks entity state over time
+3. Implements a **formal ransomware kill-chain**
+4. Infers attack progression deterministically
+5. Produces confidence-scored detection outputs
+6. Emits explainability artifacts
+7. Operates at **50,000+ endpoints scale**
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Temporal correlation
+* Cross-signal correlation
+* Entity state tracking
+* Kill-chain stage inference
+* Deterministic scoring
+* Explainability generation
+* Bounded memory management
+
+### MUST NEVER DO
+
+* Enforce policy
+* Block traffic
+* Execute response actions
+* Invoke AI/ML/LLM for decisions
+* Trust upstream data implicitly
+* Learn at runtime
+
+---
+
+## 📁 PHASE 5 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_core/
+```
+
+```
+ransomeye_core/
+├── correlation/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── engine.rs
+│   │   ├── scheduler.rs
+│   │   ├── entity_state.rs
+│   │   ├── temporal.rs
+│   │   ├── graph.rs
+│   │   ├── scoring.rs
+│   │   ├── explainability.rs
+│   │   └── invariants.rs
+│   │
+│   ├── kill_chain/
+│   │   ├── stages.rs
+│   │   ├── transitions.rs
+│   │   ├── rules.rs
+│   │   └── inference.rs
+│   │
+│   ├── input/
+│   │   ├── validated_events.rs
+│   │   └── normalization.rs
+│   │
+│   ├── output/
+│   │   ├── detection_result.rs
+│   │   ├── confidence.rs
+│   │   └── rationale.rs
+│   │
+│   ├── config/
+│   │   └── validation.rs
+│   │
+│   └── errors/
+│       └── correlation_errors.rs
+│
+├── intelligence_adapter/
+│   ├── threat_context.rs
+│   ├── ai_context.rs
+│   └── validation.rs
+│
+├── docs/
+│   ├── correlation_model.md
+│   ├── kill_chain_model.md
+│   ├── invariants.md
+│   ├── performance_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_attack_tests.rs
+    ├── false_positive_tests.rs
+    ├── ordering_tests.rs
+    ├── scale_tests.rs
+    ├── invariant_violation_tests.rs
+    └── determinism_tests.rs
+```
+
+---
+
+## 🧬 FORMAL KILL-CHAIN MODEL (MANDATORY)
+
+You MUST implement a **formal ransomware-specific kill-chain**, including at minimum:
+
+* Initial access
+* Execution
+* Persistence
+* Privilege escalation
+* Lateral movement
+* Credential access
+* Discovery
+* Encryption preparation
+* Encryption execution
+* Impact
+
+Each stage MUST define:
+
+* Entry conditions
+* Required signals
+* Temporal constraints
+* Allowed transitions
+* Regression rules
+* Confidence decay
+
+No generic “MITRE-only” mapping.
+This must be ransomware-specific and codified.
+
+---
+
+## 🧠 DETERMINISM & INVARIANTS (CRITICAL)
+
+You MUST define and enforce **hard invariants**, such as:
+
+* No stage skip without evidence
+* No confidence increase without new signal
+* No detection without minimum signal set
+* No state explosion without eviction
+
+Violating an invariant → **FAIL CLOSED + AUDIT LOG**
+
+---
+
+## ⚙️ PERFORMANCE & SCALE MODEL
+
+You MUST explicitly define:
+
+* Event throughput limits
+* Memory bounds per entity
+* Eviction strategy
+* Lock-free or low-lock design
+* Scheduler fairness
+* Backpressure interaction with Phase 4
+
+No unbounded maps.
+No global locks.
+
+---
+
+## 🔍 EXPLAINABILITY (MANDATORY)
+
+For every detection result, you MUST emit:
+
+* Signals involved
+* Kill-chain stages triggered
+* Temporal sequence
+* Confidence calculation
+* Intelligence context used (if any)
+
+Explainability must be:
+
+* Human readable
+* Machine readable
+* Deterministic
+
+---
+
+## 🧠 INTELLIGENCE USAGE (STRICT)
+
+Allowed:
+
+* Threat intel as context
+* AI confidence hints
+* Baseline anomaly context
+
+Forbidden:
+
+* AI overriding correlation
+* AI injecting detections
+* AI altering state transitions
+
+If intelligence is unavailable:
+➡️ Core MUST continue functioning.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Event floods
+* Out-of-order events
+* Entity explosion
+* Memory pressure
+* Internal state corruption
+* Downstream unavailability
+
+Failures must:
+
+* Preserve correctness
+* Avoid false detection
+* Remain observable
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Replay synthetic ransomware campaigns
+* Verify determinism
+* Validate invariants
+* Test scale limits (50k+ entities)
+* Confirm explainability completeness
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 5 is INVALID if:
+
+* AI influences decisions
+* Kill-chain is implicit
+* Determinism is not provable
+* Invariants are undocumented
+* Memory is unbounded
+* Correlation logic is heuristic-only
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 5 as:
+
+* A **formal reasoning engine**
+* A **court-defensible detector**
+* A **zero-guessing brain**
+
+If Phase 5 is weak, **everything downstream is unsafe**.
+
+**BUILD PHASE 5 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---

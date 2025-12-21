@@ -1,0 +1,295 @@
+# 🛡️ RANSOMEYE – PHASE 6
+
+## Policy Engine, Decision Validation & Fail-Closed Enforcement
+
+### **(PROMPT NUMBER 6 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (SECURITY-CRITICAL)
+
+You are now building the **Policy Engine** of RansomEye.
+
+This phase is where **decisions become actions** — therefore **this is the highest-risk phase** from a security, correctness, and legal standpoint.
+
+If this phase is wrong:
+
+* RansomEye may block incorrectly
+* Or fail to block when required
+* Or become non-deterministic
+* Or violate zero-trust guarantees
+
+This phase **must be strictly deterministic, auditable, and fail-closed**.
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (MANDATORY, PRIMARY)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Python
+* Java
+* Go
+* NodeJS
+* Any GC-based runtime
+
+➡️ Any violation = **INVALID OUTPUT**
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+* GPL / AGPL / SSPL → **BANNED**
+* Unknown licenses → **BANNED**
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+
+---
+
+## 🎯 PHASE 6 OBJECTIVE
+
+Build a **cryptographically enforced, deterministic Policy Engine** that:
+
+1. Receives correlation results from Phase 5
+2. Validates decision integrity
+3. Evaluates signed policies
+4. Produces **explicit enforcement directives**
+5. Fails closed on ambiguity or error
+
+This engine:
+
+* **Does enforce policy**
+* **Does NOT perform correlation**
+* **Does NOT invoke AI**
+* **Does NOT guess**
+
+---
+
+## 📦 POLICY ENGINE RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Load only **signed policies**
+* Validate policy schema and version
+* Evaluate rules deterministically
+* Enforce precedence and conflict resolution
+* Produce enforcement directives
+* Generate full audit trail
+
+### MUST NEVER DO
+
+* Modify correlation results
+* Trust unsigned input
+* Perform probabilistic decisions
+* Auto-correct malformed policies
+* Continue execution on uncertainty
+
+---
+
+## 📁 PHASE 6 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+core/
+├── policy/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── engine.rs
+│   │   ├── evaluator.rs
+│   │   ├── precedence.rs
+│   │   ├── conflict.rs
+│   │   ├── enforcement.rs
+│   │   └── audit.rs
+│   │
+│   ├── schema/
+│   │   ├── policy_schema.rs
+│   │   ├── validation.rs
+│   │   └── versioning.rs
+│   │
+│   ├── security/
+│   │   ├── signature.rs
+│   │   ├── verification.rs
+│   │   └── trust_chain.rs
+│   │
+│   ├── output/
+│   │   ├── enforcement_directive.rs
+│   │   └── audit_record.rs
+│   │
+│   ├── config/
+│   │   └── validation.rs
+│   │
+│   └── errors/
+│       └── policy_errors.rs
+│
+├── docs/
+│   ├── policy_language.md
+│   ├── evaluation_model.md
+│   ├── conflict_resolution.md
+│   ├── enforcement_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── signed_policy_tests.rs
+    ├── conflict_tests.rs
+    ├── precedence_tests.rs
+    ├── failure_tests.rs
+    └── audit_tests.rs
+```
+
+---
+
+## 📜 POLICY LANGUAGE (MANDATORY DESIGN)
+
+You MUST define:
+
+* Explicit policy syntax
+* Versioning rules
+* Deterministic evaluation order
+* Conflict resolution rules
+* Safe defaults (fail-closed)
+
+No dynamic code execution.
+No embedded scripts.
+No user-defined functions.
+
+---
+
+## 🔐 SIGNING & TRUST (MANDATORY)
+
+Policies:
+
+* MUST be cryptographically signed
+* MUST include metadata:
+
+  * Author
+  * Version
+  * Validity window
+  * Scope
+
+Policy Engine MUST:
+
+* Verify signature
+* Verify trust chain
+* Verify expiration
+* Reject unsigned or expired policies
+
+---
+
+## 🔀 EVALUATION PIPELINE (STEP-BY-STEP)
+
+You MUST explicitly define:
+
+1. Input validation
+2. Signature verification
+3. Schema validation
+4. Version compatibility
+5. Rule evaluation
+6. Conflict resolution
+7. Enforcement decision generation
+8. Audit record creation
+9. Output dispatch
+
+Each step must include:
+
+* Input
+* Output
+* Failure behavior
+
+---
+
+## ⚙️ ENFORCEMENT DIRECTIVES
+
+You MUST define:
+
+* Directive types (block, isolate, alert, monitor, etc.)
+* Target scope
+* Expiration
+* Rollback behavior
+* Idempotency guarantees
+
+---
+
+## 💥 FAILURE MODES (FAIL-CLOSED MATRIX)
+
+Define behavior for:
+
+* Missing policy
+* Invalid signature
+* Conflicting rules
+* Unsupported version
+* Internal errors
+* Resource exhaustion
+
+**All must block or degrade safely — never allow silently.**
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Signed vs unsigned policy tests
+* Conflict resolution tests
+* Regression tests
+* Determinism verification
+* Audit integrity tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Policy engine architecture
+2. Folder structure explanation
+3. Policy language specification
+4. Evaluation pipeline
+5. Enforcement model
+6. Audit & compliance design
+7. Failure handling matrix
+8. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Python appears anywhere
+* Unsigned policies are accepted
+* Evaluation order is implicit
+* Conflicts are auto-resolved silently
+* Fail-open behavior exists
+* Enforcement is ambiguous
+
+---
+
+## FINAL INSTRUCTION
+
+This phase is the **point of no return**.
+
+Design it as if:
+
+* Policies are written by humans
+* Humans make mistakes
+* Attackers attempt policy poisoning
+
+**VERIFY EVERYTHING. FAIL CLOSED. EXECUTE NOTHING ON TRUST.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 6 OF 12**
+

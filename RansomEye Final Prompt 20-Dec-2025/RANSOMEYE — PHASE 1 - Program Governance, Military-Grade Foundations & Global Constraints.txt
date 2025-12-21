@@ -1,0 +1,299 @@
+# 🧱 RANSOMEYE — PHASE 1
+
+## Program Governance, Military-Grade Foundations & Global Constraints
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 1)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_governance/`
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+You are building **RansomEye**, a:
+
+* **Military-grade**
+* **Enterprise-class**
+* **Commercial, closed-source**
+* **Zero-trust ransomware defense platform**
+* **Production-ready from Day 1**
+
+This system must be:
+
+* Defensible in audits
+* Survivable under attack
+* Deterministic under failure
+* Legally sellable
+* Operational in air-gapped environments
+
+**NO assumptions are allowed.**
+**EVERY rule must be enforced by code, not documentation.**
+
+---
+
+## 🚨 ABSOLUTE GLOBAL RULES (APPLY TO ALL PHASES)
+
+These rules are **binding for the entire project**.
+
+### 1. Licensing (FAIL-CLOSED)
+
+**Allowed ONLY**
+
+* MIT
+* BSD 2-Clause / 3-Clause
+* Apache 2.0
+* PSF
+* CC0
+
+**Conditionally allowed**
+
+* LGPL → ONLY if dynamically linked and isolated
+
+**BANNED (ABSOLUTE)**
+
+* GPL v2 / v3
+* AGPL
+* SSPL
+* Elastic License
+* Unknown / custom licenses
+* GPL rules, signatures, datasets, or content
+
+➡️ **CI must block immediately on violation**
+
+---
+
+### 2. Programming Language Governance
+
+| Layer             | Allowed Languages                           |
+| ----------------- | ------------------------------------------- |
+| Governance / Core | **Rust only**                               |
+| DPI Probe         | **Rust + C++ + eBPF only**                  |
+| Linux Agent       | **Rust (C only if unavoidable)**            |
+| Windows Agent     | **Rust + C++**                              |
+| AI / ML / LLM     | **Python (isolated) + Rust/C++ extensions** |
+| Installers        | **Rust + Shell (orchestrator only)**        |
+
+**Python is FORBIDDEN on hot paths.**
+
+---
+
+### 3. Configuration & Secrets
+
+* ENV-only configuration
+* No defaults for secrets
+* Missing / invalid ENV → **FAIL STARTUP**
+* Unknown ENV variables → **FAIL STARTUP**
+
+---
+
+### 4. Mandatory File Headers (NO EXCEPTIONS)
+
+Every file MUST start with:
+
+```
+# Path: <absolute repo path>
+# Author: RansomEye Core Team
+# Purpose: <explicit purpose>
+```
+
+Applies to:
+`.rs .c .cpp .py .sh .yaml .json .toml .service`
+
+---
+
+### 5. Data & AI Rules (CRITICAL)
+
+* NO sample data committed
+* NO runtime learning without baseline
+* **ALL AI / ML / LLM MUST BE PRE-TRAINED FROM DAY 1**
+* Incremental learning allowed ONLY on top of baseline
+* SHAP explainability is mandatory for every numeric inference
+
+---
+
+### 6. Cryptographic Trust
+
+* Every artifact signed
+* Every signature verified before use
+* Verification failure → **BLOCK OPERATION**
+
+---
+
+## 🎯 PHASE 1 OBJECTIVE
+
+Phase 1 establishes **global governance, trust, safety, and enforcement primitives** that **ALL other phases depend on**.
+
+This phase defines:
+
+* Legal safety
+* Build safety
+* Supply-chain safety
+* AI readiness from Day 1
+* Installation legal acceptance (EULA)
+* Operational invariants
+
+**No business logic is allowed in Phase 1.**
+
+---
+
+## 📁 PHASE 1 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly the following at:
+
+```
+/home/ransomeye/rebuild/ransomeye_governance/
+```
+
+```
+ransomeye_governance/
+├── governance/
+│   ├── LICENSE_POLICY.md
+│   ├── THIRD_PARTY_POLICY.md
+│   ├── SECURITY_POLICY.md
+│   ├── AI_DAY1_READINESS.md
+│   ├── SUPPLY_CHAIN_SECURITY.md
+│   └── CONTRIBUTION_RULES.md
+│
+├── eula/
+│   └── EULA.txt          # EMPTY FILE – MUST EXIST
+│
+├── ci/
+│   ├── license_scan.yml
+│   ├── header_enforcement.yml
+│   ├── secret_scan.yml
+│   ├── provenance.yml
+│   └── artifact_signing.yml
+│
+├── tooling/
+│   ├── license_validator.py
+│   ├── header_validator.py
+│   ├── secret_validator.py
+│   ├── provenance_generator.py
+│   └── artifact_signer.py
+│
+├── env/
+│   └── env_schema.md
+│
+├── docs/
+│   ├── global_architecture_rules.md
+│   ├── zero_trust_principles.md
+│   ├── failure_philosophy.md
+│   └── military_readiness_baseline.md
+│
+└── tests/
+    ├── license_violation_tests.py
+    ├── header_violation_tests.py
+    ├── secret_violation_tests.py
+    └── ai_baseline_presence_tests.py
+```
+
+You MUST explain **why each directory exists** and **what it forbids**.
+
+---
+
+## 🧠 AI / ML / LLM — DAY-1 READINESS (MANDATORY FIX)
+
+You MUST define a **Day-1 AI Baseline Doctrine**:
+
+### REQUIRED CONCEPT:
+
+**Signed Baseline Intelligence Pack**
+
+Each RansomEye deployment MUST ship with:
+
+* Pre-trained ransomware behavior models
+* Pre-trained anomaly baselines
+* Pre-trained confidence calibration
+* Pre-generated SHAP reference distributions
+* Pre-indexed LLM RAG corpus
+
+Rules:
+
+* AI MUST NOT start empty
+* AI MUST NOT self-train without baseline
+* AI output suppressed if baseline invalid
+
+Document this fully in:
+
+```
+AI_DAY1_READINESS.md
+```
+
+---
+
+## 📜 EULA ENFORCEMENT (MANDATORY)
+
+Rules:
+
+* Installation MUST fail unless EULA is accepted
+* EULA file path is fixed:
+
+  ```
+  /home/ransomeye/rebuild/ransomeye_governance/eula/EULA.txt
+  ```
+* Acceptance must be logged
+* Acceptance must be auditable
+* Acceptance must be explicit (no implicit install)
+
+No EULA = **NO INSTALL**
+
+---
+
+## 🔐 SUPPLY-CHAIN SECURITY (MILITARY-GRADE)
+
+You MUST define:
+
+* Reproducible builds
+* Build provenance
+* SBOM generation
+* Signed release manifests
+* CI identity attestation
+
+All documented in:
+
+```
+SUPPLY_CHAIN_SECURITY.md
+```
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS (PHASE 1)
+
+You MUST create tests that:
+
+* Fail on GPL license
+* Fail on missing AI baseline artifacts
+* Fail on missing EULA file
+* Fail on missing headers
+* Fail on secret leakage
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 1 is INVALID if:
+
+* Any GPL is tolerated
+* AI baseline is optional
+* EULA is not enforced
+* Headers are optional
+* Trust is implicit
+* Anything “assumes later phases will fix it”
+
+---
+
+## FINAL INSTRUCTION (ABSOLUTE)
+
+Treat Phase 1 as:
+
+* A legal contract
+* A military compliance framework
+* A zero-trust constitution
+
+If Phase 1 is weak, **the entire platform is invalid**.
+
+**BUILD PHASE 1 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+

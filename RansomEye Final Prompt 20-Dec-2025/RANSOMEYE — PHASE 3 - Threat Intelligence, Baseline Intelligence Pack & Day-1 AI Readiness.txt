@@ -1,0 +1,296 @@
+# 🧠 RANSOMEYE — PHASE 3
+
+## Threat Intelligence, Baseline Intelligence Pack & Day-1 AI Readiness
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 3)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_intelligence/`
+
+---
+
+## CONTEXT (ABSOLUTE REQUIREMENT)
+
+RansomEye **must not learn “later.”**
+RansomEye **must defend from Day 1.**
+
+This phase guarantees:
+
+* AI/ML/LLM are **fully trained at installation**
+* No cold-start blindness
+* No empty models
+* No speculative inference
+* No runtime guessing
+
+This phase builds the **entire intelligence substrate** used by:
+
+* Correlation assistance
+* Explainability
+* Threat context
+* SOC Copilot
+
+**This phase has ZERO enforcement authority.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1 & Phase 2** apply unchanged.
+
+Additional Phase-3 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 3 OBJECTIVE
+
+Build a **signed, versioned, auditable Intelligence System** that:
+
+1. Ships with **fully trained baseline AI/ML models**
+2. Ships with **pre-indexed LLM RAG corpus**
+3. Ships with **threat-intelligence knowledge packs**
+4. Provides **explainable outputs from Day 1**
+5. Never enforces decisions
+6. Never trains implicitly
+7. Never trusts runtime data without validation
+
+---
+
+## 🧩 INTELLIGENCE SUBSYSTEMS (MANDATORY)
+
+You MUST implement **all** of the following:
+
+### 1. Baseline Intelligence Pack (BIP)
+
+### 2. Threat Intelligence Fusion Engine
+
+### 3. AI / ML Model Registry (Day-1 Ready)
+
+### 4. SHAP Explainability Baselines
+
+### 5. LLM RAG Knowledge Store (Pre-Indexed)
+
+No subsystem may be optional.
+
+---
+
+## 📁 PHASE 3 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_intelligence/
+```
+
+```
+ransomeye_intelligence/
+├── baseline_pack/
+│   ├── models/
+│   │   ├── ransomware_behavior.model
+│   │   ├── anomaly_baseline.model
+│   │   ├── confidence_calibration.model
+│   │   └── model_manifest.json
+│   │
+│   ├── shap/
+│   │   ├── baseline_shap_values.json
+│   │   └── shap_schema.json
+│   │
+│   ├── metadata/
+│   │   ├── training_manifest.json
+│   │   ├── feature_schema.json
+│   │   └── license_manifest.json
+│   │
+│   └── signatures/
+│       ├── baseline_pack.sig
+│       └── baseline_pack.pub
+│
+├── threat_intel/
+│   ├── ingestion/
+│   │   ├── offline_feeds.rs
+│   │   └── feed_validator.rs
+│   │
+│   ├── normalization/
+│   │   ├── ontology.rs
+│   │   └── mapping.rs
+│   │
+│   ├── fusion/
+│   │   ├── correlation.rs
+│   │   └── confidence.rs
+│   │
+│   └── signatures/
+│       └── intel_pack.sig
+│
+├── ai_registry/
+│   ├── registry.rs
+│   ├── versioning.rs
+│   ├── verification.rs
+│   └── rollback.rs
+│
+├── llm_knowledge/
+│   ├── rag_index/
+│   │   ├── index.bin
+│   │   └── index_manifest.json
+│   │
+│   ├── documents/
+│   │   ├── ransomware_playbooks.md
+│   │   ├── kill_chain_reference.md
+│   │   ├── policy_explanations.md
+│   │   └── forensics_guides.md
+│   │
+│   └── signatures/
+│       └── rag_pack.sig
+│
+├── security/
+│   ├── signature_verification.rs
+│   ├── trust_chain.rs
+│   └── revocation.rs
+│
+├── docs/
+│   ├── day1_intelligence.md
+│   ├── baseline_training_methodology.md
+│   ├── threat_intel_governance.md
+│   ├── explainability_guarantees.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── baseline_presence_tests.rs
+    ├── signature_failure_tests.rs
+    ├── shap_completeness_tests.rs
+    ├── intel_poisoning_tests.rs
+    └── llm_index_integrity_tests.rs
+```
+
+---
+
+## 🧠 BASELINE INTELLIGENCE PACK (MANDATORY)
+
+### REQUIRED CONTENT
+
+The Baseline Pack MUST include:
+
+* Pre-trained ransomware behavior models
+* Pre-trained anomaly detection models
+* Confidence calibration curves
+* SHAP baseline distributions
+* Feature schemas
+* Training provenance
+
+### TRAINING RULES
+
+* Training uses **synthetic + red-team generated datasets**
+* No customer data
+* No external runtime learning
+* Training artifacts must be reproducible
+
+### STARTUP RULE
+
+If Baseline Pack:
+
+* Missing
+* Invalid
+* Unsigned
+* Expired
+
+➡️ **AI subsystem MUST NOT START**
+
+---
+
+## 🧬 THREAT INTELLIGENCE FUSION (STRICT)
+
+Rules:
+
+* Intel is **advisory**
+* Intel never overrides Core logic
+* Intel confidence must be explicit
+* Intel sources must be signed
+* Intel poisoning must be detectable
+
+Intel informs:
+
+* Correlation context
+* SOC explanations
+* Analyst workflows
+
+---
+
+## 🔍 SHAP EXPLAINABILITY (DAY-1 GUARANTEE)
+
+You MUST enforce:
+
+* SHAP available for every numeric inference
+* Baseline SHAP present at install
+* SHAP schema validation
+* SHAP verification
+
+Missing SHAP = **BLOCK inference**
+
+---
+
+## 🧠 LLM RAG KNOWLEDGE (PRE-INDEXED)
+
+Rules:
+
+* RAG index built at release time
+* No live indexing at install
+* Documents signed and verified
+* Queries read-only
+* Evidence-linked responses only
+
+LLM MUST NOT:
+
+* Train
+* Fine-tune
+* Learn implicitly
+
+---
+
+## 🔐 SECURITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Signature verification on every pack
+* Trust chain validation
+* Revocation handling
+* Version compatibility
+
+Failure = **Subsystem disabled + audit log**
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Ensure AI never starts empty
+* Ensure SHAP always exists
+* Detect intel poisoning
+* Detect model tampering
+* Detect RAG index corruption
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 3 is INVALID if:
+
+* AI can start without baseline
+* Threat intel can override decisions
+* SHAP is optional
+* LLM can mutate knowledge
+* Intelligence trust is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 3 as:
+
+* Your **strategic intelligence doctrine**
+* Your **Day-1 readiness guarantee**
+* Your **anti-guessing firewall**
+
+If Phase 3 is weak, **RansomEye is blind at install time**.
+
+**BUILD PHASE 3 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+

@@ -131,6 +131,9 @@ impl Installer {
     
     /// Generate systemd service unit content
     fn generate_service_unit(&self, service_name: &str, description: &str) -> String {
+        // Extract directory name from service name (e.g., "ransomeye-core" -> "core")
+        let dir_name = service_name.strip_prefix("ransomeye-").unwrap_or(service_name);
+        
         format!(
             "# Path and File Name : {}/{}.service\n\
             # Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU\n\
@@ -142,19 +145,27 @@ impl Installer {
             ConditionPathExists={}\n\n\
             [Service]\n\
             Type=simple\n\
-            User=root\n\
+            # Rootless runtime enforcement - MUST NOT run as root (UID 0)\n\
+            User=ransomeye\n\
+            Group=ransomeye\n\
             WorkingDirectory={}\n\
+            RuntimeDirectory=ransomeye/{}\n\
+            StateDirectory=ransomeye/{}\n\
             ExecStart=/usr/bin/ransomeye_operations start {}\n\
             Restart=always\n\
             RestartSec=10\n\
             StandardOutput=journal\n\
             StandardError=journal\n\n\
-            # Security hardening\n\
+            # Security hardening - Rootless runtime enforcement\n\
             NoNewPrivileges=true\n\
             PrivateTmp=true\n\
             ProtectSystem=strict\n\
             ProtectHome=true\n\
-            ReadWritePaths={}\n\n\
+            ReadWritePaths={} /var/lib/ransomeye/{} /run/ransomeye/{}\n\n\
+            # Capability-based privileges (no root required)\n\
+            CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_SYS_NICE\n\
+            AmbientCapabilities=\n\
+            PrivateUsers=false\n\n\
             [Install]\n\
             WantedBy=multi-user.target\n",
             self.systemd_dir,
@@ -163,8 +174,12 @@ impl Installer {
             description,
             self.state_path,
             self.project_root,
+            dir_name,
+            dir_name,
             service_name,
-            self.project_root
+            self.project_root,
+            dir_name,
+            dir_name
         )
     }
 }

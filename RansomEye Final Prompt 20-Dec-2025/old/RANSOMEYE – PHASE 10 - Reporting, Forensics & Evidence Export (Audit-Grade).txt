@@ -1,0 +1,303 @@
+# 📊 RANSOMEYE – PHASE 10
+
+## Reporting, Forensics & Evidence Export (Audit-Grade)
+
+### **(PROMPT NUMBER 10 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (AUDIT, LEGAL & FORENSIC CRITICAL)
+
+You are building the **Reporting, Forensics, and Evidence Export subsystem** of RansomEye.
+
+This phase is **legally sensitive**.
+Outputs produced here may be used for:
+
+* Internal incident response
+* SOC investigations
+* Customer audits
+* Regulatory review
+* Legal proceedings
+
+Any ambiguity, data mutation, or unverifiable output **invalidates evidentiary value**.
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (MANDATORY, PRIMARY)**
+* **Python (ONLY for report rendering helpers, NOT data processing)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Java
+* Go
+* NodeJS
+* Any runtime that mutates evidence during rendering
+
+➡️ Data processing, aggregation, and hashing **must be Rust-only**.
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+* PSF
+
+BANNED:
+
+* GPL / AGPL / SSPL
+* Unknown licenses
+* Closed-source reporting SDKs
+
+---
+
+## 🎯 PHASE 10 OBJECTIVE
+
+Build an **audit-grade, forensically sound reporting system** that:
+
+1. Produces **immutable evidence artifacts**
+2. Supports **PDF, HTML, and CSV outputs**
+3. Maintains **chain-of-custody**
+4. Is **cryptographically verifiable**
+5. Is **fully reproducible**
+6. Never alters original detection data
+
+---
+
+## 📦 REPORTING & FORENSICS RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Aggregate validated results
+* Preserve original evidence
+* Generate cryptographic hashes
+* Produce signed reports
+* Support multiple export formats
+* Include explainability artifacts (from Phase 7)
+
+### MUST NEVER DO
+
+* Modify or normalize evidence post-capture
+* Re-run detection logic
+* Invent conclusions
+* Hide uncertainty
+* Depend on mutable runtime state
+
+---
+
+## 📁 PHASE 10 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+core/
+├── reporting/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── collector.rs
+│   │   ├── evidence.rs
+│   │   ├── hash.rs
+│   │   ├── signature.rs
+│   │   ├── manifest.rs
+│   │   └── exporter.rs
+│   │
+│   ├── formats/
+│   │   ├── pdf.rs
+│   │   ├── html.rs
+│   │   └── csv.rs
+│   │
+│   ├── schema/
+│   │   ├── report_schema.rs
+│   │   ├── evidence_schema.rs
+│   │   └── metadata_schema.rs
+│   │
+│   ├── security/
+│   │   ├── signing.rs
+│   │   ├── verification.rs
+│   │   └── custody.rs
+│   │
+│   ├── config/
+│   │   └── validation.rs
+│   │
+│   └── errors/
+│       └── reporting_errors.rs
+│
+├── docs/
+│   ├── evidence_model.md
+│   ├── chain_of_custody.md
+│   ├── report_formats.md
+│   ├── legal_considerations.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── evidence_integrity_tests.rs
+    ├── format_consistency_tests.rs
+    ├── signature_tests.rs
+    └── tamper_tests.rs
+```
+
+---
+
+## 🔐 CHAIN OF CUSTODY (MANDATORY)
+
+You MUST define and implement:
+
+* Evidence creation timestamping
+* Hashing at creation time
+* Immutable evidence IDs
+* Evidence linkage to:
+
+  * Correlation results
+  * Policy decisions
+  * AI explanations
+* Custody log entries for:
+
+  * Access
+  * Export
+  * Verification
+
+Evidence mutation = **SYSTEM ERROR**.
+
+---
+
+## 📑 REPORT CONTENT (MANDATORY)
+
+Each report MUST include:
+
+* Incident summary
+* Timeline
+* Affected entities
+* Kill-chain stages
+* Policy decisions
+* AI explanations (SHAP references)
+* Confidence levels
+* Analyst notes (optional, clearly marked)
+* Hashes and signatures
+* Verification instructions
+
+---
+
+## 🧾 OUTPUT FORMAT RULES
+
+### PDF
+
+* Human-readable
+* Signed
+* Watermarked with report ID
+
+### HTML
+
+* Self-contained
+* Read-only
+* Embedded verification metadata
+
+### CSV
+
+* Raw data only
+* No interpretation
+* Hash-referenced rows
+
+---
+
+## 🔀 DATA FLOW (STRICT)
+
+Define explicitly:
+
+1. Input selection (validated only)
+2. Evidence snapshot creation
+3. Hash & signature generation
+4. Format rendering
+5. Output sealing
+6. Verification workflow
+
+No step may mutate previous outputs.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Missing evidence
+* Hash mismatch
+* Signature verification failure
+* Partial report generation
+* Disk exhaustion
+
+Failures must:
+
+* Abort output
+* Log explicitly
+* Preserve existing evidence
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Evidence immutability tests
+* Format parity tests
+* Hash verification tests
+* Tamper simulation tests
+* Reproducibility tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Reporting architecture
+2. Folder structure explanation
+3. Evidence & custody model
+4. Report content specification
+5. Signing & verification flow
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Evidence can be modified
+* Hashing is optional
+* Reports lack signatures
+* Output formats diverge semantically
+* Python processes raw evidence
+
+---
+
+## FINAL INSTRUCTION
+
+Treat every report as:
+
+* Court-admissible evidence
+* Immutable once created
+* Cryptographically provable
+
+Design it so:
+
+* Third parties can verify it
+* Auditors can trust it
+* Engineers cannot tamper with it
+
+**BUILD PHASE 10 COMPLETELY, AUDIT-GRADE, AND IMMUTABLE.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 10 OF 12**
+

@@ -1,0 +1,478 @@
+Below are **MILITARY-GRADE RED-TEAM PLAYBOOKS** for **RansomEye**, aligned with **all 12 phases**, **zero-assumption rules**, **Day-1 readiness**, and **court-defensible validation**.
+
+These playbooks are **not pentest checklists**.
+They are **adversarial campaign simulations** designed to **break architecture, trust, determinism, and safety guarantees**.
+
+All playbooks assume the attacker is **skilled, patient, and evasive**.
+
+---
+
+# 🔴 RANSOMEYE — RED-TEAM PLAYBOOKS
+
+## (Authoritative Adversarial Validation Set)
+
+---
+
+## 🎯 RED-TEAM OBJECTIVES (NON-NEGOTIABLE)
+
+Each playbook MUST attempt to:
+
+1. Bypass trust boundaries
+2. Cause false enforcement
+3. Suppress real detection
+4. Break determinism
+5. Poison intelligence
+6. Exploit scale (50k+ endpoints)
+7. Force fail-open behavior
+
+**Success is defined as:**
+RansomEye **detects, resists, fails closed, logs, and recovers**.
+
+---
+
+# PLAYBOOK GROUP A — DATA PLANE ATTACKS
+
+*(DPI + Agents)*
+
+---
+
+## 🔴 RT-01: DPI FLOOD & MEMORY EXHAUSTION
+
+**Goal:**
+Crash DPI or force silent packet drops at 40+ Gbps.
+
+**Attack Simulation:**
+
+* Mixed packet sizes (64B–9KB)
+* TCP/UDP/QUIC blend
+* Out-of-order fragments
+* Burst floods > NIC capacity
+
+**Validation Criteria:**
+
+* No payload storage
+* No memory growth
+* Backpressure engaged
+* Core remains unaffected
+* Audit logs present
+
+**FAIL IF:**
+
+* DPI crashes
+* Silent drops occur
+* Core ingestion stalls
+
+---
+
+## 🔴 RT-02: DPI EVENT SPOOFING
+
+**Goal:**
+Inject forged DPI metadata events.
+
+**Attack Simulation:**
+
+* Replay valid event envelopes
+* Modify fields post-signature
+* Forge producer IDs
+
+**Expected Outcome:**
+
+* Signature verification fails
+* Events rejected
+* Replay detected
+* No Core state change
+
+---
+
+## 🔴 RT-03: AGENT IDENTITY TAKEOVER
+
+**Goal:**
+Impersonate Linux/Windows Agent.
+
+**Attack Simulation:**
+
+* Copy agent cert
+* Modify agent binary
+* Replay enforcement ACKs
+
+**Expected Outcome:**
+
+* Identity revocation
+* Execution refusal
+* Audit log
+* No enforcement
+
+---
+
+# PLAYBOOK GROUP B — INGESTION & STREAMING
+
+---
+
+## 🔴 RT-04: INGESTION BACKPRESSURE COLLAPSE
+
+**Goal:**
+Overflow ingestion buffers.
+
+**Attack Simulation:**
+
+* Burst telemetry from 10k agents
+* Schema-valid but high-rate
+* Slow Core downstream
+
+**Expected Outcome:**
+
+* Bounded buffers
+* Deterministic rejection
+* No memory exhaustion
+* No silent drops
+
+---
+
+## 🔴 RT-05: EVENT REORDERING & GAPS
+
+**Goal:**
+Break temporal correlation assumptions.
+
+**Attack Simulation:**
+
+* Reordered sequences
+* Missing sequence numbers
+* Clock skew injection
+
+**Expected Outcome:**
+
+* Explicit reordering handling
+* No false detection
+* Confidence decay applied
+* Audit entries recorded
+
+---
+
+# PLAYBOOK GROUP C — CORE CORRELATION
+
+---
+
+## 🔴 RT-06: KILL-CHAIN SKIP ATTACK
+
+**Goal:**
+Trigger late-stage ransomware detection without early signals.
+
+**Attack Simulation:**
+
+* Emit encryption-like telemetry
+* Skip lateral movement & privilege escalation signals
+
+**Expected Outcome:**
+
+* Invariant violation
+* Detection refused
+* No policy trigger
+
+---
+
+## 🔴 RT-07: ENTITY EXPLOSION ATTACK
+
+**Goal:**
+Exhaust Core memory with fake entities.
+
+**Attack Simulation:**
+
+* Random host/process IDs
+* High churn identity creation
+
+**Expected Outcome:**
+
+* Eviction strategy applied
+* Memory bounded
+* Core survives
+* Detection accuracy preserved
+
+---
+
+## 🔴 RT-08: NON-DETERMINISM PROBE
+
+**Goal:**
+Force different outcomes from same input.
+
+**Attack Simulation:**
+
+* Replay identical event streams
+* Alter thread timing
+* Change arrival order
+
+**Expected Outcome:**
+
+* Identical outputs
+* Identical confidence
+* Identical explainability
+
+---
+
+# PLAYBOOK GROUP D — POLICY & ENFORCEMENT
+
+---
+
+## 🔴 RT-09: POLICY CONFLICT AMBIGUITY
+
+**Goal:**
+Force ambiguous enforcement.
+
+**Attack Simulation:**
+
+* Two signed policies with overlapping scope
+* Opposing actions
+
+**Expected Outcome:**
+
+* Conflict detected
+* No enforcement
+* Audit entry
+
+---
+
+## 🔴 RT-10: UNSIGNED POLICY INJECTION
+
+**Goal:**
+Execute enforcement without valid policy.
+
+**Attack Simulation:**
+
+* Inject unsigned policy
+* Expired signature
+* Revoked key
+
+**Expected Outcome:**
+
+* Policy rejected
+* Enforcement blocked
+* Alert logged
+
+---
+
+## 🔴 RT-11: ROLLBACK FAILURE ATTACK
+
+**Goal:**
+Cause partial enforcement without rollback.
+
+**Attack Simulation:**
+
+* Kill agent mid-execution
+* Network drop after action
+* ACK suppression
+
+**Expected Outcome:**
+
+* Rollback initiated
+* Partial state reversed
+* No repeated harm
+
+---
+
+# PLAYBOOK GROUP E — AI / ML / LLM ATTACKS
+
+---
+
+## 🔴 RT-12: AI POISONING ATTEMPT
+
+**Goal:**
+Influence detection via AI.
+
+**Attack Simulation:**
+
+* Feed misleading telemetry
+* Try to bias AI confidence
+
+**Expected Outcome:**
+
+* AI advisory only
+* Core unaffected
+* AI confidence bounded
+* No enforcement change
+
+---
+
+## 🔴 RT-13: SHAP SUPPRESSION
+
+**Goal:**
+Force inference without explainability.
+
+**Attack Simulation:**
+
+* Corrupt SHAP artifact
+* Remove SHAP baseline
+
+**Expected Outcome:**
+
+* AI inference blocked
+* Core unaffected
+* Audit log present
+
+---
+
+## 🔴 RT-14: LLM HALLUCINATION TEST
+
+**Goal:**
+Force LLM to suggest enforcement.
+
+**Attack Simulation:**
+
+* Prompt injection
+* Leading analyst queries
+
+**Expected Outcome:**
+
+* Guardrails block
+* Advisory language only
+* No action suggestion
+
+---
+
+# PLAYBOOK GROUP F — FORENSICS & REPORTING
+
+---
+
+## 🔴 RT-15: EVIDENCE TAMPERING
+
+**Goal:**
+Modify stored evidence.
+
+**Attack Simulation:**
+
+* Alter CSV rows
+* Edit PDF metadata
+* Change timestamps
+
+**Expected Outcome:**
+
+* Hash mismatch detected
+* Verification fails
+* Evidence invalidated visibly
+
+---
+
+## 🔴 RT-16: CHAIN-OF-CUSTODY BREAK
+
+**Goal:**
+Hide access or export.
+
+**Attack Simulation:**
+
+* Access evidence without logging
+* Delete custody entry
+
+**Expected Outcome:**
+
+* Access blocked
+* Audit alert
+* Custody remains intact
+
+---
+
+# PLAYBOOK GROUP G — INSTALLER & OPS
+
+---
+
+## 🔴 RT-17: EULA BYPASS
+
+**Goal:**
+Install without EULA acceptance.
+
+**Attack Simulation:**
+
+* Non-interactive install
+* Scripted bypass
+
+**Expected Outcome:**
+
+* Install aborted
+* No services installed
+
+---
+
+## 🔴 RT-18: SWAP REMOVAL ATTACK
+
+**Goal:**
+Run Core/DPI without swap.
+
+**Attack Simulation:**
+
+* Remove swap after install
+* Boot Core
+
+**Expected Outcome:**
+
+* Startup failure
+* Explicit error
+* No degraded run
+
+---
+
+## 🔴 RT-19: PARTIAL UPGRADE CORRUPTION
+
+**Goal:**
+Break version compatibility.
+
+**Attack Simulation:**
+
+* Interrupt upgrade mid-way
+* Mix versions
+
+**Expected Outcome:**
+
+* Rollback executed
+* System restored
+* Audit recorded
+
+---
+
+# PLAYBOOK GROUP H — SCALE & BATTLEFIELD
+
+---
+
+## 🔴 RT-20: FULL ENTERPRISE CAMPAIGN
+
+**Goal:**
+Simulate real ransomware across 50k endpoints.
+
+**Attack Simulation:**
+
+* Initial access → lateral → encryption
+* Mixed OS
+* Concurrent benign load
+
+**Expected Outcome:**
+
+* Correct kill-chain detection
+* Controlled enforcement
+* No collateral damage
+* Complete forensic trail
+
+---
+
+# ✅ RED-TEAM SUCCESS CRITERIA
+
+RansomEye PASSES if:
+
+* No phase fails open
+* No enforcement occurs on ambiguity
+* AI never overrides logic
+* Memory & CPU remain bounded
+* All attacks are logged
+* Recovery is deterministic
+* Evidence is defensible
+
+---
+
+## FINAL NOTE
+
+These playbooks are **mandatory before release**.
+Skipping any playbook **invalidates military-grade claims**.
+
+If you want next:
+
+* **Blue-team counter-playbooks**
+* **Automated red-team harness**
+* **SOC drill scenarios**
+* **Compliance mapping (ISO / NIST / CERT-In)**
+
+state the next instruction.

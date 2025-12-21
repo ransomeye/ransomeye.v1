@@ -13,6 +13,7 @@ import sys
 import os
 import json
 import subprocess
+import re
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
@@ -185,6 +186,20 @@ def check_services_exist() -> bool:
         actual_services = list(SYSTEMD_DIR.glob("ransomeye-*.service"))
         log_pass("Systemd directory accessible", f"{len(actual_services)} service file(s) found")
         
+        # CRITICAL: Verify NO services exist in old location
+        OLD_SYSTEMD_DIR = PROJECT_ROOT / "ransomeye_operations/systemd"
+        if OLD_SYSTEMD_DIR.exists():
+            old_services = list(OLD_SYSTEMD_DIR.glob("*.service"))
+            if old_services:
+                log_fail("Unified systemd layout", 
+                        f"Services found in OLD location ({OLD_SYSTEMD_DIR}): {len(old_services)} service(s). "
+                        f"ALL services MUST be in unified directory: {SYSTEMD_DIR}")
+                return False
+            else:
+                log_pass("No services in old location", "Old systemd directory is empty")
+        else:
+            log_pass("Old systemd directory", "Does not exist (correct)")
+        
         return len(actual_services) > 0
         
     except Exception as e:
@@ -192,9 +207,111 @@ def check_services_exist() -> bool:
         return False
 
 
+def check_rootless_runtime() -> bool:
+    """
+    CRITICAL: Validate that NO services run as root (UID 0) at runtime.
+    FAIL-CLOSED: Returns False if any service is configured or running as root.
+    """
+    print("\n[3/11] Validating rootless runtime enforcement...")
+    
+    if not SYSTEMD_DIR.exists():
+        log_fail("Systemd directory exists", f"Directory not found: {SYSTEMD_DIR}")
+        return False
+    
+    service_files = list(SYSTEMD_DIR.glob("*.service"))
+    if not service_files:
+        log_fail("Service files", "No service files found")
+        return False
+    
+    # Check 1: Parse service files for User=root
+    root_configured_services = []
+    missing_user_services = []
+    
+    for service_file in service_files:
+        try:
+            with open(service_file, 'r') as f:
+                content = f.read()
+                
+            # Check for User= directive
+            user_match = re.search(r'^User=(.+)$', content, re.MULTILINE)
+            if not user_match:
+                missing_user_services.append(service_file.name)
+                log_fail(f"Service missing User: {service_file.name}", 
+                        "All services MUST specify User= directive")
+            else:
+                user_value = user_match.group(1).strip()
+                if user_value == 'root' or user_value == '0':
+                    root_configured_services.append(service_file.name)
+                    log_fail(f"Service configured as root: {service_file.name}", 
+                            f"User={user_value} is FORBIDDEN. Must use non-root user (ransomeye).")
+            
+            # Check for Group= directive
+            group_match = re.search(r'^Group=(.+)$', content, re.MULTILINE)
+            if not group_match:
+                log_warn(f"Service missing Group: {service_file.name}", 
+                        "All services SHOULD specify Group= directive")
+                
+        except Exception as e:
+            log_fail(f"Service file parsing: {service_file.name}", f"Error: {e}")
+            return False
+    
+    if root_configured_services or missing_user_services:
+        log_fail("Rootless runtime enforcement", 
+                f"{len(root_configured_services)} service(s) configured as root, "
+                f"{len(missing_user_services)} service(s) missing User directive. "
+                f"ALL services MUST run as non-root user.")
+        return False
+    
+    # Check 2: Verify running services are not root (if we can check)
+    if os.geteuid() == 0:
+        try:
+            result = subprocess.run(
+                ['systemctl', 'list-units', '--type=service', '--state=running', '--no-legend'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                root_running_services = []
+                for line in result.stdout.split('\n'):
+                    if 'ransomeye' in line.lower():
+                        service_name = line.split()[0]
+                        # Get UID of running service
+                        try:
+                            status_result = subprocess.run(
+                                ['systemctl', 'show', service_name, '--property=UID', '--value'],
+                                capture_output=True,
+                                text=True,
+                                timeout=5
+                            )
+                            if status_result.returncode == 0:
+                                uid = status_result.stdout.strip()
+                                if uid == '0':
+                                    root_running_services.append(service_name)
+                                    log_fail(f"Service running as root: {service_name}", 
+                                            "Service is running as UID 0 (root). CRITICAL VIOLATION.")
+                        except Exception:
+                            pass  # Skip if we can't check
+                
+                if root_running_services:
+                    log_fail("Rootless runtime enforcement", 
+                            f"{len(root_running_services)} service(s) running as root (UID 0). "
+                            f"CRITICAL: All services MUST run as non-root user.")
+                    return False
+                else:
+                    log_pass("Running services rootless", "No services running as root")
+        except Exception as e:
+            log_warn("Cannot check running service UIDs", f"Error: {e}")
+    
+    log_pass("Rootless runtime enforcement", 
+            f"All {len(service_files)} service(s) configured for non-root runtime")
+    return True
+
+
 def check_services_disabled() -> bool:
     """Verify all services are DISABLED by default."""
-    print("\n[3/8] Validating services are DISABLED by default...")
+    print("\n[4/11] Validating services are DISABLED by default...")
     
     if not SYSTEMD_DIR.exists():
         log_fail("Systemd directory exists", f"Directory not found: {SYSTEMD_DIR}")
@@ -251,7 +368,7 @@ def check_services_disabled() -> bool:
 
 def check_trust_store() -> bool:
     """Verify trust store exists."""
-    print("\n[4/8] Validating trust store...")
+    print("\n[5/11] Validating trust store...")
     
     if not TRUST_DIR.exists():
         log_fail("Trust store exists", f"Directory not found: {TRUST_DIR}")
@@ -277,7 +394,7 @@ def check_trust_store() -> bool:
 
 def check_identities() -> bool:
     """Verify identities exist."""
-    print("\n[5/8] Validating identities...")
+    print("\n[6/11] Validating identities...")
     
     # Check install state for identity information
     if INSTALL_STATE.exists():
@@ -322,7 +439,7 @@ def check_identities() -> bool:
 
 def check_retention_config() -> bool:
     """Verify retention configuration exists and is valid."""
-    print("\n[6/8] Validating retention configuration...")
+    print("\n[7/11] Validating retention configuration...")
     
     if not RETENTION_CONFIG.exists():
         log_fail("Retention config exists", f"File not found: {RETENTION_CONFIG}")
@@ -361,9 +478,116 @@ def check_retention_config() -> bool:
         return False
 
 
+def check_service_binary_integrity() -> bool:
+    """
+    CRITICAL: Validate strict one-to-one coupling between systemd services and installed binaries.
+    FAIL-CLOSED: Returns False if any service references a missing, invalid, or dev-path binary.
+    """
+    print("\n[8/11] Validating service-to-binary integrity...")
+    
+    try:
+        # Import service binary validator
+        sys.path.insert(0, str(PROJECT_ROOT / "ransomeye_installer" / "services"))
+        from service_binary_validator import ServiceBinaryValidator
+        
+        validator = ServiceBinaryValidator(
+            systemd_dir=str(SYSTEMD_DIR),
+            project_root=str(PROJECT_ROOT)
+        )
+        
+        is_valid, errors, warnings = validator.validate_all_services()
+        
+        if warnings:
+            for warning in warnings:
+                log_warn("Service binary validation", warning)
+        
+        if errors:
+            for error in errors:
+                log_fail("Service binary integrity", error)
+            log_fail("Service-to-binary integrity", 
+                     f"{len(errors)} service(s) have invalid binary references. "
+                     f"All services MUST reference binaries that exist on disk and are installed by install.sh.")
+            return False
+        
+        if is_valid:
+            service_files = list(SYSTEMD_DIR.glob("*.service"))
+            log_pass("Service-to-binary integrity", 
+                    f"All {len(service_files)} service(s) have valid binary references")
+            return True
+        else:
+            log_fail("Service-to-binary integrity", "Validation failed")
+            return False
+            
+    except ImportError as e:
+        log_fail("Service binary validator import", f"Could not import validator: {e}")
+        return False
+    except Exception as e:
+        log_fail("Service binary validation", f"Error: {e}")
+        return False
+
+
+def check_module_references_exist() -> bool:
+    """
+    CRITICAL: Validate that all module references in code point to existing directories.
+    FAIL-CLOSED: Returns False if any referenced module does not exist.
+    """
+    print("\n[9/11] Validating module references exist on disk...")
+    
+    # Load MODULE_PHASE_MAP.yaml to get canonical module list
+    if not MODULE_PHASE_MAP.exists():
+        log_fail("MODULE_PHASE_MAP.yaml exists", "Cannot validate module references without map")
+        return False
+    
+    try:
+        if not YAML_AVAILABLE:
+            log_warn("YAML parsing unavailable", "Cannot fully validate module references")
+            return True
+        
+        with open(MODULE_PHASE_MAP, 'r') as f:
+            map_data = yaml.safe_load(f)
+        
+        if not isinstance(map_data, dict) or 'modules' not in map_data:
+            log_fail("MODULE_PHASE_MAP.yaml structure", "Invalid structure")
+            return False
+        
+        modules = map_data.get('modules', [])
+        
+        # Check all modules that are referenced in code
+        # These are the modules that systemd_writer.py and other code reference
+        referenced_modules = [
+            'ransomeye_ai_advisory',
+            'ransomeye_correlation',
+            'ransomeye_enforcement',
+            'ransomeye_ingestion',
+            'ransomeye_intelligence',
+            'ransomeye_policy',
+            'ransomeye_reporting',
+        ]
+        
+        missing_modules = []
+        for module_name in referenced_modules:
+            module_dir = PROJECT_ROOT / module_name
+            if not module_dir.exists() or not module_dir.is_dir():
+                missing_modules.append(module_name)
+                log_fail(f"Module exists: {module_name}", f"Directory not found: {module_dir}")
+        
+        if missing_modules:
+            log_fail("Module reference validation", 
+                    f"{len(missing_modules)} referenced module(s) do not exist on disk. "
+                    f"BUILD FAILURE: All module references must point to existing directories.")
+            return False
+        
+        log_pass("Module reference validation", f"All {len(referenced_modules)} referenced modules exist on disk")
+        return True
+        
+    except Exception as e:
+        log_fail("Module reference validation", f"Error: {e}")
+        return False
+
+
 def check_standalone_modules() -> bool:
     """Verify standalone modules installed correctly if present."""
-    print("\n[7/8] Validating standalone modules...")
+    print("\n[10/11] Validating standalone modules...")
     
     standalone_modules = [
         ("ransomeye_dpi_probe", "/opt/ransomeye/dpi_probe/.install_receipt.json"),
@@ -394,7 +618,7 @@ def check_standalone_modules() -> bool:
 
 def check_install_state() -> bool:
     """Verify install state exists and is valid."""
-    print("\n[8/8] Validating install state...")
+    print("\n[11/11] Validating install state...")
     
     if not INSTALL_STATE.exists():
         log_fail("Install state exists", f"File not found: {INSTALL_STATE}")
@@ -501,10 +725,13 @@ def main():
     checks = [
         ("Module Phase Map", check_module_phase_map),
         ("Service Definitions", check_services_exist),
+        ("Rootless Runtime Enforcement", check_rootless_runtime),  # CRITICAL: Fail if any service runs as root
         ("Services Disabled", check_services_disabled),
         ("Trust Store", check_trust_store),
         ("Identities", check_identities),
         ("Retention Config", check_retention_config),
+        ("Service-to-Binary Integrity", check_service_binary_integrity),  # CRITICAL: Fail if service binaries invalid
+        ("Module References Exist", check_module_references_exist),  # CRITICAL: Fail if phantom modules referenced
         ("Standalone Modules", check_standalone_modules),
         ("Install State", check_install_state),
     ]

@@ -1,0 +1,319 @@
+# ⚙️ RANSOMEYE — PHASE 11
+
+## Unified Installer, Uninstaller, EULA Enforcement & Operations
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 11)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_installer/`
+
+**Scope Note (STRICT):**
+This phase applies to **ALL modules** via a **unified installer/uninstaller** **EXCEPT**:
+
+* **DPI Probe** (stand-alone)
+* **Linux Agent** (stand-alone)
+* **Windows Agent** (stand-alone)
+
+Those stand-alone modules have **their own installers** and are **explicitly excluded** from unified installer logic.
+
+---
+
+## CONTEXT (ENTERPRISE & LEGAL CRITICAL)
+
+This phase determines whether RansomEye can be:
+
+* Installed safely
+* Operated in air-gapped environments
+* Upgraded without outages
+* Rolled back deterministically
+* Uninstalled cleanly
+* Legally distributed (EULA)
+
+Any mistake here can:
+
+* Brick hosts
+* Violate license terms
+* Break trust with customers
+* Prevent rollback during incidents
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–10** apply unchanged.
+
+Additional Phase-11 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 11 OBJECTIVE
+
+Build a **transactional, deterministic, legally enforced installer/uninstaller** that:
+
+1. Enforces **explicit EULA acceptance**
+2. Performs **preflight validation**
+3. Creates and validates **SWAP** (Core & DPI only)
+4. Installs all **non-stand-alone modules**
+5. Verifies **signatures & integrity**
+6. Supports **upgrade, rollback, uninstall**
+7. Works **offline / air-gapped**
+8. Centralizes **systemd units**
+9. Leaves system safe on failure
+
+---
+
+## 📦 INSTALLER RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Display and require EULA acceptance
+* Validate environment before install
+* Verify signatures for every artifact
+* Enforce version compatibility
+* Perform atomic installs
+* Create/verify swap (Core only here)
+* Support rollback on failure
+* Log deterministically
+
+### MUST NEVER DO
+
+* Assume internet access
+* Modify OS security silently
+* Proceed on validation failure
+* Leave partial installs
+* Skip EULA
+* Install stand-alone modules
+
+---
+
+## 📁 PHASE 11 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_installer/
+```
+
+```
+ransomeye_installer/
+├── src/
+│   ├── main.rs
+│   ├── eula.rs
+│   ├── preflight.rs
+│   ├── verify.rs
+│   ├── install.rs
+│   ├── upgrade.rs
+│   ├── rollback.rs
+│   ├── uninstall.rs
+│   ├── swap.rs
+│   └── logging.rs
+│
+├── packages/
+│   ├── core/
+│   ├── ingestion/
+│   ├── policy/
+│   ├── dispatcher/
+│   ├── ai/
+│   ├── reporting/
+│   └── intelligence/
+│
+├── systemd/
+│   ├── ransomeye-core.service
+│   ├── ransomeye-ingestion.service
+│   ├── ransomeye-policy.service
+│   ├── ransomeye-dispatcher.service
+│   ├── ransomeye-ai.service
+│   └── ransomeye-reporting.service
+│
+├── eula/
+│   └── EULA.txt   # EMPTY FILE — MUST EXIST & BE ACCEPTED
+│
+├── config/
+│   └── install_schema.md
+│
+├── scripts/
+│   ├── install.sh
+│   ├── upgrade.sh
+│   ├── rollback.sh
+│   ├── uninstall.sh
+│   └── verify.sh
+│
+├── docs/
+│   ├── installation_guide.md
+│   ├── upgrade_guide.md
+│   ├── rollback_guide.md
+│   ├── uninstall_guide.md
+│   ├── airgap_guide.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── preflight_tests.rs
+    ├── eula_enforcement_tests.rs
+    ├── swap_creation_tests.rs
+    ├── upgrade_failure_tests.rs
+    ├── rollback_tests.rs
+    └── uninstall_tests.rs
+```
+
+---
+
+## 📜 EULA ENFORCEMENT (MANDATORY, NON-NEGOTIABLE)
+
+Rules:
+
+* EULA file path is fixed:
+
+  ```
+  /home/ransomeye/rebuild/ransomeye_installer/eula/EULA.txt
+  ```
+* Installer MUST:
+
+  * Display EULA
+  * Require explicit acceptance (yes/no)
+  * Record acceptance (timestamp, user, host)
+* No acceptance → **ABORT INSTALL**
+* Acceptance must be auditable
+
+No silent installs.
+
+---
+
+## 🔍 PREFLIGHT VALIDATION (MANDATORY)
+
+You MUST validate:
+
+* OS compatibility
+* Kernel features
+* Disk space
+* Memory availability
+* Required capabilities
+* Conflicting services
+* Existing versions
+* Architecture compatibility
+
+Any failure → **ABORT**
+
+---
+
+## 💾 SWAP MANAGEMENT (MANDATORY)
+
+### Applies ONLY to:
+
+* **Core Engine**
+* **DPI Probe** (handled by DPI installer; unified installer validates Core only)
+
+Rules for Core:
+
+* Minimum SWAP: **16 GB**
+* OR **equal to physical RAM**, whichever is higher
+* Create swap file deterministically
+* Persist across reboot
+* Verify at startup
+
+Failure → **ABORT INSTALL**
+
+Explicitly forbidden for:
+
+* Linux Agent
+* Windows Agent
+
+---
+
+## 🔐 SECURITY & INTEGRITY (MANDATORY)
+
+Installer MUST:
+
+* Verify signatures for every package
+* Verify checksums
+* Validate trust chain
+* Reject unsigned or modified artifacts
+
+Any failure → **ABORT**
+
+---
+
+## 🔄 UPGRADE & ROLLBACK (TRANSACTIONAL)
+
+You MUST implement:
+
+* Rolling upgrades (where applicable)
+* Mixed-version compatibility checks
+* Config migration with backup
+* Automatic rollback on failure
+
+Rollback MUST:
+
+* Restore binaries
+* Restore configs
+* Restore services
+* Leave system operational
+
+---
+
+## 🧹 UNINSTALL (CLEAN & SAFE)
+
+Uninstall MUST:
+
+* Stop services
+* Remove binaries
+* Preserve logs (optional, configurable)
+* Remove swap ONLY if created by installer
+* Leave OS unchanged otherwise
+
+No orphaned services.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Power loss mid-install
+* Disk full mid-install
+* Invalid EULA
+* Signature failure
+* Version mismatch
+* Partial upgrade
+
+System must always be recoverable.
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Enforce EULA acceptance
+* Verify swap creation
+* Simulate upgrade failures
+* Verify rollback correctness
+* Validate uninstall safety
+* Validate air-gapped install
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 11 is INVALID if:
+
+* EULA can be bypassed
+* Swap is optional for Core
+* Partial installs persist
+* Rollback is best-effort
+* Stand-alone modules are installed here
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 11 as:
+
+* A **legal gate**
+* An **operational safety system**
+* A **transaction manager**
+
+If Phase 11 fails, **enterprises will not trust deployment**.
+
+**BUILD PHASE 11 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---

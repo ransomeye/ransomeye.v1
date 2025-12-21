@@ -1,0 +1,293 @@
+# ⚙️ RANSOMEYE – PHASE 11
+
+## Unified Installer, Upgrade, Rollback & Operations
+
+### **(PROMPT NUMBER 11 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (ENTERPRISE OPERATIONS–CRITICAL)
+
+You are building the **installation, upgrade, rollback, and operational control layer** for RansomEye.
+
+This phase determines:
+
+* How safely RansomEye is deployed
+* Whether upgrades can brick environments
+* Whether rollbacks are reliable
+* Whether air-gapped enterprises can operate the platform
+
+This phase must assume:
+
+* No internet access
+* Strict change-control environments
+* Partial failures during upgrade
+* Mixed versions during rolling upgrades
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Shell (Bash) – orchestration only**
+* **Rust – installer logic and validation**
+* **Python – ONLY for packaging helpers (NOT runtime)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Java
+* Go
+* NodeJS
+* Any installer requiring cloud connectivity
+* Any interactive installer requiring assumptions
+
+➡️ Installers must be **fully automatable and non-interactive**.
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+* System utilities available on target OS
+
+BANNED:
+
+* GPL installers bundled into binaries
+* Unknown-license packaging tools
+
+---
+
+## 🎯 PHASE 11 OBJECTIVE
+
+Build a **unified, deterministic, safe installer and operations framework** that:
+
+1. Installs all RansomEye components
+2. Validates environment before installation
+3. Supports **safe upgrades and rollbacks**
+4. Enforces version compatibility
+5. Works in **air-gapped environments**
+6. Centralizes systemd / service management
+
+---
+
+## 📦 INSTALLER RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Pre-flight validation
+* Dependency checks
+* Version compatibility checks
+* Integrity verification (signatures, hashes)
+* Atomic installation
+* Safe rollback on failure
+* Centralized service control
+* Deterministic logging
+
+### MUST NEVER DO
+
+* Modify OS security posture silently
+* Download from internet
+* Assume distro-specific features
+* Leave partial installs
+* Proceed on validation failure
+
+---
+
+## 📁 PHASE 11 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+installers/
+├── unified/
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── preflight.rs
+│   │   ├── verify.rs
+│   │   ├── install.rs
+│   │   ├── upgrade.rs
+│   │   ├── rollback.rs
+│   │   └── logging.rs
+│   │
+│   ├── packages/
+│   │   ├── core/
+│   │   ├── dpi_probe/
+│   │   ├── linux_agent/
+│   │   ├── windows_agent/
+│   │   └── ai_models/
+│   │
+│   ├── config/
+│   │   └── install_schema.md
+│   │
+│   └── errors/
+│       └── installer_errors.rs
+│
+├── systemd/
+│   ├── ransomeye-core.service
+│   ├── ransomeye-dpi-probe.service
+│   ├── ransomeye-linux-agent.service
+│   └── ransomeye-control-plane.service
+│
+├── scripts/
+│   ├── install.sh
+│   ├── upgrade.sh
+│   ├── rollback.sh
+│   └── verify.sh
+│
+├── docs/
+│   ├── installation_guide.md
+│   ├── upgrade_guide.md
+│   ├── rollback_guide.md
+│   ├── airgap_guide.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── preflight_tests.rs
+    ├── upgrade_failure_tests.rs
+    ├── rollback_tests.rs
+    └── version_mismatch_tests.rs
+```
+
+---
+
+## 🔍 PREFLIGHT VALIDATION (MANDATORY)
+
+You MUST implement checks for:
+
+* OS compatibility
+* Kernel version features
+* Disk space
+* Memory availability
+* Required capabilities
+* Conflicting services
+* Existing versions
+
+Any failure = **ABORT INSTALLATION**
+
+---
+
+## 🔐 SECURITY & INTEGRITY (MANDATORY)
+
+You MUST enforce:
+
+* Signature verification before install
+* Hash verification for every artifact
+* Version pinning
+* Trusted keychain validation
+
+Installation on verification failure = **BLOCKED**
+
+---
+
+## 🔄 UPGRADE & ROLLBACK MODEL
+
+You MUST define:
+
+* Rolling upgrade strategy
+* Mixed-version compatibility rules
+* Safe rollback triggers
+* State migration handling
+* Downgrade restrictions
+
+Rollback must:
+
+* Restore last known-good state
+* Restore configs
+* Restore services
+* Leave system operational
+
+---
+
+## 🧠 CONFIGURATION MANAGEMENT
+
+* No config overwrite without backup
+* Schema validation on upgrade
+* Explicit config migrations
+* Fail-closed on incompatible config
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Power loss during install
+* Disk full mid-upgrade
+* Version mismatch
+* Signature verification failure
+* Partial component failure
+
+Installer must:
+
+* Leave system safe
+* Allow retry
+* Never brick the host
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Fresh install tests
+* Upgrade failure simulations
+* Rollback verification tests
+* Air-gapped install tests
+* Version skew tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Installer architecture
+2. Folder structure explanation
+3. Preflight validation model
+4. Upgrade & rollback strategy
+5. Security verification flow
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Installer assumes internet
+* Partial installs are allowed
+* Rollback is best-effort
+* systemd units are scattered
+* Verification failures are ignored
+
+---
+
+## FINAL INSTRUCTION
+
+Treat installation as:
+
+* A **transaction**
+* Either fully successful or fully rolled back
+
+Design it so:
+
+* Enterprises trust it
+* Operators can recover
+* Systems remain stable
+
+**BUILD PHASE 11 COMPLETELY, SAFELY, AND OPERATIONS-GRADE.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 11 OF 12**
+

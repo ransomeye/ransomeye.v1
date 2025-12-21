@@ -1,0 +1,283 @@
+# 🐧 RANSOMEYE – PHASE 9A
+
+## Linux Agent (Stand-Alone Module)
+
+### **(PROMPT NUMBER 9A OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (STAND-ALONE MODULE – CRITICAL)
+
+You are building the **RansomEye Linux Agent**.
+
+This agent is a **stand-alone deployable module**, independently installable, upgradeable, and removable.
+
+The Linux Agent must:
+
+* Run on **ANY Linux distribution**
+* Run on **ANY kernel version (within reason)**
+* Have **ZERO runtime dependency on Python**
+* Be **static where possible**
+* Be **fail-closed**
+* Operate in **hostile and air-gapped environments**
+
+This agent operates at the **endpoint trust boundary**.
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (MANDATORY, PRIMARY)**
+* **C (ONLY for kernel / low-level helpers if unavoidable)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Python
+* Java
+* Go
+* NodeJS
+* Shell scripts as core logic
+* Any interpreter-based runtime
+
+➡️ Any violation = **INVALID OUTPUT**
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+
+BANNED:
+
+* GPL / AGPL / SSPL
+* eBPF userland GPL leakage
+* Unknown-license libraries
+
+Kernel GPL is acceptable **only inside kernel**, never in userland binaries.
+
+---
+
+## 🎯 PHASE 9A OBJECTIVE
+
+Build a **minimal-footprint, high-integrity Linux Agent** that:
+
+1. Collects host telemetry
+2. Detects suspicious local behavior
+3. Executes enforcement actions **only when instructed**
+4. Maintains cryptographic identity
+5. Operates offline safely
+6. Degrades gracefully on unsupported kernels
+
+---
+
+## 📦 LINUX AGENT RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Process monitoring
+* File activity monitoring
+* System integrity signals
+* Kernel / OS metadata collection
+* Secure communication with Core
+* Local enforcement execution
+* Self-integrity verification
+
+### MUST NEVER DO
+
+* Correlate multi-host data
+* Train ML models
+* Make autonomous policy decisions
+* Trust unsigned commands
+* Require specific Linux distros
+
+---
+
+## 📁 PHASE 9A FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+agents/
+└── linux/
+    ├── src/
+    │   ├── main.rs
+    │   ├── agent.rs
+    │   ├── lifecycle.rs
+    │   ├── telemetry/
+    │   │   ├── mod.rs
+    │   │   ├── process.rs
+    │   │   ├── filesystem.rs
+    │   │   ├── memory.rs
+    │   │   └── kernel.rs
+    │   │
+    │   ├── enforcement/
+    │   │   ├── mod.rs
+    │   │   ├── actions.rs
+    │   │   └── safeguards.rs
+    │   │
+    │   ├── security/
+    │   │   ├── identity.rs
+    │   │   ├── verification.rs
+    │   │   └── integrity.rs
+    │   │
+    │   ├── comms/
+    │   │   ├── protocol.rs
+    │   │   ├── encryption.rs
+    │   │   └── retry.rs
+    │   │
+    │   ├── config/
+    │   │   └── validation.rs
+    │   │
+    │   └── errors/
+    │       └── agent_errors.rs
+    │
+    ├── systemd/
+    │   └── ransomeye-linux-agent.service
+    │
+    ├── docs/
+    │   ├── telemetry_model.md
+    │   ├── enforcement_model.md
+    │   ├── kernel_compatibility.md
+    │   ├── failure_modes.md
+    │   └── security_model.md
+    │
+    └── tests/
+        ├── synthetic_telemetry.rs
+        ├── enforcement_tests.rs
+        ├── tamper_tests.rs
+        └── recovery_tests.rs
+```
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+You MUST:
+
+* Generate a unique cryptographic identity per agent
+* Enroll via secure bootstrap
+* Verify every command signature
+* Reject expired or revoked identities
+* Fail closed on verification failure
+
+---
+
+## ⚙️ TELEMETRY MODEL
+
+You MUST define:
+
+* Telemetry types
+* Sampling strategy
+* Rate limits
+* Backpressure handling
+* Privacy boundaries
+
+No raw file contents.
+No credential collection.
+
+---
+
+## 🛡️ ENFORCEMENT MODEL (STRICT)
+
+Enforcement actions:
+
+* Must be explicit
+* Must be signed
+* Must be scoped
+* Must be reversible
+* Must be auditable
+
+Agent must **refuse**:
+
+* Unsigned actions
+* Ambiguous commands
+* Over-broad scopes
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Kernel feature unavailable
+* Permission loss
+* Disk full
+* Network isolation
+* Identity expiration
+* Binary tampering
+
+Agent must:
+
+* Remain observable
+* Avoid crashing
+* Avoid blocking host OS
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Synthetic telemetry generation
+* Enforcement safety tests
+* Tamper detection tests
+* Kernel compatibility tests
+* Offline operation tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Linux Agent architecture
+2. Folder structure explanation
+3. Telemetry model
+4. Enforcement safeguards
+5. Identity & trust flow
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Python is used
+* Distro assumptions exist
+* Enforcement is implicit
+* Commands are unsigned
+* Agent trusts Core blindly
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the Linux Agent as:
+
+* Hostile-environment software
+* Minimal attack surface
+* High-trust, low-authority component
+
+Design it to survive:
+
+* Kernel differences
+* Operator mistakes
+* Partial compromise
+
+**BUILD PHASE 9A COMPLETELY AND STRICTLY.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 9A OF 12**

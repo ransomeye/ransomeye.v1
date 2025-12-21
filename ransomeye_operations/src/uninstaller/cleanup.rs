@@ -144,9 +144,10 @@ impl CleanupManager {
     
     /// Remove evidence (with optional secure deletion)
     fn remove_evidence(&self, secure_delete: bool) -> Result<(), OperationsError> {
+        // CRITICAL: Only reference modules that EXIST on disk
+        // ransomeye_forensic does not exist - forensic functionality is in ransomeye_reporting
         let evidence_dirs = vec![
             format!("{}/ransomeye_reporting", self.project_root),
-            format!("{}/ransomeye_forensic", self.project_root),
         ];
         
         for evidence_dir in evidence_dirs {

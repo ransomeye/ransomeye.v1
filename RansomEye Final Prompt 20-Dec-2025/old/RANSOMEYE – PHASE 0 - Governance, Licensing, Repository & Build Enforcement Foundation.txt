@@ -1,0 +1,323 @@
+# 🔒 RANSOMEYE – PHASE 0
+
+## Governance, Licensing, Repository & Build Enforcement Foundation
+
+**(MASTER PROMPT – CURSOR EXECUTION)**
+
+---
+
+## CONTEXT (READ CAREFULLY)
+
+You are building **RansomEye from absolute scratch** as a **commercial, closed-source, enterprise-grade cybersecurity platform**.
+
+RansomEye **will be sold commercially**, therefore:
+
+* **NO source code disclosure is allowed**
+* **NO copyleft contamination is allowed**
+* **NO GPL / AGPL / unknown licenses are allowed**
+* **NO assumptions are allowed**
+
+This phase establishes **non-negotiable guardrails**.
+If Phase 0 is weak, the entire product becomes legally and technically invalid.
+
+---
+
+## 🚨 GLOBAL HARD RULES (APPLY EVERYWHERE)
+
+You MUST enforce ALL of the following:
+
+### 1. License Rules (FAIL CLOSED)
+
+**Allowed only**
+
+* MIT
+* BSD 2-Clause / 3-Clause
+* Apache 2.0
+* PSF
+* CC0
+
+**Conditionally allowed**
+
+* LGPL → **ONLY if dynamically linked, isolated, and replaceable**
+
+**BANNED (ABSOLUTE)**
+
+* GPL v2 / v3
+* AGPL
+* SSPL
+* Elastic License
+* Any “custom”, “unknown”, or unclear license
+* GPL rule packs or content (even if engine is permissive)
+
+➡️ **CI must fail immediately if a banned license is detected**
+
+---
+
+### 2. Configuration Rules
+
+* **ENV-only configuration**
+* No hardcoded:
+
+  * IPs
+  * Hostnames
+  * Ports
+  * Paths
+  * Credentials
+  * Secrets
+* No defaults for secrets
+* Missing env vars = **FAIL CLOSED**
+
+---
+
+### 3. File & Code Rules
+
+* Every file MUST start with a mandatory header:
+
+  * File path
+  * Author ID
+  * Purpose / Details
+* Applies to:
+
+  * `.rs .c .cpp .py .sh .yaml .json .toml .service`
+* No placeholder logic
+* No TODO-only implementations
+
+---
+
+### 4. Data Rules
+
+* **NO sample or dummy datasets committed**
+* Tests must generate **synthetic data at runtime only**
+* No training data stored in repo
+
+---
+
+### 5. Security Rules
+
+* Artifact signing is mandatory:
+
+  * Code
+  * Binaries
+  * Models
+  * Rules
+* Verification must exist at runtime
+* Fail-closed on verification failure
+
+---
+
+## 🎯 PHASE 0 OBJECTIVE
+
+Build the **legal, structural, and enforcement foundation** that every future phase depends on.
+
+This phase produces **NO business logic**, but it **controls everything** that follows.
+
+---
+
+## 📦 REQUIRED DELIVERABLES (ALL MANDATORY)
+
+### A. Repository Folder Structure (FINAL)
+
+You MUST create and document the following **top-level repository structure**:
+
+```
+ransomeye/
+├── governance/
+│   ├── LICENSE_POLICY.md
+│   ├── THIRD_PARTY_POLICY.md
+│   ├── SECURITY_POLICY.md
+│   ├── CODE_SIGNING_POLICY.md
+│   └── CONTRIBUTION_RULES.md
+│
+├── build/
+│   ├── ci/
+│   │   ├── license_scan.yml
+│   │   ├── secret_scan.yml
+│   │   ├── header_enforcement.yml
+│   │   └── artifact_signing.yml
+│   │
+│   ├── tooling/
+│   │   ├── license_validator.py
+│   │   ├── header_validator.py
+│   │   ├── secret_validator.py
+│   │   └── artifact_signer.py
+│
+├── core/                # Rust – created later
+├── dpi_probe/           # Rust/C++ – created later
+├── agents/              # Rust – created later
+├── ai/                  # Python – created later
+├── control_plane/       # Rust/Go – created later
+├── frontend/            # React – created later
+│
+├── installers/
+│   ├── unified_installer/
+│   └── systemd/
+│
+├── docs/
+│   ├── architecture/
+│   ├── operations/
+│   ├── security/
+│   └── compliance/
+│
+├── scripts/
+│   ├── bootstrap.sh
+│   ├── verify_repo.sh
+│   └── airgap_prepare.sh
+│
+├── .env.example         # NO secrets, schema only
+├── .gitignore
+├── README.md
+└── VERSION
+```
+
+You must **explain the purpose of every folder**.
+
+---
+
+### B. License Governance (CRITICAL)
+
+Produce:
+
+1. **LICENSE_POLICY.md**
+
+   * Explicit allowlist
+   * Explicit denylist
+   * Rationale
+   * Enforcement rules
+
+2. **THIRD_PARTY_POLICY.md**
+
+   * How libraries are approved
+   * How replacements are handled
+   * How upgrades are reviewed
+
+3. **Automated License Scanner**
+
+   * Python or Rust tool
+   * Scans:
+
+     * Python deps
+     * Rust crates
+     * System libraries (where possible)
+   * Fails CI on violation
+
+---
+
+### C. Mandatory File Header Specification
+
+Define a **single mandatory header format**, for example:
+
+```
+# Path: ransomeye/core/engine/main.rs
+# Author: RansomEye Core Team
+# Details: Core correlation engine entrypoint
+```
+
+Requirements:
+
+* Header validator must enforce this
+* CI must fail if header missing or malformed
+
+---
+
+### D. Secret & ENV Validation Framework
+
+Deliver:
+
+* `.env.example` schema (NO values)
+* Secret validator logic:
+
+  * Required vars
+  * Type validation
+  * Fail-closed startup
+* CI check for accidental secrets
+
+---
+
+### E. Artifact Signing & Verification Design
+
+You MUST design:
+
+* Signing workflow
+* Key hierarchy
+* Verification points
+
+Artifacts to sign:
+
+* Binaries
+* Packages
+* Models
+* Rules
+* Policies
+
+Deliverables:
+
+* CODE_SIGNING_POLICY.md
+* Signing flow diagram (textual)
+* Example signing + verification logic
+
+---
+
+### F. CI Enforcement Pipelines
+
+Provide **example CI YAMLs** for:
+
+1. License scanning
+2. Header enforcement
+3. Secret detection
+4. Artifact signing validation
+
+Each pipeline MUST:
+
+* Fail fast
+* Produce explicit error messages
+* Block merge on violation
+
+---
+
+## ⛔ ABSOLUTE CONSTRAINTS
+
+* Do NOT write business logic
+* Do NOT skip any deliverable
+* Do NOT assume future phases will “fix it”
+* Do NOT weaken enforcement for convenience
+* Do NOT include GPL examples “for reference”
+
+---
+
+## 📤 EXPECTED OUTPUT FORMAT
+
+You must output:
+
+1. Folder structure explanation
+2. All governance documents (Markdown)
+3. CI YAML examples
+4. Validation tool designs (pseudo-code or real code)
+5. Clear explanation of enforcement flow
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Any banned license is tolerated
+* Any rule is “recommended” instead of enforced
+* Any secret has a default
+* Any file header rule is optional
+* Any placeholder logic is used
+
+---
+
+## FINAL INSTRUCTION
+
+This phase is **FOUNDATIONAL**.
+
+Treat this like:
+
+* A military compliance framework
+* A bank-grade governance system
+* A legal contract enforced by code
+
+**BUILD PHASE 0 COMPLETELY AND EXPLICITLY.**
+
+---

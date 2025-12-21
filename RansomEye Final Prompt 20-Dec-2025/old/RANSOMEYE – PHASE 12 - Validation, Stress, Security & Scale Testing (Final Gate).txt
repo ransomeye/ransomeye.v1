@@ -1,0 +1,294 @@
+# 🧪 RANSOMEYE – PHASE 12
+
+## Validation, Stress, Security & Scale Testing (Final Gate)
+
+### **(PROMPT NUMBER 12 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (FINAL QUALITY GATE)
+
+You are executing the **final validation phase** of RansomEye.
+
+This phase is the **last and non-negotiable gate** before RansomEye can be:
+
+* Released
+* Sold
+* Deployed
+* Certified
+
+If this phase is weak:
+
+* All previous work is untrustworthy
+* Scale claims are invalid
+* Security guarantees collapse
+
+**Nothing passes Phase 12 unless it is proven.**
+
+---
+
+## 🚨 GLOBAL HARD RULES (RE-ENFORCED)
+
+These rules apply to **all validation activities**:
+
+* No sample or production data
+* Synthetic data only
+* Deterministic test runs
+* ENV-only configuration
+* Mandatory file headers
+* No GPL / AGPL / unknown licenses
+* No internet dependency
+* Fail-closed on test failure
+
+---
+
+## 🎯 PHASE 12 OBJECTIVE
+
+Build a **comprehensive, repeatable, deterministic validation framework** that proves:
+
+1. Functional correctness
+2. Security guarantees
+3. Performance at scale
+4. Failure safety
+5. Upgrade safety
+6. License compliance
+
+This phase must provide **evidence**, not confidence.
+
+---
+
+## 📦 VALIDATION SCOPE (MANDATORY)
+
+You MUST validate **every major subsystem**:
+
+* DPI Probe (40+ Gbps)
+* Ingestion & Backpressure
+* Core Correlation Engine
+* Policy Engine
+* AI / ML Layer
+* LLM SOC Copilot
+* Linux Agent
+* Windows Agent
+* Reporting & Forensics
+* Installer & Upgrade
+
+No subsystem is exempt.
+
+---
+
+## 📁 PHASE 12 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+validation/
+├── framework/
+│   ├── src/
+│   │   ├── runner.rs
+│   │   ├── scenario.rs
+│   │   ├── assertions.rs
+│   │   ├── metrics.rs
+│   │   └── report.rs
+│   │
+│   ├── config/
+│   │   └── validation_schema.md
+│   │
+│   └── errors/
+│       └── validation_errors.rs
+│
+├── scenarios/
+│   ├── functional/
+│   │   ├── basic_detection.yaml
+│   │   ├── false_positive.yaml
+│   │   └── regression.yaml
+│   │
+│   ├── security/
+│   │   ├── identity_spoof.yaml
+│   │   ├── policy_tamper.yaml
+│   │   └── model_tamper.yaml
+│   │
+│   ├── performance/
+│   │   ├── dpi_40gbps.yaml
+│   │   ├── ingestion_flood.yaml
+│   │   └── correlation_scale.yaml
+│   │
+│   ├── failure/
+│   │   ├── network_partition.yaml
+│   │   ├── disk_full.yaml
+│   │   └── component_crash.yaml
+│   │
+│   └── upgrade/
+│       ├── rolling_upgrade.yaml
+│       └── rollback.yaml
+│
+├── generators/
+│   ├── synthetic_packets.rs
+│   ├── synthetic_events.rs
+│   ├── synthetic_hosts.rs
+│   └── synthetic_policies.rs
+│
+├── reports/
+│   ├── templates/
+│   └── examples/
+│
+└── docs/
+    ├── validation_methodology.md
+    ├── acceptance_criteria.md
+    ├── performance_claims.md
+    └── failure_analysis.md
+```
+
+---
+
+## 🧠 VALIDATION FRAMEWORK REQUIREMENTS
+
+You MUST implement:
+
+* Scenario-driven testing
+* Deterministic execution
+* Explicit pass/fail assertions
+* Metrics collection
+* Signed validation reports
+
+No manual testing allowed.
+
+---
+
+## ⚙️ SCALE & PERFORMANCE VALIDATION
+
+You MUST prove:
+
+* DPI sustains 40+ Gbps (synthetic)
+* No packet loss beyond defined thresholds
+* Ingestion backpressure works
+* Correlation scales to 50k+ entities
+* Memory remains bounded
+* CPU scales linearly
+
+Claims without evidence = **FAIL**
+
+---
+
+## 🔐 SECURITY VALIDATION (MANDATORY)
+
+You MUST test:
+
+* Identity spoofing
+* Replay attacks
+* Policy tampering
+* Model tampering
+* Unsigned artifact injection
+* Privilege downgrade scenarios
+
+All attacks must be **detected and blocked**.
+
+---
+
+## 💥 FAILURE INJECTION TESTING
+
+You MUST inject:
+
+* Process crashes
+* Network loss
+* Disk exhaustion
+* Memory pressure
+* Partial component failure
+
+System must:
+
+* Fail safely
+* Recover deterministically
+* Preserve evidence
+
+---
+
+## 🔄 UPGRADE & ROLLBACK VALIDATION
+
+You MUST validate:
+
+* Rolling upgrades
+* Mixed-version compatibility
+* Rollback correctness
+* State migration safety
+
+Upgrade failures must be **reversible**.
+
+---
+
+## 📊 REPORTING & EVIDENCE (MANDATORY)
+
+Each validation run MUST produce:
+
+* Signed validation report
+* Pass/fail matrix
+* Performance metrics
+* Failure analysis
+* Reproduction instructions
+
+Reports must be:
+
+* Verifiable
+* Immutable
+* Audit-ready
+
+---
+
+## 🧪 TESTING CONSTRAINTS
+
+* Synthetic data only
+* No randomness without seed control
+* No internet access
+* No human intervention
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Validation framework architecture
+2. Folder structure explanation
+3. Scenario definitions
+4. Assertion model
+5. Performance proof methodology
+6. Security test coverage
+7. Failure analysis
+8. Acceptance criteria
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Any subsystem is untested
+* Any test is non-deterministic
+* Any claim lacks evidence
+* Failures are ignored
+* Reports are unsigned
+
+---
+
+## FINAL INSTRUCTION
+
+This phase is the **gatekeeper of truth**.
+
+If Phase 12 passes:
+
+* RansomEye is real
+* RansomEye is defensible
+* RansomEye is sellable
+
+If it fails:
+
+* Everything before it is irrelevant
+
+**BUILD PHASE 12 COMPLETELY, RIGOROUSLY, AND WITHOUT EXCEPTIONS.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 12 OF 12 — FINAL PROMPT**

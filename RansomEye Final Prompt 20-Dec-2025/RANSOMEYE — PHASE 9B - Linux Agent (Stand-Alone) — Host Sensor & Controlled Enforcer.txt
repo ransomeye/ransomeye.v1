@@ -1,0 +1,288 @@
+# 🐧 RANSOMEYE — PHASE 9B
+
+## Linux Agent (Stand-Alone) — Host Sensor & Controlled Enforcer
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 9B)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_linux_agent/`
+
+---
+
+## CONTEXT (ENDPOINT TRUST BOUNDARY)
+
+The Linux Agent operates **on potentially compromised hosts** and must assume:
+
+* Hostile local users
+* Partial privilege loss
+* Kernel feature variability
+* Offline / air-gapped operation
+
+This agent is **stand-alone** and:
+
+* Collects host-level telemetry
+* Executes **only explicitly authorized enforcement**
+* Never correlates across hosts
+* Never infers attacks
+* Never depends on AI to function
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–8** apply unchanged.
+
+Additional Phase-9B rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 9B OBJECTIVE
+
+Build a **minimal-footprint, Linux-agnostic, cryptographically controlled Linux Agent** that:
+
+1. Collects host telemetry safely
+2. Normalizes and signs telemetry events
+3. Receives **signed enforcement directives only**
+4. Executes enforcement safely and reversibly
+5. Maintains strong identity and integrity
+6. Operates without swap
+7. Works across **any Linux distribution** (no assumptions)
+
+---
+
+## 🚫 LANGUAGE & LICENSE RULES (STRICT)
+
+### Allowed Languages
+
+* **Rust (PRIMARY)**
+* **C (ONLY if kernel interaction is unavoidable)**
+
+### Forbidden
+
+* Python
+* Go
+* Java
+* NodeJS
+* Shell as core logic
+* GPL userland libraries
+
+All dependencies must be **MIT / BSD / Apache 2.0**.
+
+---
+
+## 💾 SWAP POLICY (EXPLICIT)
+
+* **Swap usage is FORBIDDEN**
+* Agent must not create, require, or depend on swap
+* Memory usage must be bounded
+* Swap checks must explicitly skip Linux Agent
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Process activity telemetry
+* File system metadata telemetry
+* System integrity signals
+* Kernel / OS metadata capture
+* Secure communication with Core ingestion
+* Signed enforcement execution
+* Self-integrity verification
+
+### MUST NEVER DO
+
+* Policy decisions
+* Cross-host correlation
+* AI inference
+* Runtime learning
+* Unsigned execution
+* OS destabilization
+
+---
+
+## 📁 PHASE 9B DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_linux_agent/
+```
+
+```
+ransomeye_linux_agent/
+├── src/
+│   ├── main.rs
+│   ├── agent.rs
+│   ├── lifecycle.rs
+│   ├── telemetry/
+│   │   ├── process.rs
+│   │   ├── filesystem.rs
+│   │   ├── memory.rs
+│   │   ├── kernel.rs
+│   │   └── system.rs
+│   │
+│   ├── enforcement/
+│   │   ├── actions.rs
+│   │   ├── safeguards.rs
+│   │   └── rollback.rs
+│   │
+│   ├── comms/
+│   │   ├── protocol.rs
+│   │   ├── encryption.rs
+│   │   └── retry.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── verification.rs
+│   │   └── integrity.rs
+│   │
+│   ├── system/
+│   │   └── env_validation.rs
+│   │
+│   └── errors/
+│       └── agent_errors.rs
+│
+├── systemd/
+│   └── ransomeye-linux-agent.service
+│
+├── docs/
+│   ├── telemetry_model.md
+│   ├── enforcement_model.md
+│   ├── kernel_compatibility.md
+│   ├── security_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_telemetry.rs
+    ├── enforcement_safety_tests.rs
+    ├── rollback_tests.rs
+    ├── tamper_tests.rs
+    └── offline_mode_tests.rs
+```
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Unique per-agent cryptographic identity
+* Secure enrollment bootstrap
+* Mutual authentication with Core ingestion
+* Signature verification on every directive
+* Identity expiration and revocation
+
+Verification failure → **REFUSE EXECUTION**
+
+---
+
+## 📊 TELEMETRY MODEL (SAFE & BOUNDED)
+
+Telemetry MUST be:
+
+* Metadata-only
+* Rate-limited
+* Privacy-aware
+* Schema-validated
+* Signed before transmission
+
+No raw file contents
+No credential material
+No memory dumps
+
+---
+
+## 🛡️ ENFORCEMENT MODEL (STRICT & SAFE)
+
+Enforcement actions MUST be:
+
+* Explicit
+* Signed
+* Scoped
+* Time-bounded
+* Reversible
+
+Agent MUST refuse:
+
+* Unsigned directives
+* Over-broad scope
+* Unsafe operations
+* Missing rollback instructions
+
+---
+
+## 🔍 AI / ML / LLM INTERACTION (ADVISORY ONLY)
+
+Linux Agent:
+
+* **Does NOT run AI**
+* **Does NOT infer**
+* **Does NOT score**
+
+Allowed:
+
+* Emit telemetry fields required by AI later
+* Receive human-visible context (never actions)
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Kernel feature unavailable
+* Privilege loss
+* Disk full
+* Network isolation
+* Identity expiration
+* Binary tampering
+
+Agent must:
+
+* Remain observable
+* Avoid OS instability
+* Fail safely without blocking host
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Validate Linux distro neutrality
+* Validate no-swap enforcement
+* Validate signed enforcement only
+* Validate rollback correctness
+* Validate offline operation
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 9B is INVALID if:
+
+* Swap is used
+* Python exists
+* Enforcement is implicit
+* Identity trust is assumed
+* Kernel assumptions exist
+* Unsigned actions execute
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the Linux Agent as:
+
+* A **low-trust execution surface**
+* A **high-integrity sensor**
+* A **surgical enforcer**
+
+If the Linux Agent fails, **it must not damage the host**.
+
+**BUILD PHASE 9B COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+

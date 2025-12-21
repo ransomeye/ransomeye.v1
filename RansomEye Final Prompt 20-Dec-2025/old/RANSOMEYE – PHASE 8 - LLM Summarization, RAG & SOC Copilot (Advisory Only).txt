@@ -1,0 +1,287 @@
+# 🧠 RANSOMEYE – PHASE 8
+
+## LLM Summarization, RAG & SOC Copilot (Advisory Only)
+
+### **(PROMPT NUMBER 8 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (STRICTLY ADVISORY ROLE)
+
+You are building the **LLM-based Summarization and SOC Copilot layer** for RansomEye.
+
+This component exists **only to assist humans**.
+It must **never influence enforcement, policy evaluation, or automated response**.
+
+Any violation here introduces:
+
+* Legal risk
+* Safety risk
+* Trust-model collapse
+
+This phase must be **hard-isolated** from the Core decision path.
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Python (MANDATORY for LLM orchestration)**
+* **Rust (ONLY for adapters, verification, and isolation wrappers)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Java
+* Go
+* NodeJS
+* Any cloud-only SDK
+* Any external API–dependent LLM
+
+➡️ LLMs must run **locally / offline**.
+
+---
+
+## 🚫 LICENSE RULES (STRICT)
+
+Allowed:
+
+* MIT
+* BSD
+* Apache 2.0
+
+BANNED:
+
+* GPL / AGPL / SSPL
+* Proprietary cloud LLM SDKs
+* Unknown-license models or tokenizers
+
+Models must be:
+
+* Locally hosted
+* Redistributable
+* License-reviewed
+
+---
+
+## 🎯 PHASE 8 OBJECTIVE
+
+Build a **read-only, offline, explainable SOC Copilot** that:
+
+1. Summarizes incidents
+2. Explains correlation and policy decisions
+3. Answers analyst questions using RAG
+4. Produces **human-readable narratives**
+5. Never produces commands or actions
+
+---
+
+## 📦 SOC COPILOT RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Contextual summarization
+* Natural-language explanation
+* Evidence referencing
+* Analyst Q&A (read-only)
+* Confidence and uncertainty disclosure
+
+### MUST NEVER DO
+
+* Trigger actions
+* Modify state
+* Suggest enforcement
+* Bypass policy
+* Learn autonomously
+
+---
+
+## 📁 PHASE 8 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+ai/
+├── llm/
+│   ├── models/
+│   │   ├── model_registry.json
+│   │   └── license_manifest.md
+│   │
+│   ├── prompts/
+│   │   ├── incident_summary.txt
+│   │   ├── kill_chain_explanation.txt
+│   │   ├── policy_explanation.txt
+│   │   └── analyst_qa.txt
+│   │
+│   ├── rag/
+│   │   ├── document_indexer.py
+│   │   ├── vector_store.py
+│   │   └── retrieval.py
+│   │
+│   ├── execution/
+│   │   ├── llm_runtime.py
+│   │   ├── sandbox.py
+│   │   └── guardrails.py
+│   │
+│   ├── integration/
+│   │   ├── read_only_adapter.py
+│   │   └── schema_validation.py
+│   │
+│   ├── security/
+│   │   ├── prompt_signing.py
+│   │   ├── model_verification.py
+│   │   └── output_sanitization.py
+│   │
+│   ├── docs/
+│   │   ├── soc_copilot_scope.md
+│   │   ├── rag_design.md
+│   │   ├── prompt_governance.md
+│   │   └── failure_modes.md
+│   │
+│   └── tests/
+│       ├── hallucination_tests.py
+│       ├── isolation_tests.py
+│       ├── prompt_integrity_tests.py
+│       └── regression_tests.py
+```
+
+---
+
+## 🧠 LLM MODEL CONSTRAINTS
+
+You MUST:
+
+* Use local models only (e.g., llama.cpp–based)
+* Verify model checksum and signature
+* Pin model versions
+* Document license for every model
+
+Model load failure = **Copilot disabled**, not system failure.
+
+---
+
+## 📚 RAG (RETRIEVAL-AUGMENTED GENERATION)
+
+You MUST define:
+
+* Allowed document sources:
+
+  * Correlation explanations
+  * Policy decisions
+  * Audit logs
+  * Runbooks
+* Indexing strategy
+* Retrieval limits
+* Context window enforcement
+
+No raw telemetry allowed.
+
+---
+
+## 🔐 GUARDRAILS & SAFETY (MANDATORY)
+
+You MUST enforce:
+
+* Prompt signing
+* Prompt immutability
+* Output sanitization
+* Hallucination detection
+* Explicit uncertainty disclosure
+
+LLM output must:
+
+* Reference evidence IDs
+* Indicate confidence
+* Never fabricate facts
+
+---
+
+## 🔀 CORE ↔ LLM INTERACTION (STRICT)
+
+* One-way, read-only
+* LLM cannot call Core APIs that mutate state
+* LLM cannot see secrets
+* LLM cannot access raw events
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define behavior for:
+
+* Model missing
+* Model signature invalid
+* Prompt tampered
+* RAG index corrupted
+* Hallucination detected
+
+Failures must:
+
+* Be logged
+* Be visible to SOC
+* Never affect enforcement
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Hallucination tests
+* Prompt integrity tests
+* Read-only enforcement tests
+* Regression tests
+* Offline operation tests
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. SOC Copilot architecture
+2. Folder structure explanation
+3. Prompt governance model
+4. RAG pipeline design
+5. Guardrail enforcement
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* LLM can influence enforcement
+* External APIs are used
+* Prompts are mutable at runtime
+* Model licenses are unclear
+* Read-only boundary is violated
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the LLM as:
+
+* A junior analyst assistant
+* Not an authority
+* Not a decision-maker
+
+Design it so:
+
+* Humans stay in control
+* Evidence remains verifiable
+* Outputs remain defensible
+
+**BUILD PHASE 8 COMPLETELY, ISOLATED, AND SAFE.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 8 OF 12**
+

@@ -1,0 +1,292 @@
+# 🧩 RANSOMEYE – PHASE 5
+
+## Core Correlation Engine & Kill-Chain Inference
+
+### **(PROMPT NUMBER 5 OF 12)**
+
+**MASTER PROMPT – CURSOR EXECUTION**
+
+---
+
+## CONTEXT (CRITICAL – READ FIRST)
+
+You are now building the **CORE BRAIN of RansomEye**.
+
+This phase determines:
+
+* Detection accuracy
+* Latency
+* Explainability
+* Determinism
+* Scale behavior at **50,000+ endpoints**
+
+Any architectural or language mistake here:
+
+* Creates GC pauses
+* Introduces race conditions
+* Breaks explainability
+* Makes enforcement non-deterministic
+
+This component is **security-critical**.
+
+---
+
+## 🚨 ABSOLUTE LANGUAGE RULES
+
+### ✅ ALLOWED LANGUAGES
+
+* **Rust (MANDATORY, PRIMARY)**
+
+### ❌ FORBIDDEN LANGUAGES
+
+* Python
+* Java
+* Go
+* NodeJS
+* JVM-based languages
+* Any GC-based runtime
+
+➡️ Any violation = **INVALID OUTPUT**
+
+---
+
+## 🚫 LICENSE RULES
+
+* GPL / AGPL / SSPL → **BANNED**
+* Unknown licenses → **BANNED**
+
+Allowed only:
+
+* MIT
+* BSD
+* Apache 2.0
+
+---
+
+## 🎯 PHASE 5 OBJECTIVE
+
+Build a **deterministic, explainable, high-performance correlation engine** that:
+
+1. Correlates multi-source telemetry
+2. Infers ransomware kill-chain stages
+3. Produces **explainable decisions**
+4. Feeds **Policy Engine** (no enforcement here)
+5. Operates under sustained high event volume
+
+This engine **does not**:
+
+* Enforce policy
+* Block traffic
+* Perform AI inference
+* Trust upstream data blindly
+
+---
+
+## 📦 CORE RESPONSIBILITIES (STRICT)
+
+### MUST DO
+
+* Temporal correlation
+* Cross-signal correlation
+* State tracking per entity
+* Kill-chain stage inference
+* Confidence scoring
+* Explainability metadata generation
+
+### MUST NEVER DO
+
+* Execute response actions
+* Block events
+* Invoke AI/ML models
+* Persist long-term data
+* Accept unverified events
+
+---
+
+## 📁 PHASE 5 FOLDER STRUCTURE (MANDATORY)
+
+You MUST create and explain:
+
+```
+core/
+├── correlation/
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── engine.rs
+│   │   ├── scheduler.rs
+│   │   ├── entity_state.rs
+│   │   ├── temporal.rs
+│   │   ├── graph.rs
+│   │   ├── scoring.rs
+│   │   └── explainability.rs
+│   │
+│   ├── kill_chain/
+│   │   ├── stages.rs
+│   │   ├── transitions.rs
+│   │   └── inference.rs
+│   │
+│   ├── input/
+│   │   ├── validated_events.rs
+│   │   └── normalization.rs
+│   │
+│   ├── output/
+│   │   ├── correlation_result.rs
+│   │   └── confidence.rs
+│   │
+│   ├── config/
+│   │   └── validation.rs
+│   │
+│   └── errors/
+│       └── correlation_errors.rs
+│
+├── docs/
+│   ├── correlation_model.md
+│   ├── kill_chain_model.md
+│   ├── explainability.md
+│   ├── performance_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_events.rs
+    ├── high_volume_tests.rs
+    ├── ordering_tests.rs
+    ├── race_condition_tests.rs
+    └── explainability_tests.rs
+```
+
+---
+
+## 🔀 CORRELATION PIPELINE (STEP-BY-STEP)
+
+You MUST define:
+
+1. Validated event intake
+2. Entity identification
+3. Temporal windowing
+4. Cross-source correlation
+5. Graph construction
+6. Kill-chain stage inference
+7. Confidence scoring
+8. Explainability artifact generation
+9. Output to Policy Engine
+
+Each step must specify:
+
+* Inputs
+* Outputs
+* State changes
+* Failure behavior
+* Performance implications
+
+---
+
+## 🧠 KILL-CHAIN MODEL (MANDATORY)
+
+You MUST define:
+
+* Kill-chain stages
+* Entry conditions
+* Transition rules
+* Regressions and loops
+* Confidence decay
+* False-positive mitigation
+
+No generic models allowed — ransomware-specific.
+
+---
+
+## ⚙️ PERFORMANCE & SCALING MODEL
+
+You MUST define:
+
+* Event throughput handling
+* Memory bounds per entity
+* Eviction strategy
+* Lock-free or low-lock design
+* Scheduler fairness
+
+🚫 DO NOT:
+
+* Use global locks
+* Block ingestion threads
+* Assume infinite memory
+
+---
+
+## 🔐 SECURITY & TRUST
+
+* Accept events only from Phase 4 ingestion
+* Reject malformed or unsigned data
+* Fail-closed on state corruption
+* No implicit trust of inputs
+
+---
+
+## 💥 FAILURE MODES (REQUIRED)
+
+Define behavior for:
+
+* Event floods
+* Out-of-order events
+* Entity explosion
+* Memory pressure
+* Internal state corruption
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+You MUST include:
+
+* Synthetic ransomware scenarios
+* Benign burst scenarios
+* Edge-case timing attacks
+* Explainability verification
+* Determinism checks
+
+---
+
+## 📤 EXPECTED OUTPUT
+
+You must output:
+
+1. Correlation engine architecture
+2. Folder structure explanation
+3. Kill-chain model
+4. Explainability design
+5. Performance model
+6. Failure handling matrix
+7. Test strategy
+
+---
+
+## 🛑 FAILURE CONDITIONS
+
+Your output is INVALID if:
+
+* Python appears anywhere
+* AI/ML models are invoked
+* Enforcement actions occur
+* Explainability is vague
+* State handling is implicit
+* Determinism is not guaranteed
+
+---
+
+## FINAL INSTRUCTION
+
+This engine is the **authoritative source of truth** for detection.
+
+Design it as if:
+
+* Attackers attempt to confuse it
+* Events arrive out of order
+* Scale increases 10× overnight
+
+**BUILD PHASE 5 COMPLETELY, STRICTLY, AND DETERMINISTICALLY.**
+
+---
+
+### 🔢 PROMPT STATUS
+
+**This was PROMPT NUMBER 5 OF 12**

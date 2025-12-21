@@ -1,0 +1,301 @@
+# 🪟 RANSOMEYE — PHASE 9C
+
+## Windows Agent (Stand-Alone) — Native Endpoint Sensor & Controlled Enforcer
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 9C)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_windows_agent/`
+
+---
+
+## CONTEXT (WINDOWS ENDPOINT TRUST BOUNDARY)
+
+The Windows Agent operates on **enterprise-hardened and potentially compromised Windows hosts**.
+
+Assumptions:
+
+* Hostile local users may exist
+* Privileges may be restricted or revoked
+* System is protected by AV/EDR/Defender
+* System may be offline or air-gapped
+
+The Windows Agent is **stand-alone** and:
+
+* Collects **native Windows telemetry**
+* Executes **only explicitly authorized enforcement**
+* Never correlates across hosts
+* Never infers attacks
+* Never depends on AI/ML/LLM to function
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–8** apply unchanged.
+
+Additional Phase-9C rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 9C OBJECTIVE
+
+Build a **native, low-overhead, cryptographically controlled Windows Agent** that:
+
+1. Collects Windows-native telemetry safely
+2. Normalizes and signs telemetry events
+3. Receives **signed enforcement directives only**
+4. Executes enforcement safely and reversibly
+5. Maintains strong identity and self-integrity
+6. Operates without swap
+7. Works across **supported Windows Server & Desktop versions**
+
+---
+
+## 🚫 LANGUAGE & LICENSE RULES (STRICT)
+
+### Allowed Languages
+
+* **Rust (PRIMARY orchestration & security)**
+* **C++ (MANDATORY for Windows-native subsystems)**
+
+### Forbidden
+
+* Python
+* Java
+* Go
+* NodeJS
+* PowerShell as core logic
+* Any interpreter-based runtime
+
+Allowed libraries:
+
+* Windows SDK
+* ETW APIs
+* MIT / BSD / Apache 2.0 libraries only
+
+---
+
+## 💾 SWAP POLICY (EXPLICIT)
+
+* **Swap usage is FORBIDDEN**
+* Agent must not create, require, or depend on swap
+* Memory usage must be bounded
+* Swap checks must explicitly skip Windows Agent
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Process & thread telemetry
+* File system metadata telemetry
+* Registry activity telemetry
+* ETW-based event capture
+* Secure communication with Core ingestion
+* Signed enforcement execution
+* Self-integrity & tamper detection
+
+### MUST NEVER DO
+
+* Policy decisions
+* Cross-host correlation
+* AI inference
+* Runtime learning
+* Unsigned execution
+* OS destabilization
+
+---
+
+## 📁 PHASE 9C DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_windows_agent/
+```
+
+```
+ransomeye_windows_agent/
+├── src/
+│   ├── main.rs
+│   ├── agent.rs
+│   ├── lifecycle.rs
+│   ├── telemetry/
+│   │   ├── process.cpp
+│   │   ├── filesystem.cpp
+│   │   ├── registry.cpp
+│   │   ├── etw.cpp
+│   │   ├── memory.cpp
+│   │   └── system.cpp
+│   │
+│   ├── enforcement/
+│   │   ├── actions.rs
+│   │   ├── safeguards.rs
+│   │   └── rollback.rs
+│   │
+│   ├── comms/
+│   │   ├── protocol.rs
+│   │   ├── encryption.rs
+│   │   └── retry.rs
+│   │
+│   ├── security/
+│   │   ├── identity.rs
+│   │   ├── verification.rs
+│   │   └── integrity.rs
+│   │
+│   ├── system/
+│   │   └── env_validation.rs
+│   │
+│   └── errors/
+│       └── agent_errors.rs
+│
+├── installer/
+│   ├── msi/
+│   ├── service/
+│   │   └── ransomeye-windows-agent.service
+│   └── upgrade.md
+│
+├── docs/
+│   ├── telemetry_model.md
+│   ├── etw_model.md
+│   ├── enforcement_model.md
+│   ├── security_model.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── synthetic_telemetry.rs
+    ├── etw_failure_tests.rs
+    ├── enforcement_safety_tests.rs
+    ├── rollback_tests.rs
+    └── offline_mode_tests.rs
+```
+
+---
+
+## 🔐 IDENTITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Unique per-agent cryptographic identity
+* Secure enrollment & bootstrap
+* Mutual authentication with Core ingestion
+* Signature verification on every directive
+* Identity expiration & revocation
+
+Verification failure → **REFUSE EXECUTION**
+
+---
+
+## 📊 TELEMETRY MODEL (SAFE & BOUNDED)
+
+Telemetry MUST be:
+
+* Metadata-only
+* Rate-limited
+* Privacy-aware
+* Schema-validated
+* Signed before transmission
+
+Explicitly forbidden:
+
+* Credential harvesting
+* Raw memory dumps
+* File content exfiltration
+
+---
+
+## 🛡️ ENFORCEMENT MODEL (STRICT & SAFE)
+
+Enforcement actions MUST be:
+
+* Explicit
+* Signed
+* Scoped
+* Time-bounded
+* Reversible
+
+Agent MUST refuse:
+
+* Unsigned directives
+* Over-broad scope
+* Unsafe operations
+* Missing rollback instructions
+
+---
+
+## 🔍 AI / ML / LLM INTERACTION (ADVISORY ONLY)
+
+Windows Agent:
+
+* **DOES NOT run AI**
+* **DOES NOT infer**
+* **DOES NOT score**
+
+Allowed:
+
+* Emit telemetry fields required by AI later
+* Display human-readable advisory context
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* ETW provider failure
+* Privilege loss
+* Service restart
+* Disk exhaustion
+* Network isolation
+* Identity expiration
+* Binary tampering
+
+Agent must:
+
+* Remain observable
+* Avoid OS instability
+* Fail safely without blocking Windows
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Validate supported Windows versions
+* Validate no-swap enforcement
+* Validate signed enforcement only
+* Validate rollback correctness
+* Validate offline operation
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 9C is INVALID if:
+
+* Swap is used
+* Python exists
+* Enforcement is implicit
+* Identity trust is assumed
+* ETW is replaced with polling
+* Unsigned actions execute
+
+---
+
+## FINAL INSTRUCTION
+
+Treat the Windows Agent as:
+
+* A **high-value target**
+* A **low-trust environment component**
+* A **precise execution surface**
+
+If the Windows Agent fails, **it must not destabilize the OS**.
+
+**BUILD PHASE 9C COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+

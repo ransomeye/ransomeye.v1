@@ -1,0 +1,280 @@
+# 🔄 RANSOMEYE — PHASE 4
+
+## Core Event Ingestion, Secure Streaming & Deterministic Backpressure
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 4)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_ingestion/`
+
+---
+
+## CONTEXT (NON-NEGOTIABLE)
+
+This phase builds the **only ingress point** into the RansomEye **Control Plane**.
+
+All data entering Core:
+
+* Comes from **untrusted sources**
+* May be malformed, malicious, replayed, or flooded
+* Must be authenticated, verified, normalized, and rate-controlled
+
+This phase must:
+
+* Protect Core from overload
+* Preserve ordering where required
+* Enforce strict schemas
+* Apply **deterministic backpressure**
+* Fail closed under stress
+
+**No correlation, no policy, no AI inference is allowed here.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–3** apply unchanged.
+
+Additional Phase-4 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 4 OBJECTIVE
+
+Build a **hardened ingestion and streaming subsystem** that:
+
+1. Authenticates every producer
+2. Verifies signatures on every event
+3. Enforces strict schemas and versions
+4. Applies deterministic rate-limits
+5. Applies bounded buffering with backpressure
+6. Preserves event integrity and traceability
+7. Delivers only validated events to the Core Correlation Engine
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Mutual authentication
+* Signature verification
+* Schema validation
+* Version compatibility checks
+* Rate limiting
+* Backpressure signaling
+* Event normalization
+* Integrity metadata attachment
+
+### MUST NEVER DO
+
+* Correlate events
+* Store long-term data
+* Invoke AI/ML/LLM
+* Modify semantic meaning
+* Trust producers implicitly
+* Drop events silently
+
+---
+
+## 📁 PHASE 4 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_ingestion/
+```
+
+```
+ransomeye_ingestion/
+├── src/
+│   ├── main.rs
+│   ├── server.rs
+│   ├── listener.rs
+│   ├── auth.rs
+│   ├── signature.rs
+│   ├── schema.rs
+│   ├── versioning.rs
+│   ├── normalization.rs
+│   ├── rate_limit.rs
+│   ├── backpressure.rs
+│   ├── buffer.rs
+│   ├── ordering.rs
+│   └── dispatcher.rs
+│
+├── protocol/
+│   ├── event_schema_v1.json
+│   ├── event_envelope.rs
+│   └── compatibility.md
+│
+├── security/
+│   ├── identity.rs
+│   ├── trust_chain.rs
+│   ├── replay_protection.rs
+│   └── revocation.rs
+│
+├── config/
+│   ├── env_schema.md
+│   └── validation.rs
+│
+├── docs/
+│   ├── ingestion_flow.md
+│   ├── backpressure_model.md
+│   ├── rate_limit_policy.md
+│   ├── trust_enforcement.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── auth_failure_tests.rs
+    ├── signature_failure_tests.rs
+    ├── schema_rejection_tests.rs
+    ├── overload_tests.rs
+    ├── backpressure_tests.rs
+    └── replay_attack_tests.rs
+```
+
+Every module must explicitly document:
+
+* Inputs
+* Outputs
+* Failure behavior
+* Performance characteristics
+
+---
+
+## 🔐 AUTHENTICATION & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Mutual TLS (or equivalent)
+* Per-producer identity
+* Identity expiration
+* Revocation checking
+* Replay protection (nonce / timestamp)
+
+Any failure → **REJECT EVENT + AUDIT LOG**
+
+---
+
+## 🧾 EVENT ENVELOPE (MANDATORY)
+
+Every event MUST include:
+
+* Producer ID
+* Component type (DPI / Linux Agent / Windows Agent)
+* Schema version
+* Timestamp
+* Sequence number
+* Cryptographic signature
+* Integrity hash
+
+Unsigned or malformed events → **REJECT**
+
+---
+
+## ⚙️ RATE LIMITING & BACKPRESSURE (CRITICAL)
+
+You MUST define:
+
+* Per-producer rate limits
+* Per-component quotas
+* Global ingestion caps
+* Bounded buffers (no unbounded queues)
+* Backpressure signaling to producers
+* Explicit rejection when limits exceeded
+
+Rules:
+
+* No silent drops
+* No best-effort buffering
+* No memory exhaustion allowed
+
+---
+
+## 🔁 ORDERING GUARANTEES
+
+You MUST explicitly define:
+
+* What is ordered (per producer, per flow, etc.)
+* What is not ordered
+* How reordering is handled
+* How gaps are handled
+
+Ordering must be **explicitly bounded**.
+
+---
+
+## 🔒 SECURITY & ISOLATION
+
+You MUST enforce:
+
+* No shared memory with Core
+* No mutable global state
+* No cross-producer contamination
+* Fail-closed on internal error
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST implement tests that:
+
+* Flood ingestion with synthetic events
+* Spoof producer identities
+* Replay events
+* Exceed rate limits
+* Corrupt schemas
+* Exhaust buffers
+
+All tests must be deterministic.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Producer flooding
+* Invalid signatures
+* Schema mismatches
+* Buffer exhaustion
+* Core downstream unavailability
+* Network partitions
+
+Failures must:
+
+* Be logged
+* Be observable
+* Never propagate corruption
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 4 is INVALID if:
+
+* Any event bypasses verification
+* Backpressure is implicit
+* Silent drops exist
+* Ordering is assumed
+* AI is invoked
+* Trust is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 4 as:
+
+* A **blast-shield**
+* A **traffic control tower**
+* A **firewall for logic**
+
+If Phase 4 fails, **Core must never see corrupted data**.
+
+**BUILD PHASE 4 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
+
+### NEXT STEP
+

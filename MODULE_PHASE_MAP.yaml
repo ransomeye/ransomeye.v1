@@ -38,7 +38,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. May map to ransomeye_ai_advisory (Phase 8) or needs creation."
+    status: PHANTOM
+    canonical_mapping: ransomeye_ai_advisory
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality provided by ransomeye_ai_advisory (Phase 8). DO NOT REFERENCE."
 
   # Phase 2: Architecture Documentation (Library)
   - module_name: ransomeye_architecture
@@ -56,7 +58,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Functionality may be split between ransomeye_intelligence and ransomeye_policy."
+    status: PHANTOM
+    canonical_mapping: "ransomeye_intelligence, ransomeye_policy"
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality split between ransomeye_intelligence (Phase 3) and ransomeye_policy (Phase 6). DO NOT REFERENCE."
 
   # Phase 3: Intelligence System
   - module_name: ransomeye_intelligence
@@ -65,7 +69,7 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "Intelligence Plane with baseline ML models and threat intelligence. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+    notes: "Intelligence Plane with baseline ML models and threat intelligence. Service exists in unified systemd/."
 
   # Phase 4: KillChain & Forensic Dump / Event Ingestion
   - module_name: ransomeye_ingestion
@@ -74,7 +78,7 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "Core Event Ingestion & Deterministic Backpressure. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+    notes: "Core Event Ingestion & Deterministic Backpressure. Service exists in unified systemd/."
 
   # Phase 4: Forensic Engine
   - module_name: ransomeye_forensic
@@ -83,7 +87,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Functionality may be part of ransomeye_reporting (Phase 10)."
+    status: PHANTOM
+    canonical_mapping: ransomeye_reporting
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality provided by ransomeye_reporting (Phase 10). DO NOT REFERENCE."
 
   # Phase 4: KillChain Core
   - module_name: ransomeye_killchain_core
@@ -92,7 +98,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Maps to ransomeye_correlation which includes kill-chain functionality (Phase 5)."
+    status: PHANTOM
+    canonical_mapping: ransomeye_correlation
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality provided by ransomeye_correlation (Phase 5). DO NOT REFERENCE."
 
   # Phase 5: LLM Summarizer / Correlation Engine
   - module_name: ransomeye_correlation
@@ -101,7 +109,7 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "Deterministic correlation engine and kill-chain inference. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/. Also handles kill-chain (Phase 4)."
+    notes: "Deterministic correlation engine and kill-chain inference. Service exists in unified systemd/. Also handles kill-chain (Phase 4)."
 
   # Phase 5: Threat Correlation
   - module_name: ransomeye_threat_correlation
@@ -110,7 +118,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Maps to ransomeye_correlation (Phase 5)."
+    status: PHANTOM
+    canonical_mapping: ransomeye_correlation
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality provided by ransomeye_correlation (Phase 5). DO NOT REFERENCE."
 
   # Phase 5: LLM Summarizer
   - module_name: ransomeye_llm
@@ -119,7 +129,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation or may be part of ransomeye_ai_advisory."
+    status: PHANTOM
+    canonical_mapping: null
+    notes: "PHANTOM MODULE - NOT YET CREATED. Needs creation (Phase 5) or may be part of ransomeye_ai_advisory. DO NOT REFERENCE."
 
   # Phase 5: Incident Summarizer
   - module_name: ransomeye_incident_summarizer
@@ -128,7 +140,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation or may be part of ransomeye_llm functionality."
+    status: PHANTOM
+    canonical_mapping: null
+    notes: "PHANTOM MODULE - NOT YET CREATED. Needs creation (Phase 5) or may be part of ransomeye_llm functionality. DO NOT REFERENCE."
 
   # Phase 6: Incident Response & Playbooks / Policy Engine
   - module_name: ransomeye_policy
@@ -137,7 +151,7 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "Policy Engine & Enforcement Semantics. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+    notes: "Policy Engine & Enforcement Semantics. Service exists in unified systemd/."
 
   # Phase 6: Incident Response
   - module_name: ransomeye_response
@@ -146,7 +160,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation or may be handled by ransomeye_enforcement (Phase 7)."
+    status: PHANTOM
+    canonical_mapping: ransomeye_enforcement
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality provided by ransomeye_enforcement (Phase 7). DO NOT REFERENCE."
 
   # Phase 7: SOC Copilot / Enforcement Dispatcher
   - module_name: ransomeye_enforcement
@@ -155,7 +171,7 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "Enforcement Dispatcher & Safety Guards. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+    notes: "Enforcement Dispatcher & Safety Guards. Service exists in unified systemd/."
 
   # Phase 8: Threat Correlation Engine / AI Advisory
   - module_name: ransomeye_ai_advisory
@@ -173,7 +189,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation."
+    status: PHANTOM
+    canonical_mapping: null
+    notes: "PHANTOM MODULE - NOT YET CREATED. Needs creation (Phase 9). DO NOT REFERENCE."
 
   # Phase 10: DB Core / Reporting
   - module_name: ransomeye_db_core
@@ -182,7 +200,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. PostgreSQL integration may be library-based or needs separate service module."
+    status: PHANTOM
+    canonical_mapping: null
+    notes: "PHANTOM MODULE - NOT YET CREATED. PostgreSQL integration is library-based (no service module). DO NOT REFERENCE."
 
   # Phase 10: Reporting
   - module_name: ransomeye_reporting
@@ -191,7 +211,7 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "Reporting, Forensics & Evidence Preservation. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/. May also handle forensic functionality (Phase 4)."
+    notes: "Reporting, Forensics & Evidence Preservation. Service exists in unified systemd/. May also handle forensic functionality (Phase 4)."
 
   # Phase 11: UI & Dashboards
   - module_name: ransomeye_ui
@@ -200,7 +220,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation."
+    status: PHANTOM
+    canonical_mapping: null
+    notes: "PHANTOM MODULE - NOT YET CREATED. Needs creation (Phase 11). DO NOT REFERENCE."
 
   # Phase 12: Orchestrator (Master Flow) / Validation
   - module_name: ransomeye_master_core
@@ -209,7 +231,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Orchestrator functionality. May be part of ransomeye_operations or needs creation."
+    status: PHANTOM
+    canonical_mapping: ransomeye_operations
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Orchestrator functionality provided by ransomeye_operations (Phase 1, tool, no service). DO NOT REFERENCE."
 
   # Phase 12: Validation
   - module_name: ransomeye_validation
@@ -227,7 +251,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Maps to ransomeye_intelligence (Phase 3) which includes threat intelligence."
+    status: PHANTOM
+    canonical_mapping: ransomeye_intelligence
+    notes: "PHANTOM MODULE - REMOVED FROM CODE. Functionality provided by ransomeye_intelligence (Phase 3). DO NOT REFERENCE."
 
   # Phase 19: HNMP Engine
   - module_name: ransomeye_hnmp_engine
@@ -236,7 +262,9 @@ modules:
     module_type: service
     requires_installer: true
     requires_service: true
-    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation."
+    status: PHANTOM
+    canonical_mapping: null
+    notes: "PHANTOM MODULE - NOT YET CREATED. Needs creation (Phase 19). DO NOT REFERENCE."
 
   # Phase 21: Linux Agent (Standalone)
   - module_name: ransomeye_linux_agent
@@ -284,37 +312,43 @@ modules:
 
 # Service mapping resolution
 service_resolution:
-  # Services that exist in wrong location (ransomeye_operations/systemd/)
-  # Must be moved to unified /home/ransomeye/rebuild/systemd/
-  services_to_relocate:
-    - source: ransomeye_operations/systemd/core.service
+  # All services now located in unified /home/ransomeye/rebuild/systemd/
+  # Migration complete - all services use unified layout
+  services:
+    - source: systemd/ransomeye-core.service
       target: systemd/ransomeye-core.service
-      module: UNKNOWN
-      notes: "core.service references unknown module. May need ransomeye_core module or rename."
+      module: ransomeye_core
+      status: "UNIFIED"
 
-    - source: ransomeye_operations/systemd/ingestion.service
+    - source: systemd/ransomeye-ingestion.service
       target: systemd/ransomeye-ingestion.service
       module: ransomeye_ingestion
+      status: "UNIFIED"
 
-    - source: ransomeye_operations/systemd/correlation.service
+    - source: systemd/ransomeye-correlation.service
       target: systemd/ransomeye-correlation.service
       module: ransomeye_correlation
+      status: "UNIFIED"
 
-    - source: ransomeye_operations/systemd/policy.service
+    - source: systemd/ransomeye-policy.service
       target: systemd/ransomeye-policy.service
       module: ransomeye_policy
+      status: "UNIFIED"
 
-    - source: ransomeye_operations/systemd/enforcement.service
+    - source: systemd/ransomeye-enforcement.service
       target: systemd/ransomeye-enforcement.service
       module: ransomeye_enforcement
+      status: "UNIFIED"
 
-    - source: ransomeye_operations/systemd/intelligence.service
+    - source: systemd/ransomeye-intelligence.service
       target: systemd/ransomeye-intelligence.service
       module: ransomeye_intelligence
+      status: "UNIFIED"
 
-    - source: ransomeye_operations/systemd/reporting.service
+    - source: systemd/ransomeye-reporting.service
       target: systemd/ransomeye-reporting.service
       module: ransomeye_reporting
+      status: "UNIFIED"
 
 # Module name resolution
 name_resolution:
@@ -362,12 +396,36 @@ name_resolution:
     - specified_name: ransomeye_ui
       resolution: "Needs creation (Phase 11)"
 
+# Phantom module enforcement
+phantom_modules:
+  status: "ENFORCED"
+  policy: "FAIL-CLOSED"
+  rule: "Any code reference to a module that does not exist on disk will cause build failure"
+  removed_from_code:
+    - ransomeye_ai_core
+    - ransomeye_alert_engine
+    - ransomeye_forensic
+    - ransomeye_killchain_core
+    - ransomeye_threat_correlation
+    - ransomeye_threat_intel_engine
+    - ransomeye_response
+    - ransomeye_master_core
+  not_yet_created:
+    - ransomeye_llm
+    - ransomeye_incident_summarizer
+    - ransomeye_net_scanner
+    - ransomeye_db_core
+    - ransomeye_ui
+    - ransomeye_hnmp_engine
+
 # Audit summary
 audit_summary:
   total_directories: 17
   existing_modules: 17
-  missing_modules: 14
-  modules_with_wrong_service_location: 7
+  phantom_modules: 14
+  phantom_modules_removed_from_code: 8
+  phantom_modules_not_yet_created: 6
+  modules_with_wrong_service_location: 0
   standalone_modules_missing_installers: 3
-  resolution_status: "PARTIAL - Many modules need creation or name resolution"
+  resolution_status: "ENFORCED - All phantom modules removed from code references"
 

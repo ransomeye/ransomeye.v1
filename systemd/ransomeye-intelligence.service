@@ -1,4 +1,4 @@
-# Path and File Name : /home/ransomeye/rebuild/ransomeye_operations/systemd/intelligence.service
+# Path and File Name : /home/ransomeye/rebuild/systemd/ransomeye-intelligence.service
 # Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
 # Details of functionality of this file: Systemd service unit for RansomEye Threat Intelligence
 
@@ -10,20 +10,28 @@ ConditionPathExists=/home/ransomeye/rebuild/ransomeye_installer/config/install_s
 
 [Service]
 Type=simple
-User=root
+User=ransomeye
+Group=ransomeye
 WorkingDirectory=/home/ransomeye/rebuild
+RuntimeDirectory=ransomeye/intelligence
+StateDirectory=ransomeye/intelligence
 ExecStart=/usr/bin/ransomeye_operations start ransomeye-intelligence
 Restart=always
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
 
-# Security hardening
+# Security hardening - Rootless runtime enforcement
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/home/ransomeye/rebuild
+ReadWritePaths=/home/ransomeye/rebuild /var/lib/ransomeye/intelligence /run/ransomeye/intelligence
+
+# Capability-based privileges (no root required)
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_SYS_NICE
+AmbientCapabilities=
+PrivateUsers=false
 
 [Install]
 WantedBy=multi-user.target

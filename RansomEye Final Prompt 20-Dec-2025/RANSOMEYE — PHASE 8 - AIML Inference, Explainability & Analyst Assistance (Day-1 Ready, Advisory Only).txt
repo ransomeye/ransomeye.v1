@@ -1,0 +1,268 @@
+# 🤖 RANSOMEYE — PHASE 8
+
+## AI/ML Inference, Explainability & Analyst Assistance (Day-1 Ready, Advisory Only)
+
+### **(AUTHORITATIVE MASTER PROMPT – PHASE 8)**
+
+**Environment Root:** `/home/ransomeye/rebuild/`
+**Phase Folder:** `/home/ransomeye/rebuild/ransomeye_ai/`
+
+---
+
+## CONTEXT (STRICT ISOLATION)
+
+This phase wires **fully trained AI/ML/LLM** into RansomEye **from Day 1** to:
+
+* Reduce analyst load
+* Provide explainability
+* Provide context and recommendations
+
+**This phase has ZERO enforcement authority.**
+**If this phase fails, Core must continue safely.**
+
+---
+
+## 🚨 GLOBAL RULES (RE-ENFORCED)
+
+All rules from **Phase 1–7** apply unchanged.
+
+Additional Phase-8 rules below are **hard enforcement**.
+
+---
+
+## 🎯 PHASE 8 OBJECTIVE
+
+Build a **Day-1 ready, fully trained, explainable AI/ML/LLM subsystem** that:
+
+1. Loads **signed baseline models** at startup
+2. Performs **read-only inference**
+3. Emits **confidence + SHAP** for every numeric output
+4. Provides **human-readable explanations**
+5. Supports **incremental learning only with explicit approval**
+6. Never influences policy or enforcement
+7. Operates offline / air-gapped
+
+---
+
+## 📦 RESPONSIBILITY BOUNDARIES (STRICT)
+
+### MUST DO
+
+* Verify baseline intelligence packs
+* Perform inference deterministically
+* Generate SHAP for every inference
+* Attach rationale and confidence
+* Provide analyst-friendly summaries
+* Log every inference for audit
+
+### MUST NEVER DO
+
+* Enforce actions
+* Modify Core state
+* Retrain implicitly
+* Operate without baseline
+* Guess without confidence
+* Access raw secrets
+
+---
+
+## 📁 PHASE 8 DIRECTORY STRUCTURE (MANDATORY)
+
+Create exactly:
+
+```
+/home/ransomeye/rebuild/ransomeye_ai/
+```
+
+```
+ransomeye_ai/
+├── baseline/
+│   ├── models/
+│   │   ├── ransomware_behavior.model
+│   │   ├── anomaly_baseline.model
+│   │   └── calibration.model
+│   ├── shap/
+│   │   └── baseline_shap.json
+│   └── signatures/
+│       └── baseline.sig
+│
+├── inference/
+│   ├── predictor.py
+│   ├── confidence.py
+│   ├── safeguards.py
+│   └── invariants.py
+│
+├── explainability/
+│   ├── shap_generator.py
+│   ├── shap_schema.json
+│   └── artifact_writer.py
+│
+├── llm/
+│   ├── runtime.py
+│   ├── prompts/
+│   │   ├── incident_summary.txt
+│   │   ├── kill_chain_explain.txt
+│   │   └── analyst_qa.txt
+│   ├── rag/
+│   │   ├── index.bin
+│   │   └── retriever.py
+│   └── guardrails.py
+│
+├── integration/
+│   ├── read_only_adapter.rs
+│   └── contract.rs
+│
+├── security/
+│   ├── model_verification.py
+│   ├── prompt_signing.py
+│   └── trust_chain.py
+│
+├── docs/
+│   ├── day1_training.md
+│   ├── inference_flow.md
+│   ├── explainability.md
+│   ├── llm_guardrails.md
+│   └── failure_modes.md
+│
+└── tests/
+    ├── baseline_presence_tests.py
+    ├── shap_completeness_tests.py
+    ├── hallucination_tests.py
+    ├── drift_detection_tests.py
+    └── integrity_tests.py
+```
+
+---
+
+## 🧠 DAY-1 TRAINING REQUIREMENTS (MANDATORY)
+
+You MUST ensure:
+
+* Baseline models are **pre-trained before release**
+* Training provenance is documented
+* Feature schemas are frozen
+* Calibration curves included
+* SHAP baseline distributions included
+
+If any baseline artifact is missing or invalid:
+➡️ **AI subsystem MUST NOT START**
+
+---
+
+## 🔍 SHAP EXPLAINABILITY (NON-NEGOTIABLE)
+
+Rules:
+
+* SHAP for **every numeric inference**
+* Stored with inference output
+* Signed and verifiable
+* Human + machine readable
+
+Missing SHAP → **BLOCK inference**
+
+---
+
+## 🧠 LLM SOC ASSISTANT (READ-ONLY)
+
+LLM rules:
+
+* Local model only
+* Pre-indexed RAG only
+* No learning
+* No external calls
+* Evidence-linked responses
+* Confidence disclosure
+
+LLM MUST NOT:
+
+* Suggest actions
+* Trigger workflows
+* Modify state
+* Bypass Core
+
+---
+
+## 🔐 SECURITY & TRUST (MANDATORY)
+
+You MUST enforce:
+
+* Model signature verification
+* Prompt signature verification
+* Version pinning
+* Trust-chain validation
+* Revocation handling
+
+Failure → **Subsystem disabled + audit log**
+
+---
+
+## 🔄 INCREMENTAL LEARNING (CONTROLLED)
+
+Allowed ONLY if:
+
+* Explicit admin approval
+* Signed training package
+* Offline training
+* Re-signing of new baseline
+* Full audit trail
+
+No background learning.
+No silent updates.
+
+---
+
+## 💥 FAILURE MODES (MANDATORY)
+
+Define explicit behavior for:
+
+* Missing baseline
+* Invalid signature
+* SHAP generation failure
+* Drift detected
+* LLM hallucination detected
+
+Failures must:
+
+* Degrade safely
+* Never affect enforcement
+* Be observable
+
+---
+
+## 🧪 VALIDATION REQUIREMENTS
+
+You MUST include tests that:
+
+* Verify Day-1 readiness
+* Verify SHAP completeness
+* Detect hallucinations
+* Detect model tampering
+* Validate read-only contracts
+
+---
+
+## 🛑 FAILURE CONDITIONS (HARD)
+
+Phase 8 is INVALID if:
+
+* AI can start empty
+* AI influences policy
+* SHAP is optional
+* LLM accesses live systems
+* Incremental learning is implicit
+
+---
+
+## FINAL INSTRUCTION
+
+Treat Phase 8 as:
+
+* A **trained advisor**
+* A **court-defensible explainer**
+* A **non-authoritative assistant**
+
+If Phase 8 fails, **humans lose insight but security remains intact**.
+
+**BUILD PHASE 8 COMPLETELY, EXPLICITLY, AND WITHOUT ASSUMPTIONS.**
+
+---
