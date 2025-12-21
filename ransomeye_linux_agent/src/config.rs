@@ -16,7 +16,8 @@ pub struct Config {
     pub backpressure_threshold: usize,
     pub telemetry_interval_seconds: u64,
     pub health_report_interval_seconds: u64,
-    pub monitor_paths: Vec<String>,
+    pub monitor_paths: Vec<std::path::PathBuf>,
+    pub auth_log_paths: Vec<std::path::PathBuf>,
 }
 
 #[derive(Debug, Error)]
@@ -29,10 +30,16 @@ pub enum ConfigError {
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
-        let monitor_paths = env::var("MONITOR_PATHS")
+        let monitor_paths: Vec<std::path::PathBuf> = env::var("MONITOR_PATHS")
             .unwrap_or_else(|_| "/,/home,/var,/tmp".to_string())
             .split(',')
-            .map(|s| s.trim().to_string())
+            .map(|s| std::path::PathBuf::from(s.trim()))
+            .collect();
+        
+        let auth_log_paths: Vec<std::path::PathBuf> = env::var("AUTH_LOG_PATHS")
+            .unwrap_or_else(|_| "/var/log/auth.log,/var/log/secure".to_string())
+            .split(',')
+            .map(|s| std::path::PathBuf::from(s.trim()))
             .collect();
         
         Ok(Config {
@@ -63,6 +70,7 @@ impl Config {
                 .parse()
                 .map_err(|_| ConfigError::InvalidValue("HEALTH_REPORT_INTERVAL_SECONDS".to_string()))?,
             monitor_paths,
+            auth_log_paths,
         })
     }
 }
