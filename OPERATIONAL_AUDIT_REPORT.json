@@ -1,0 +1,452 @@
+{
+  "audit_timestamp": "2025-01-27T00:00:00Z",
+  "audit_scope": "COMPLETE_REPOSITORY",
+  "audit_mode": "MAXIMUM_ENFORCEMENT",
+  "release_blocking": true,
+  "findings": [
+    {
+      "module_name": "ROOT_LEVEL",
+      "phase": "INFRASTRUCTURE",
+      "module_path": "/home/ransomeye/rebuild",
+      "missing_operational_components": [
+        "install.sh",
+        "uninstall.sh",
+        "post_install_validator.py"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Project rules mandate root-level install.sh, uninstall.sh, and post_install_validator.py. README.md references these files. Currently only ransomeye_operations (Rust) and ransomeye_installer (Python) exist as module-level implementations."
+    },
+    {
+      "module_name": "ransomeye_linux_agent",
+      "phase": 21,
+      "module_path": "/home/ransomeye/rebuild/ransomeye_linux_agent",
+      "is_standalone": true,
+      "missing_operational_components": [
+        "installer",
+        "uninstaller",
+        "systemd_service",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Standalone module (Phase 21) MUST have installer, uninstaller, and service definition per project rules. README states 'stand-alone' but provides no operational components. Rules explicitly state: 'FAIL immediately if any module claims stand-alone but lacks installers.'"
+    },
+    {
+      "module_name": "ransomeye_windows_agent",
+      "phase": 22,
+      "module_path": "/home/ransomeye/rebuild/ransomeye_windows_agent",
+      "is_standalone": true,
+      "missing_operational_components": [
+        "installer",
+        "uninstaller",
+        "windows_service",
+        "msi_installer",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Standalone module (Phase 22) MUST have installer, uninstaller, and Windows service definition per project rules. README states 'stand-alone' but provides no operational components. Rules explicitly state: 'FAIL immediately if any module claims stand-alone but lacks installers.' Windows Agent requires MSI installer per specification."
+    },
+    {
+      "module_name": "ransomeye_dpi_probe",
+      "phase": 23,
+      "module_path": "/home/ransomeye/rebuild/ransomeye_dpi_probe",
+      "is_standalone": true,
+      "missing_operational_components": [
+        "installer",
+        "uninstaller",
+        "systemd_service",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Standalone module (Phase 23) MUST have installer, uninstaller, and service definition per project rules. README states 'stand-alone' but provides no operational components. Rules explicitly state: 'FAIL immediately if any module claims stand-alone but lacks installers.'"
+    },
+    {
+      "module_name": "ransomeye_ai_core",
+      "phase": 2,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Actual module may be ransomeye_ai_advisory (exists but not mapped). Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_alert_engine",
+      "phase": 3,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Actual module may be ransomeye_intelligence or ransomeye_policy (both exist but not mapped). Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_db_core",
+      "phase": 10,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_forensic",
+      "phase": 4,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_hnmp_engine",
+      "phase": 19,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_incident_summarizer",
+      "phase": 5,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_killchain_core",
+      "phase": 4,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Actual module may be ransomeye_correlation (exists). Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_llm",
+      "phase": 5,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_master_core",
+      "phase": 12,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_net_scanner",
+      "phase": 9,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_response",
+      "phase": 6,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_threat_correlation",
+      "phase": 8,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Actual module may be ransomeye_correlation (exists). Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_threat_intel_engine",
+      "phase": 18,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Actual module may be ransomeye_intelligence (exists). Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "ransomeye_ui",
+      "phase": 11,
+      "module_path": "NOT_FOUND",
+      "missing_operational_components": [
+        "module_directory",
+        "installer_integration",
+        "systemd_service_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "CRITICAL",
+      "rationale": "Module specified in systemd_writer.py CORE_MODULES list but directory does not exist. Service definition should exist in /home/ransomeye/rebuild/systemd/ per rules."
+    },
+    {
+      "module_name": "SYSTEMD_CENTRALIZATION",
+      "phase": "INFRASTRUCTURE",
+      "module_path": "/home/ransomeye/rebuild/systemd",
+      "missing_operational_components": [
+        "centralized_service_definitions"
+      ],
+      "severity": "HIGH",
+      "rationale": "Project rules mandate ALL systemd service files must reside in /home/ransomeye/rebuild/systemd/. Currently, service files exist in /home/ransomeye/rebuild/ransomeye_operations/systemd/ (7 services) but only ransomeye-github-sync.service exists in root systemd/ directory. This violates the unified systemd policy."
+    },
+    {
+      "module_name": "ransomeye_ai_advisory",
+      "phase": "UNMAPPED",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_ai_advisory",
+      "missing_operational_components": [
+        "phase_mapping",
+        "systemd_service_in_unified_directory",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists but is not mapped to any phase. May correspond to Phase 2 (AI Core) or Phase 17 (AI Assistant Governor Mode). Lacks service definition in unified systemd directory."
+    },
+    {
+      "module_name": "ransomeye_architecture",
+      "phase": "INFRASTRUCTURE",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_architecture",
+      "missing_operational_components": [
+        "systemd_service",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Infrastructure module exists but may not require service definition. Verify if this is a library/documentation module or requires operational components."
+    },
+    {
+      "module_name": "ransomeye_correlation",
+      "phase": "POSSIBLY_8",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_correlation",
+      "missing_operational_components": [
+        "systemd_service_in_unified_directory",
+        "phase_verification",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists. May correspond to Phase 8 (Threat Correlation) or Phase 4 (KillChain). Has service in ransomeye_operations/systemd/correlation.service but not in unified /home/ransomeye/rebuild/systemd/ directory per rules."
+    },
+    {
+      "module_name": "ransomeye_enforcement",
+      "phase": "UNMAPPED",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_enforcement",
+      "missing_operational_components": [
+        "phase_mapping",
+        "systemd_service_in_unified_directory",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists but is not mapped to any phase. Has service in ransomeye_operations/systemd/enforcement.service but not in unified /home/ransomeye/rebuild/systemd/ directory per rules."
+    },
+    {
+      "module_name": "ransomeye_guardrails",
+      "phase": "INFRASTRUCTURE",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_guardrails",
+      "missing_operational_components": [
+        "systemd_service",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Infrastructure module (fail-closed security enforcement). May not require service definition but should be validated for operational integration."
+    },
+    {
+      "module_name": "ransomeye_ingestion",
+      "phase": "UNMAPPED",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_ingestion",
+      "missing_operational_components": [
+        "phase_mapping",
+        "systemd_service_in_unified_directory",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists but is not mapped to any phase. Has service in ransomeye_operations/systemd/ingestion.service but not in unified /home/ransomeye/rebuild/systemd/ directory per rules."
+    },
+    {
+      "module_name": "ransomeye_installer",
+      "phase": 1,
+      "module_path": "/home/ransomeye/rebuild/ransomeye_installer",
+      "missing_operational_components": [
+        "root_level_install_sh_wrapper",
+        "root_level_uninstall_sh_wrapper",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Python installer exists but rules require root-level install.sh and uninstall.sh wrappers. Module implements installer logic but lacks root-level entry points."
+    },
+    {
+      "module_name": "ransomeye_intelligence",
+      "phase": "POSSIBLY_18",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_intelligence",
+      "missing_operational_components": [
+        "phase_verification",
+        "systemd_service_in_unified_directory",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists. May correspond to Phase 3 (Alert Engine), Phase 18 (Threat Intelligence Feed Engine), or other. Has service in ransomeye_operations/systemd/intelligence.service but not in unified /home/ransomeye/rebuild/systemd/ directory per rules."
+    },
+    {
+      "module_name": "ransomeye_operations",
+      "phase": 11,
+      "module_path": "/home/ransomeye/rebuild/ransomeye_operations",
+      "missing_operational_components": [
+        "root_level_install_sh_wrapper",
+        "root_level_uninstall_sh_wrapper",
+        "service_files_in_unified_directory",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Rust-based operations module exists with installer/uninstaller/lifecycle but: (1) lacks root-level install.sh/uninstall.sh wrappers, (2) service files exist in ransomeye_operations/systemd/ instead of unified /home/ransomeye/rebuild/systemd/, (3) may conflict with ransomeye_installer (Python) implementation."
+    },
+    {
+      "module_name": "ransomeye_policy",
+      "phase": "POSSIBLY_3",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_policy",
+      "missing_operational_components": [
+        "phase_verification",
+        "systemd_service_in_unified_directory",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists. May correspond to Phase 3 (Alert Engine & Policy Manager). Has service in ransomeye_operations/systemd/policy.service but not in unified /home/ransomeye/rebuild/systemd/ directory per rules."
+    },
+    {
+      "module_name": "ransomeye_reporting",
+      "phase": "UNMAPPED",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_reporting",
+      "missing_operational_components": [
+        "phase_mapping",
+        "systemd_service_in_unified_directory",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists but is not mapped to any phase. Has service in ransomeye_operations/systemd/reporting.service but not in unified /home/ransomeye/rebuild/systemd/ directory per rules."
+    },
+    {
+      "module_name": "ransomeye_retention",
+      "phase": "INFRASTRUCTURE",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_retention",
+      "missing_operational_components": [
+        "systemd_service",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Infrastructure module (data retention and disk management). May not require service definition but should be validated for operational integration."
+    },
+    {
+      "module_name": "ransomeye_trust",
+      "phase": "INFRASTRUCTURE",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_trust",
+      "missing_operational_components": [
+        "systemd_service",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Infrastructure module (cryptographic signing and verification). May not require service definition but should be validated for operational integration."
+    },
+    {
+      "module_name": "ransomeye_validation",
+      "phase": "POSSIBLY_20",
+      "module_path": "/home/ransomeye/rebuild/ransomeye_validation",
+      "missing_operational_components": [
+        "phase_verification",
+        "systemd_service",
+        "installer_integration",
+        "lifecycle_validation"
+      ],
+      "severity": "HIGH",
+      "rationale": "Module exists. May correspond to Phase 20 (Global Validator). Requires verification of phase mapping and operational components."
+    }
+  ],
+  "summary": {
+    "total_modules_audited": 32,
+    "critical_findings": 19,
+    "high_findings": 13,
+    "standalone_modules_without_installers": 3,
+    "missing_module_directories": 14,
+    "service_definitions_in_wrong_location": 7,
+    "root_level_components_missing": 3,
+    "release_blocking": true,
+    "enforcement_action": "FAIL_IMMEDIATELY"
+  },
+  "enforcement_rules_violated": [
+    "Standalone modules (Phases 21, 22, 23) lack installers - CRITICAL FAILURE",
+    "Root-level install.sh and uninstall.sh missing - CRITICAL FAILURE",
+    "post_install_validator.py missing - CRITICAL FAILURE",
+    "Service definitions not in unified /home/ransomeye/rebuild/systemd/ directory - HIGH SEVERITY",
+    "14 modules specified in systemd_writer.py CORE_MODULES list do not exist - CRITICAL FAILURE",
+    "Module name mismatch between specification and actual directories - CRITICAL FAILURE"
+  ]
+}
+

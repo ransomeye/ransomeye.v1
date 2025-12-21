@@ -1,8 +1,10 @@
-# Path and File Name : /home/ransomeye/rebuild/ransomeye_validation/src/core.rs
-# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
-# Details of functionality of this file: Core validation domain types - Severity, Finding, and ValidationResult for fail-closed validation semantics
+// Path and File Name : /home/ransomeye/rebuild/ransomeye_validation/src/core.rs
+// Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+// Details of functionality of this file: Core validation domain types - Severity, Finding, and ValidationResult for fail-closed validation semantics
 
-#[derive(Debug, Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Severity {
     Info,
     Low,
@@ -11,7 +13,7 @@ pub enum Severity {
     Critical,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Finding {
     pub suite: String,
     pub description: String,

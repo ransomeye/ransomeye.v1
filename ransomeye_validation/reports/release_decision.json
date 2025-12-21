@@ -1,0 +1,61 @@
+{
+  "decision": "Block",
+  "timestamp": "2025-12-21T10:18:50.328012376Z",
+  "suite_results": [
+    {
+      "suite_name": "security",
+      "result": "Pass",
+      "findings": [],
+      "timestamp": "2025-12-21T10:18:50.328004176Z"
+    },
+    {
+      "suite_name": "performance",
+      "result": "Pass",
+      "findings": [
+        {
+          "suite": "performance",
+          "description": "DPI throughput: 10 Gbps",
+          "severity": "Info"
+        },
+        {
+          "suite": "performance",
+          "description": "Telemetry volume: 10000 events/sec",
+          "severity": "Info"
+        }
+      ],
+      "timestamp": "2025-12-21T10:18:50.328008276Z"
+    },
+    {
+      "suite_name": "stress",
+      "result": "Pass",
+      "findings": [],
+      "timestamp": "2025-12-21T10:18:50.328008676Z"
+    },
+    {
+      "suite_name": "fault_injection",
+      "result": "Pass",
+      "findings": [],
+      "timestamp": "2025-12-21T10:18:50.328008976Z"
+    },
+    {
+      "suite_name": "compliance",
+      "result": "Fail",
+      "findings": [
+        {
+          "suite": "compliance",
+          "description": "Audit trail incomplete: Completeness check failed: Audit trail incomplete: Critical actions not found in log: [\"DELETE\", \"MODIFY\", \"EXPORT\", \"SIGN\"]",
+          "severity": "High"
+        }
+      ],
+      "timestamp": "2025-12-21T10:18:50.328009976Z"
+    },
+    {
+      "suite_name": "regression",
+      "result": "Pass",
+      "findings": [],
+      "timestamp": "2025-12-21T10:18:50.328011076Z"
+    }
+  ],
+  "justification": "Release BLOCKED: 1 suite(s) failed: compliance",
+  "signature": null
+}

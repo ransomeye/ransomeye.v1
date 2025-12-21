@@ -1,16 +1,9 @@
 # Compliance Validation Report
 
-**Generated:** [TIMESTAMP]
+Generated: 2025-12-21T10:18:50.329925326+00:00
 
-## Status: [PASS/FAIL]
-
-**Duration:** [DURATION]ms
+## Status: FAIL
 
 ## Compliance Checks
 
-[Checks will be populated by validation orchestrator]
-
----
-
-© RansomEye.Tech | Support: Gagan@RansomEye.Tech
-
+- **High:** Audit trail incomplete: Completeness check failed: Audit trail incomplete: Critical actions not found in log: ["DELETE", "MODIFY", "EXPORT", "SIGN"]

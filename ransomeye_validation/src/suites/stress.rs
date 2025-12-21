@@ -5,16 +5,16 @@
 use std::time::Instant;
 use crate::core::{Finding, Severity, ValidationResult};
 use crate::chaos::ChaosEngine;
-use tracing::{info, warn, error};
+use tracing::info;
 
 pub struct StressSuite {
-    chaos: ChaosEngine,
+    _chaos: ChaosEngine,
 }
 
 impl StressSuite {
     pub fn new() -> Self {
         Self {
-            chaos: ChaosEngine::new(false), // Disable actual chaos for validation
+            _chaos: ChaosEngine::new(false), // Disable actual chaos for validation
         }
     }
     

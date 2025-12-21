@@ -68,15 +68,117 @@ Tests cover:
 - Core unavailability tolerance
 - Resource exhaustion handling
 
+## Installation
+
+### Prerequisites
+
+- Linux (any modern distribution)
+- Root/sudo privileges
+- NO SWAP enabled (installation will FAIL if swap is detected)
+- Minimum 512MB RAM
+- systemd for service management
+
+### Install
+
+1. **Disable all swap:**
+```bash
+# Disable all swap
+sudo swapoff -a
+
+# Remove swap entries from /etc/fstab (optional)
+sudo sed -i '/ swap /d' /etc/fstab
+```
+
+2. Build the binary:
+```bash
+cd ransomeye_linux_agent
+cargo build --release
+```
+
+3. Run the installer:
+```bash
+sudo ./installer/install.sh
+```
+
+The installer will:
+- Enforce EULA acceptance (mandatory, no bypass)
+- Verify binary signatures
+- **FAIL if swap is detected** (NO-SWAP requirement)
+- Validate NO-SWAP requirement
+- Create unprivileged user (`ransomeye`)
+- Install binary with SetUID for privilege downgrade
+- Install systemd service
+- Create signed install receipt
+
+4. Verify installation:
+```bash
+./installer/verify.sh
+```
+
+### Service Management
+
+**Start service:**
+```bash
+sudo systemctl start ransomeye-linux-agent
+```
+
+**Stop service:**
+```bash
+sudo systemctl stop ransomeye-linux-agent
+```
+
+**Enable auto-start:**
+```bash
+sudo systemctl enable ransomeye-linux-agent
+```
+
+**View logs:**
+```bash
+sudo journalctl -u ransomeye-linux-agent -f
+```
+
+**Check service status:**
+```bash
+sudo systemctl status ransomeye-linux-agent
+```
+
+The service automatically drops privileges from root to `ransomeye` user after startup.
+
+See `installer/lifecycle.md` for complete lifecycle management documentation.
+
+### Uninstallation
+
+```bash
+sudo ./installer/uninstall.sh
+```
+
+The uninstaller will:
+- Stop and disable the service
+- Remove binaries and service files
+- Optionally preserve logs and configuration
+- Optionally remove user and group
+
+## Requirements
+
+See `installer/requirements.md` for detailed system requirements, including:
+- OS and kernel requirements
+- Memory requirements (NO SWAP allowed)
+- Privilege model (privilege downgrade)
+- Security requirements
+
 ## Build
 
 ```bash
 cargo build --release
 ```
 
-## Run
+## Run (Manual)
+
+For manual execution (not recommended for production):
 
 ```bash
 ./target/release/ransomeye_linux_agent
 ```
+
+**Note:** Production deployments should use the systemd service installed via the installer.
 

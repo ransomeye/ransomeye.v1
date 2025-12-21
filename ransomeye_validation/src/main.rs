@@ -6,9 +6,10 @@ use std::path::PathBuf;
 use std::time::Instant;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use tracing::{info, error, warn};
+use tracing::{info, error};
 use thiserror::Error;
 
+pub mod core;
 pub mod chaos;
 pub mod replay;
 pub mod verifier;
@@ -61,7 +62,7 @@ pub struct ReleaseDecision {
     pub signature: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Decision {
     Allow,
     Block,

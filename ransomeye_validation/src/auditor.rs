@@ -3,10 +3,9 @@
 // Details of functionality of this file: Audit trail auditor - validates evidence integrity, retention enforcement, and audit completeness
 
 use std::path::PathBuf;
-use std::collections::HashMap;
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
-use tracing::{info, warn, error};
+use tracing::{info, error};
 use thiserror::Error;
 
 #[derive(Debug, Error)]

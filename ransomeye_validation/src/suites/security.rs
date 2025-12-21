@@ -4,7 +4,7 @@
 
 use std::time::Instant;
 use crate::core::{Finding, Severity, ValidationResult};
-use tracing::{info, warn, error};
+use tracing::info;
 
 pub struct SecuritySuite;
 

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use tracing::{info, warn, error};
+use tracing::{info, error};
 use thiserror::Error;
 
 #[derive(Debug, Error)]

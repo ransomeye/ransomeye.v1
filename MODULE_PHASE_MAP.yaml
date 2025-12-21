@@ -1,0 +1,373 @@
+# Path and File Name: /home/ransomeye/rebuild/MODULE_PHASE_MAP.yaml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details: Canonical mapping of all RansomEye modules to phases, types, and operational requirements
+# This file resolves all name mismatches and ambiguities from the audit
+
+modules:
+  # Phase 0: Global Guardrails (Library/Tool)
+  - module_name: ransomeye_guardrails
+    actual_directory: ransomeye_guardrails
+    phase_number: 0
+    module_type: tool
+    requires_installer: false
+    requires_service: false
+    notes: "Static analysis and guardrail enforcement tool. No service required."
+
+  # Phase 1: Core Engine & Installer
+  - module_name: ransomeye_installer
+    actual_directory: ransomeye_installer
+    phase_number: 1
+    module_type: tool
+    requires_installer: false
+    requires_service: false
+    notes: "Python-based installer implementation. Root-level install.sh wrapper required."
+
+  # Phase 1 Alternative: Operations (Rust-based)
+  - module_name: ransomeye_operations
+    actual_directory: ransomeye_operations
+    phase_number: 1
+    module_type: tool
+    requires_installer: false
+    requires_service: false
+    notes: "Rust-based installer/uninstaller/lifecycle manager. Root-level install.sh wrapper required."
+
+  # Phase 2: AI Core & Model Registry
+  - module_name: ransomeye_ai_core
+    actual_directory: NOT_FOUND
+    phase_number: 2
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. May map to ransomeye_ai_advisory (Phase 8) or needs creation."
+
+  # Phase 2: Architecture Documentation (Library)
+  - module_name: ransomeye_architecture
+    actual_directory: ransomeye_architecture
+    phase_number: 2
+    module_type: library
+    requires_installer: false
+    requires_service: false
+    notes: "Architecture documentation and design specifications. Library/tool for reference."
+
+  # Phase 3: Alert Engine & Policy Manager
+  - module_name: ransomeye_alert_engine
+    actual_directory: NOT_FOUND
+    phase_number: 3
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Functionality may be split between ransomeye_intelligence and ransomeye_policy."
+
+  # Phase 3: Intelligence System
+  - module_name: ransomeye_intelligence
+    actual_directory: ransomeye_intelligence
+    phase_number: 3
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "Intelligence Plane with baseline ML models and threat intelligence. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+
+  # Phase 4: KillChain & Forensic Dump / Event Ingestion
+  - module_name: ransomeye_ingestion
+    actual_directory: ransomeye_ingestion
+    phase_number: 4
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "Core Event Ingestion & Deterministic Backpressure. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+
+  # Phase 4: Forensic Engine
+  - module_name: ransomeye_forensic
+    actual_directory: NOT_FOUND
+    phase_number: 4
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Functionality may be part of ransomeye_reporting (Phase 10)."
+
+  # Phase 4: KillChain Core
+  - module_name: ransomeye_killchain_core
+    actual_directory: NOT_FOUND
+    phase_number: 4
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Maps to ransomeye_correlation which includes kill-chain functionality (Phase 5)."
+
+  # Phase 5: LLM Summarizer / Correlation Engine
+  - module_name: ransomeye_correlation
+    actual_directory: ransomeye_correlation
+    phase_number: 5
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "Deterministic correlation engine and kill-chain inference. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/. Also handles kill-chain (Phase 4)."
+
+  # Phase 5: Threat Correlation
+  - module_name: ransomeye_threat_correlation
+    actual_directory: NOT_FOUND
+    phase_number: 8
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Maps to ransomeye_correlation (Phase 5)."
+
+  # Phase 5: LLM Summarizer
+  - module_name: ransomeye_llm
+    actual_directory: NOT_FOUND
+    phase_number: 5
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation or may be part of ransomeye_ai_advisory."
+
+  # Phase 5: Incident Summarizer
+  - module_name: ransomeye_incident_summarizer
+    actual_directory: NOT_FOUND
+    phase_number: 5
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation or may be part of ransomeye_llm functionality."
+
+  # Phase 6: Incident Response & Playbooks / Policy Engine
+  - module_name: ransomeye_policy
+    actual_directory: ransomeye_policy
+    phase_number: 6
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "Policy Engine & Enforcement Semantics. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+
+  # Phase 6: Incident Response
+  - module_name: ransomeye_response
+    actual_directory: NOT_FOUND
+    phase_number: 6
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation or may be handled by ransomeye_enforcement (Phase 7)."
+
+  # Phase 7: SOC Copilot / Enforcement Dispatcher
+  - module_name: ransomeye_enforcement
+    actual_directory: ransomeye_enforcement
+    phase_number: 7
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "Enforcement Dispatcher & Safety Guards. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/."
+
+  # Phase 8: Threat Correlation Engine / AI Advisory
+  - module_name: ransomeye_ai_advisory
+    actual_directory: ransomeye_ai_advisory
+    phase_number: 8
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "AIML Inference, Explainability & Analyst Assistance (SOC Copilot). May also cover Phase 2 (AI Core) functionality."
+
+  # Phase 9: Network Scanner
+  - module_name: ransomeye_net_scanner
+    actual_directory: NOT_FOUND
+    phase_number: 9
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation."
+
+  # Phase 10: DB Core / Reporting
+  - module_name: ransomeye_db_core
+    actual_directory: NOT_FOUND
+    phase_number: 10
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. PostgreSQL integration may be library-based or needs separate service module."
+
+  # Phase 10: Reporting
+  - module_name: ransomeye_reporting
+    actual_directory: ransomeye_reporting
+    phase_number: 10
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "Reporting, Forensics & Evidence Preservation. Service exists in ransomeye_operations/systemd/ but should be in unified systemd/. May also handle forensic functionality (Phase 4)."
+
+  # Phase 11: UI & Dashboards
+  - module_name: ransomeye_ui
+    actual_directory: NOT_FOUND
+    phase_number: 11
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation."
+
+  # Phase 12: Orchestrator (Master Flow) / Validation
+  - module_name: ransomeye_master_core
+    actual_directory: NOT_FOUND
+    phase_number: 12
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Orchestrator functionality. May be part of ransomeye_operations or needs creation."
+
+  # Phase 12: Validation
+  - module_name: ransomeye_validation
+    actual_directory: ransomeye_validation
+    phase_number: 12
+    module_type: tool
+    requires_installer: false
+    requires_service: false
+    notes: "Validation, Stress, Security & Release Gate. Tool for pre-release validation."
+
+  # Phase 18: Threat Intelligence Feed Engine
+  - module_name: ransomeye_threat_intel_engine
+    actual_directory: NOT_FOUND
+    phase_number: 18
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Maps to ransomeye_intelligence (Phase 3) which includes threat intelligence."
+
+  # Phase 19: HNMP Engine
+  - module_name: ransomeye_hnmp_engine
+    actual_directory: NOT_FOUND
+    phase_number: 19
+    module_type: service
+    requires_installer: true
+    requires_service: true
+    notes: "SPECIFIED IN CODE BUT DOES NOT EXIST. Needs creation."
+
+  # Phase 21: Linux Agent (Standalone)
+  - module_name: ransomeye_linux_agent
+    actual_directory: ransomeye_linux_agent
+    phase_number: 21
+    module_type: standalone_product
+    requires_installer: true
+    requires_service: true
+    notes: "CRITICAL: Standalone agent but LACKS installer, uninstaller, and service definition. Must have standalone installer."
+
+  # Phase 22: Windows Agent (Standalone)
+  - module_name: ransomeye_windows_agent
+    actual_directory: ransomeye_windows_agent
+    phase_number: 22
+    module_type: standalone_product
+    requires_installer: true
+    requires_service: true
+    notes: "CRITICAL: Standalone agent but LACKS installer, uninstaller, and Windows service definition. Must have MSI installer."
+
+  # Phase 23: DPI Probe (Standalone)
+  - module_name: ransomeye_dpi_probe
+    actual_directory: ransomeye_dpi_probe
+    phase_number: 23
+    module_type: standalone_product
+    requires_installer: true
+    requires_service: true
+    notes: "CRITICAL: Standalone probe but LACKS installer, uninstaller, and service definition. Must have standalone installer."
+
+  # Supporting Infrastructure Libraries
+  - module_name: ransomeye_retention
+    actual_directory: ransomeye_retention
+    phase_number: null
+    module_type: library
+    requires_installer: false
+    requires_service: false
+    notes: "Data retention and disk management library. Used by installer and other modules."
+
+  - module_name: ransomeye_trust
+    actual_directory: ransomeye_trust
+    phase_number: null
+    module_type: library
+    requires_installer: false
+    requires_service: false
+    notes: "Cryptographic signing and verification library. Used by installer and other modules."
+
+# Service mapping resolution
+service_resolution:
+  # Services that exist in wrong location (ransomeye_operations/systemd/)
+  # Must be moved to unified /home/ransomeye/rebuild/systemd/
+  services_to_relocate:
+    - source: ransomeye_operations/systemd/core.service
+      target: systemd/ransomeye-core.service
+      module: UNKNOWN
+      notes: "core.service references unknown module. May need ransomeye_core module or rename."
+
+    - source: ransomeye_operations/systemd/ingestion.service
+      target: systemd/ransomeye-ingestion.service
+      module: ransomeye_ingestion
+
+    - source: ransomeye_operations/systemd/correlation.service
+      target: systemd/ransomeye-correlation.service
+      module: ransomeye_correlation
+
+    - source: ransomeye_operations/systemd/policy.service
+      target: systemd/ransomeye-policy.service
+      module: ransomeye_policy
+
+    - source: ransomeye_operations/systemd/enforcement.service
+      target: systemd/ransomeye-enforcement.service
+      module: ransomeye_enforcement
+
+    - source: ransomeye_operations/systemd/intelligence.service
+      target: systemd/ransomeye-intelligence.service
+      module: ransomeye_intelligence
+
+    - source: ransomeye_operations/systemd/reporting.service
+      target: systemd/ransomeye-reporting.service
+      module: ransomeye_reporting
+
+# Module name resolution
+name_resolution:
+  # Modules specified in code but don't exist - need resolution
+  missing_modules:
+    - specified_name: ransomeye_ai_core
+      resolution: "May map to ransomeye_ai_advisory (Phase 8) or needs creation (Phase 2)"
+      
+    - specified_name: ransomeye_alert_engine
+      resolution: "Functionality split between ransomeye_intelligence (Phase 3) and ransomeye_policy (Phase 6)"
+      
+    - specified_name: ransomeye_db_core
+      resolution: "PostgreSQL integration may be library-based or needs service module creation"
+      
+    - specified_name: ransomeye_forensic
+      resolution: "Functionality may be part of ransomeye_reporting (Phase 10)"
+      
+    - specified_name: ransomeye_hnmp_engine
+      resolution: "Needs creation (Phase 19)"
+      
+    - specified_name: ransomeye_incident_summarizer
+      resolution: "Needs creation or merge with ransomeye_llm (Phase 5)"
+      
+    - specified_name: ransomeye_killchain_core
+      resolution: "Maps to ransomeye_correlation which includes kill-chain (Phase 5)"
+      
+    - specified_name: ransomeye_llm
+      resolution: "Needs creation (Phase 5) or may be part of ransomeye_ai_advisory"
+      
+    - specified_name: ransomeye_master_core
+      resolution: "Needs creation (Phase 12) or may be part of ransomeye_operations"
+      
+    - specified_name: ransomeye_net_scanner
+      resolution: "Needs creation (Phase 9)"
+      
+    - specified_name: ransomeye_response
+      resolution: "Needs creation (Phase 6) or may be handled by ransomeye_enforcement"
+      
+    - specified_name: ransomeye_threat_correlation
+      resolution: "Maps to ransomeye_correlation (Phase 5)"
+      
+    - specified_name: ransomeye_threat_intel_engine
+      resolution: "Maps to ransomeye_intelligence which includes threat intelligence (Phase 3)"
+      
+    - specified_name: ransomeye_ui
+      resolution: "Needs creation (Phase 11)"
+
+# Audit summary
+audit_summary:
+  total_directories: 17
+  existing_modules: 17
+  missing_modules: 14
+  modules_with_wrong_service_location: 7
+  standalone_modules_missing_installers: 3
+  resolution_status: "PARTIAL - Many modules need creation or name resolution"
+

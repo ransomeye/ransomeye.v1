@@ -5,16 +5,16 @@
 use std::time::Instant;
 use crate::core::{Finding, Severity, ValidationResult};
 use crate::chaos::ChaosEngine;
-use tracing::{info, warn, error};
+use tracing::info;
 
 pub struct FaultInjectionSuite {
-    chaos: ChaosEngine,
+    _chaos: ChaosEngine,
 }
 
 impl FaultInjectionSuite {
     pub fn new() -> Self {
         Self {
-            chaos: ChaosEngine::new(false), // Disable actual chaos for validation
+            _chaos: ChaosEngine::new(false), // Disable actual chaos for validation
         }
     }
     
@@ -98,35 +98,35 @@ impl FaultInjectionSuite {
     
     async fn test_service_crash(&self) -> Result<(), String> {
         // Simulate service crash test
-        self.chaos.crash_service("ransomeye_core").await
+        self._chaos.crash_service("ransomeye_core").await
             .map_err(|e| format!("Service crash test failed: {}", e))?;
         Ok(())
     }
     
     async fn test_network_partition(&self) -> Result<(), String> {
         // Simulate network partition test
-        self.chaos.inject_network_partition(5).await
+        self._chaos.inject_network_partition(5).await
             .map_err(|e| format!("Network partition test failed: {}", e))?;
         Ok(())
     }
     
     async fn test_disk_full(&self) -> Result<(), String> {
         // Simulate disk full test
-        self.chaos.exhaust_disk(1000).await
+        self._chaos.exhaust_disk(1000).await
             .map_err(|e| format!("Disk full test failed: {}", e))?;
         Ok(())
     }
     
     async fn test_clock_skew(&self) -> Result<(), String> {
         // Simulate clock skew test
-        self.chaos.inject_clock_skew(300).await
+        self._chaos.inject_clock_skew(300).await
             .map_err(|e| format!("Clock skew test failed: {}", e))?;
         Ok(())
     }
     
     async fn test_certificate_revocation(&self) -> Result<(), String> {
         // Simulate certificate revocation test
-        self.chaos.revoke_certificate("/etc/ransomeye/certs/agent.pem").await
+        self._chaos.revoke_certificate("/etc/ransomeye/certs/agent.pem").await
             .map_err(|e| format!("Certificate revocation test failed: {}", e))?;
         Ok(())
     }

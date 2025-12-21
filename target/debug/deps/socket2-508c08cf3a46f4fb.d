@@ -1,0 +1,11 @@
+/home/ransomeye/rebuild/target/debug/deps/libsocket2-508c08cf3a46f4fb.rmeta: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/lib.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockaddr.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/socket.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockref.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sys/unix.rs
+
+/home/ransomeye/rebuild/target/debug/deps/libsocket2-508c08cf3a46f4fb.rlib: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/lib.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockaddr.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/socket.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockref.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sys/unix.rs
+
+/home/ransomeye/rebuild/target/debug/deps/socket2-508c08cf3a46f4fb.d: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/lib.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockaddr.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/socket.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockref.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sys/unix.rs
+
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/lib.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockaddr.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/socket.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sockref.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.6.1/src/sys/unix.rs:

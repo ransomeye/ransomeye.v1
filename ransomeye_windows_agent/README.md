@@ -66,15 +66,143 @@ Tests cover:
 - Core unavailability tolerance
 - Resource exhaustion handling
 
+## Installation
+
+### Prerequisites
+
+- Windows 10 (Build 1809+) or Windows Server 2019+
+- Administrator privileges
+- WiX Toolset v3.11+ (for building MSI installer)
+- Windows SDK (for code signing)
+
+### Build MSI Installer
+
+1. Build the binary:
+```bash
+cd ransomeye_windows_agent
+cargo build --release
+```
+
+2. Build the MSI installer:
+```powershell
+.\installer\build-msi.ps1
+```
+
+This requires WiX Toolset installed. Download from: https://wixtoolset.org/
+
+3. Sign the MSI (recommended):
+```powershell
+signtool sign /f certificate.pfx /p password .\installer\RansomEyeWindowsAgent.msi
+```
+
+### Install
+
+**Option 1: PowerShell wrapper (recommended)**
+```powershell
+.\installer\install.ps1 -MsiPath .\installer\RansomEyeWindowsAgent.msi -AcceptEULA
+```
+
+**Option 2: Direct MSI installation**
+```powershell
+msiexec.exe /i .\installer\RansomEyeWindowsAgent.msi /quiet ACCEPTEULA=1
+```
+
+**Option 3: Via Control Panel**
+1. Double-click `RansomEyeWindowsAgent.msi`
+2. Follow the installation wizard
+3. Accept EULA when prompted
+
+The installer will:
+- Enforce EULA acceptance (mandatory, no bypass)
+- Verify Authenticode signatures (if signed)
+- Install binary to `C:\Program Files\RansomEye\WindowsAgent\`
+- Install data/config to `C:\ProgramData\RansomEye\WindowsAgent\`
+- Install and start Windows Service
+- Create install receipt
+
+### Service Management
+
+**Start service:**
+```powershell
+Start-Service -Name "RansomEyeWindowsAgent"
+```
+
+**Stop service:**
+```powershell
+Stop-Service -Name "RansomEyeWindowsAgent"
+```
+
+**Restart service:**
+```powershell
+Restart-Service -Name "RansomEyeWindowsAgent"
+```
+
+**View service status:**
+```powershell
+Get-Service -Name "RansomEyeWindowsAgent"
+```
+
+**View logs:**
+```powershell
+# Event Viewer
+eventvwr.msc
+
+# Application logs
+Get-Content "C:\ProgramData\RansomEye\WindowsAgent\logs\*.log" -Tail 50
+```
+
+See `installer/lifecycle.md` for complete lifecycle management documentation.
+
+### Uninstallation
+
+**Option 1: PowerShell wrapper**
+```powershell
+.\installer\uninstall.ps1 [-PreserveLogs]
+```
+
+**Option 2: Control Panel**
+1. Open "Add or Remove Programs" (Settings → Apps)
+2. Find "RansomEye Windows Agent"
+3. Click "Uninstall"
+
+**Option 3: MSI command line**
+```powershell
+msiexec.exe /x {ProductCode} /quiet
+```
+
+The uninstaller will:
+- Stop and remove the Windows Service
+- Remove binaries and configuration
+- Optionally preserve logs (configurable)
+- Clean registry entries
+
+### Verify Installation
+
+```powershell
+.\installer\verify.ps1
+```
+
+## Requirements
+
+See `installer/requirements.md` for detailed system requirements, including:
+- OS and architecture requirements
+- Memory and disk requirements
+- Privilege requirements
+- Build and signing requirements
+
 ## Build
 
 ```bash
 cargo build --release
 ```
 
-## Run
+## Run (Manual)
 
-```bash
+For manual execution (not recommended for production):
+
+```powershell
 .\target\release\ransomeye_windows_agent.exe
 ```
+
+**Note:** Production deployments should use the Windows Service installed via the MSI installer.
 

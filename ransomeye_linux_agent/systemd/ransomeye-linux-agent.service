@@ -1,0 +1,59 @@
+# Path and File Name: /home/ransomeye/rebuild/ransomeye_linux_agent/systemd/ransomeye-linux-agent.service
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details: Systemd service unit for RansomEye Linux Agent
+
+[Unit]
+Description=RansomEye Linux Agent - Host telemetry collection
+After=network.target
+Requires=network.target
+ConditionPathExists=/opt/ransomeye/linux_agent/bin/ransomeye_linux_agent
+ConditionPathExists=/opt/ransomeye/linux_agent/.install_receipt.json
+
+[Service]
+Type=simple
+# Start as root for privilege downgrade (binary has SetUID)
+User=root
+Group=root
+WorkingDirectory=/opt/ransomeye/linux_agent
+ExecStart=/opt/ransomeye/linux_agent/bin/ransomeye_linux_agent
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Resource limits (prevent swap usage)
+LimitNOFILE=65536
+LimitNPROC=4096
+# NO swap allowed - hard limit
+MemoryMax=2G
+MemorySwapMax=0
+
+# Security hardening
+NoNewPrivileges=false  # SetUID binary needs this
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/ransomeye/linux_agent /var/lib/ransomeye/linux_agent
+
+# Capabilities (minimal - only what's needed)
+CapabilityBoundingSet=CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+AmbientCapabilities=
+
+# Memory policy (NO swap)
+# Systemd will enforce MemorySwapMax=0 above
+# Additional protection via mlock (if needed by binary)
+
+# Environment variables
+EnvironmentFile=-/opt/ransomeye/linux_agent/config/environment.conf
+
+# Kill settings
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Privilege downgrade is handled by the binary itself
+# Binary starts as root (SetUID) and drops to unprivileged user
+
+[Install]
+WantedBy=multi-user.target
+

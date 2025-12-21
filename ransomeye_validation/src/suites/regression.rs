@@ -6,7 +6,7 @@ use std::time::Instant;
 use std::path::PathBuf;
 use crate::core::{Finding, Severity, ValidationResult};
 use crate::replay::ReplayEngine;
-use tracing::{info, warn, error};
+use tracing::info;
 
 pub struct RegressionSuite;
 

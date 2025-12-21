@@ -47,20 +47,54 @@ RansomEye is organized into 23 distinct phases, each serving a critical security
 - PostgreSQL 12+
 - Linux (Ubuntu 20.04+ recommended)
 - Systemd (for service management)
+- Root/sudo privileges for installation
 
 ### Installation
+
+**IMPORTANT: The ONLY supported installation method is via the root-level `install.sh` script.**
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/ransomeye-rebuild.git
 cd ransomeye-rebuild
 
-# Run the installer
+# Run the installer (ONLY supported method)
 sudo ./install.sh
 
-# Verify installation
-./post_install_validator.py
+# The installer will:
+# 1. Display and require EULA acceptance
+# 2. Install the core RansomEye stack
+# 3. Optionally install standalone modules (DPI Probe, Linux Agent, Windows Agent)
+# 4. Run post-install validation automatically
 ```
+
+**Unsupported Installation Methods:**
+- ❌ Running individual module installers directly
+- ❌ Manual installation steps
+- ❌ Using `python3 -m ransomeye_installer.installer` directly
+- ❌ Using `ransomeye_operations install` directly
+
+**Uninstallation:**
+
+```bash
+# Uninstall RansomEye (ONLY supported method)
+sudo ./uninstall.sh [--preserve-logs] [--preserve-evidence]
+```
+
+The uninstaller will:
+- Stop all services cleanly
+- Uninstall in reverse dependency order (standalone modules first, then core)
+- Optionally preserve logs and evidence
+- Remove all installation artifacts without leaving orphaned files
+
+**Manual Verification (if needed):**
+
+```bash
+# Run post-install validator manually
+sudo ./post_install_validator.py
+```
+
+**Note:** Post-install validation runs automatically at the end of `install.sh`. Manual execution is only needed for troubleshooting.
 
 ### Configuration
 
@@ -140,8 +174,31 @@ python -m ransomeye_guardrails.scanner
 ## 📚 Documentation
 
 - **Installation Guide**: See `install.sh` and `post_install_validator.py`
+- **Uninstallation Guide**: See `uninstall.sh`
 - **API Documentation**: See individual module READMEs
 - **Architecture**: See project specification in user rules
+
+## 🔧 Installation & Uninstallation
+
+**SUPPORTED METHODS (ONLY):**
+
+1. **Installation**: `sudo ./install.sh`
+   - This is the ONLY supported installation method
+   - All other installation methods are unsupported
+
+2. **Uninstallation**: `sudo ./uninstall.sh [--preserve-logs] [--preserve-evidence]`
+   - This is the ONLY supported uninstallation method
+   - All other uninstallation methods are unsupported
+
+**UNSUPPORTED METHODS:**
+
+- Direct execution of module installers
+- Manual installation procedures
+- Direct Python module execution
+- Direct Rust binary execution
+- Partial installations
+
+**For production deployments, ALWAYS use the root-level `install.sh` and `uninstall.sh` scripts.**
 
 ## 🔧 Development
 

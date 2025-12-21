@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::fs;
 use sha2::{Sha256, Digest};
 use hex;
-use tracing::{info, warn, error};
+use tracing::{info, error, warn};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -55,7 +55,7 @@ impl Verifier {
     pub fn verify_signature(&self, data_path: &PathBuf, sig_path: &PathBuf) -> Result<bool, VerificationError> {
         info!("Verifying signature: {:?} with {:?}", data_path, sig_path);
         
-        let data = fs::read(data_path)
+        let _data = fs::read(data_path)
             .map_err(|e| VerificationError::FileNotFound(format!("Failed to read data: {}", e)))?;
         
         let sig = fs::read(sig_path)

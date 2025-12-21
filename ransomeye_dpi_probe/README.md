@@ -96,15 +96,100 @@ Security modules in `security/`:
 - Replay attack protection
 - Trust chain validation
 
+## Installation
+
+### Prerequisites
+
+- Linux kernel 4.18+ (for AF_XDP support)
+- Root/sudo privileges
+- libpcap library (`apt-get install libpcap-dev` or `yum install libpcap-devel`)
+- Minimum 4 CPU cores
+- Swap: Minimum 16GB or equal to RAM (whichever is larger) - automatically created during installation
+
+### Install
+
+1. Build the binary:
+```bash
+cd ransomeye_dpi_probe
+cargo build --release
+```
+
+2. Run the installer:
+```bash
+sudo ./installer/install.sh
+```
+
+The installer will:
+- Enforce EULA acceptance (mandatory, no bypass)
+- Verify binary signatures
+- Validate environment constraints (OS, CPU, kernel features)
+- Check/create swap (16GB or RAM, whichever is larger)
+- Install binary to `/opt/ransomeye/dpi_probe/`
+- Install systemd service
+- Create signed install receipt
+
+3. Verify installation:
+```bash
+./installer/verify.sh
+```
+
+### Service Management
+
+**Start service:**
+```bash
+sudo systemctl start ransomeye-dpi-probe
+```
+
+**Stop service:**
+```bash
+sudo systemctl stop ransomeye-dpi-probe
+```
+
+**Enable auto-start:**
+```bash
+sudo systemctl enable ransomeye-dpi-probe
+```
+
+**View logs:**
+```bash
+sudo journalctl -u ransomeye-dpi-probe -f
+```
+
+See `installer/lifecycle.md` for complete lifecycle management documentation.
+
+### Uninstallation
+
+```bash
+sudo ./installer/uninstall.sh
+```
+
+The uninstaller will:
+- Stop and disable the service
+- Remove binaries and service files
+- Optionally preserve logs and configuration
+- Optionally remove swap file (if created during installation)
+
+## Requirements
+
+See `installer/requirements.md` for detailed system requirements, including:
+- OS and kernel requirements
+- CPU and memory requirements
+- Swap requirements (MANDATORY)
+- Network and privilege requirements
+
 ## Build
 
 ```bash
 cargo build --release
 ```
 
-## Run
+## Run (Manual)
+
+For manual execution (not recommended for production):
 
 ```bash
 ./target/release/ransomeye_dpi_probe
 ```
+
+**Note:** Production deployments should use the systemd service installed via the installer.
 
