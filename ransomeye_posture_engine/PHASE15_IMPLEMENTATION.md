@@ -136,7 +136,9 @@ All configuration via environment variables (ZERO hardcoding):
 ✅ **Deterministic logic only** - NO ML  
 ✅ **Fail-closed on ambiguity** - Unknown conditions treated as non-compliant  
 ✅ **Full audit trail** - All operations logged immutably  
-✅ **Signed outputs** - All reports cryptographically signed  
+✅ **Ed25519 signing ONLY** - RSA is PROHIBITED (aligned with Phase 10)  
+✅ **Database is UNTRUSTED** - Every telemetry record verified with Ed25519 before processing  
+✅ **Policy hash pinning MANDATORY** - Every evaluation includes policy SHA-256 hash, version, and source path  
 ✅ **No hardcoding** - All configuration via environment variables  
 ✅ **File headers** - All files include required headers  
 

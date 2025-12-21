@@ -23,7 +23,9 @@ The RansomEye Posture Engine is a **deterministic, advisory-only** posture evalu
 - **Deterministic logic only** - NO ML
 - **Fail-closed on ambiguity** - Unknown conditions treated as non-compliant
 - **Full audit trail** - All operations logged immutably
-- **Signed outputs** - All reports cryptographically signed
+- **Ed25519 signing ONLY** - RSA is PROHIBITED (aligned with Phase 10)
+- **Database is UNTRUSTED** - Every telemetry record MUST be verified with Ed25519
+- **Policy hash pinning MANDATORY** - Every evaluation includes policy SHA-256 hash, version, and source path
 
 ## Architecture
 
@@ -115,8 +117,9 @@ All configuration via environment variables:
 - `POSTURE_EVAL_INTERVAL_SEC`: Evaluation interval in seconds (default: 3600)
 - `POSTURE_DRIFT_WINDOW_HOURS`: Drift detection window in hours (default: 24)
 
-### Signing
-- `POSTURE_SIGNING_KEY_PATH`: Path to RSA private key for signing (optional)
+### Signing (Ed25519 ONLY)
+- `POSTURE_SIGNING_KEY_PATH`: Path to Ed25519 private key for signing (required)
+- `POSTURE_TRUST_STORE_PATH`: Path to trust store with Ed25519 public keys (required for signature verification)
 
 ## Installation
 
@@ -218,7 +221,9 @@ The posture engine integrates with:
 
 ## Compliance
 
-- All outputs signed with RSA-4096-PSS-SHA256
+- **Ed25519 signing ONLY** - RSA is PROHIBITED (aligned with Phase 10)
+- **Database is UNTRUSTED** - Every telemetry record verified with Ed25519 before processing
+- **Policy hash pinning** - Every evaluation includes policy SHA-256 hash, version, and source path
 - Full audit trail maintained
 - Fail-closed on ambiguity
 - Zero enforcement (advisory only)

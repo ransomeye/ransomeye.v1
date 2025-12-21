@@ -18,7 +18,8 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .normalizer import PostureFact
-from .cis_evaluator import ComplianceStatus, CISEvaluationResult
+from .cis_evaluator import ComplianceStatus
+from .policy_metadata import PolicyMetadataManager, PolicyMetadata
 
 logger = logging.getLogger("ransomeye_posture_engine.stig_evaluator")
 
@@ -36,19 +37,21 @@ class STIGRequirement:
 
 @dataclass
 class STIGEvaluationResult:
-    """STIG evaluation result."""
+    """STIG evaluation result with policy metadata."""
     requirement_id: str
     vuln_id: str
     status: ComplianceStatus
     findings: List[str]
     score: float
     timestamp: str
+    policy_metadata: PolicyMetadata  # MANDATORY: policy hash, version, source path
 
 class STIGEvaluator:
     """Evaluates posture facts against STIG profiles."""
     
-    def __init__(self, stig_dir: Path):
+    def __init__(self, stig_dir: Path, metadata_manager: PolicyMetadataManager):
         self.stig_dir = stig_dir
+        self.metadata_manager = metadata_manager
         self.requirements: Dict[str, STIGRequirement] = {}
         self._load_requirements()
     
@@ -67,8 +70,24 @@ class STIGEvaluator:
                     continue
                 
                 for req_data in data['requirements']:
+                    req_id = req_data.get('id', '')
+                    if not req_id:
+                        continue
+                    
+                    # Check for policy drift
+                    if self.metadata_manager.detect_policy_drift(req_id, yaml_file):
+                        logger.warning(f"Policy drift detected for STIG requirement {req_id} - hash changed")
+                    
+                    # Register policy metadata (MANDATORY)
+                    self.metadata_manager.register_policy(
+                        policy_id=req_id,
+                        policy_type='stig',
+                        source_path=yaml_file,
+                        version=req_data.get('version')
+                    )
+                    
                     requirement = STIGRequirement(
-                        requirement_id=req_data.get('id', ''),
+                        requirement_id=req_id,
                         title=req_data.get('title', ''),
                         description=req_data.get('description', ''),
                         severity=req_data.get('severity', 'CAT III'),
@@ -154,6 +173,11 @@ class STIGEvaluator:
                 score = 0.0
                 findings.append(f"Unknown check type: {check_type}")
         
+        # Get policy metadata (MANDATORY)
+        policy_metadata = self.metadata_manager.get_metadata(requirement.requirement_id)
+        if not policy_metadata:
+            raise RuntimeError(f"Policy metadata not found for requirement {requirement.requirement_id} (FAIL-CLOSED)")
+        
         return STIGEvaluationResult(
             requirement_id=requirement.requirement_id,
             vuln_id=requirement.vuln_id,
@@ -161,6 +185,7 @@ class STIGEvaluator:
             findings=findings,
             score=score,
             timestamp=str(facts[0].timestamp) if facts else "",
+            policy_metadata=policy_metadata,
         )
     
     def _filter_relevant_facts(self, requirement: STIGRequirement, 

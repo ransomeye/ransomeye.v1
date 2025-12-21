@@ -14,9 +14,11 @@ pub mod chaos;
 pub mod replay;
 pub mod verifier;
 pub mod auditor;
+pub mod release_gate;
 mod suites;
 
 use crate::core::{Finding, Severity, ValidationResult as CoreValidationResult};
+use crate::release_gate::{ReleaseGate, Decision as ReleaseGateDecision};
 use suites::{
     security::SecuritySuite,
     performance::PerformanceSuite,
@@ -53,8 +55,10 @@ pub struct SuiteResult {
     pub timestamp: chrono::DateTime<Utc>,
 }
 
+// ReleaseDecision is now defined in release_gate module
+// This local type is kept for backward compatibility with existing code
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ReleaseDecision {
+pub struct LocalReleaseDecision {
     pub decision: Decision,
     pub timestamp: chrono::DateTime<Utc>,
     pub suite_results: Vec<SuiteResult>,
@@ -78,7 +82,7 @@ impl ValidationOrchestrator {
         Self { reports_dir }
     }
 
-    pub async fn run_full_validation(&self) -> Result<ReleaseDecision, ValidationError> {
+    pub async fn run_full_validation(&self) -> Result<LocalReleaseDecision, ValidationError> {
         info!("Starting full validation suite");
         let start_time = Instant::now();
         
@@ -132,7 +136,7 @@ impl ValidationOrchestrator {
         Ok(decision)
     }
     
-    fn generate_decision(&self, results: &[(String, CoreValidationResult)]) -> Result<ReleaseDecision, ValidationError> {
+    fn generate_decision(&self, results: &[(String, CoreValidationResult)]) -> Result<LocalReleaseDecision, ValidationError> {
         // Fail-closed semantics: Default is BLOCK, explicit ALLOW only if no Fail, no High, no Critical
         let mut has_fail = false;
         let mut has_high_or_critical = false;
@@ -194,7 +198,7 @@ impl ValidationOrchestrator {
             "All validation suites passed. No failures, no critical or high severity findings.".to_string()
         };
         
-        Ok(ReleaseDecision {
+        Ok(LocalReleaseDecision {
             decision,
             timestamp: Utc::now(),
             suite_results,
@@ -206,7 +210,7 @@ impl ValidationOrchestrator {
     async fn generate_reports(
         &self,
         results: &[(String, CoreValidationResult)],
-        decision: &ReleaseDecision,
+        decision: &LocalReleaseDecision,
     ) -> Result<(), ValidationError> {
         use std::fs;
         use std::io::Write;
@@ -359,7 +363,7 @@ impl ValidationOrchestrator {
         Ok(report)
     }
     
-    fn generate_decision_report(&self, decision: &ReleaseDecision) -> Result<String, ValidationError> {
+    fn generate_decision_report(&self, decision: &LocalReleaseDecision) -> Result<String, ValidationError> {
         let mut report = String::new();
         report.push_str("# Release Decision Report\n\n");
         report.push_str(&format!("Generated: {}\n\n", decision.timestamp.to_rfc3339()));
@@ -382,19 +386,53 @@ impl ValidationOrchestrator {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
     
-    let reports_dir = PathBuf::from("/home/ransomeye/rebuild/ransomeye_validation/reports");
+    let project_root = PathBuf::from("/home/ransomeye/rebuild");
+    let reports_dir = project_root.join("ransomeye_validation/reports");
     std::fs::create_dir_all(&reports_dir)?;
     
-    let orchestrator = ValidationOrchestrator::new(reports_dir);
-    let decision = orchestrator.run_full_validation().await?;
+    // Run validation suites first
+    let orchestrator = ValidationOrchestrator::new(reports_dir.clone());
+    let _validation_decision = orchestrator.run_full_validation().await?;
     
-    println!("Release Decision: {:?}", decision.decision);
-    println!("Justification: {}", decision.justification);
+    // Run Release Gate (FINAL AUTHORITY)
+    info!("Invoking Release Gate (FINAL AUTHORITY)");
+    let release_gate = ReleaseGate::new(project_root, reports_dir.clone())?;
+    let release_decision = release_gate.evaluate().await?;
     
-    if matches!(decision.decision, Decision::Block) {
-        std::process::exit(1);
+    // Print decision summary
+    println!("========================================");
+    println!("RELEASE GATE DECISION: {:?}", release_decision.decision);
+    println!("========================================");
+    println!("Justification: {}", release_decision.justification);
+    println!("\nSuite Results:");
+    for suite in &release_decision.suite_results {
+        println!("  - {}: {}", suite.suite_name, suite.result);
     }
     
-    Ok(())
+    if !release_decision.blocking_issues.is_empty() {
+        println!("\nBlocking Issues:");
+        for issue in &release_decision.blocking_issues {
+            println!("  - {}", issue);
+        }
+    }
+    
+    println!("\nArtifacts Verified: {}", release_decision.artifacts_verified.len());
+    println!("========================================");
+    
+        // Exit code based on decision (FAIL-CLOSED)
+        match release_decision.decision {
+            ReleaseGateDecision::Allow => {
+                println!("✓ Release ALLOWED");
+                Ok(())
+            }
+            ReleaseGateDecision::Block => {
+                eprintln!("✗ Release BLOCKED");
+                std::process::exit(1)
+            }
+            ReleaseGateDecision::Hold => {
+                eprintln!("⚠ Release HOLD");
+                std::process::exit(2)
+            }
+        }
 }
 

@@ -36,8 +36,9 @@ class Config:
     evaluation_interval_seconds: int
     drift_detection_window_hours: int
     
-    # Signing configuration
+    # Signing configuration (Ed25519 ONLY)
     signing_key_path: Optional[Path]
+    trust_store_path: Optional[Path]  # Path to trust store with Ed25519 public keys
     
     # API configuration (for telemetry subscription)
     core_api_url: str
@@ -73,9 +74,13 @@ class Config:
         evaluation_interval_seconds = int(os.environ.get("POSTURE_EVAL_INTERVAL_SEC", "3600"))
         drift_detection_window_hours = int(os.environ.get("POSTURE_DRIFT_WINDOW_HOURS", "24"))
         
-        # Signing
+        # Signing (Ed25519 ONLY)
         signing_key_path_str = os.environ.get("POSTURE_SIGNING_KEY_PATH")
         signing_key_path = Path(signing_key_path_str) if signing_key_path_str else None
+        
+        trust_store_path_str = os.environ.get("POSTURE_TRUST_STORE_PATH",
+            str(base_dir / "ransomeye_posture_engine" / "trust_store" / "public_keys.json"))
+        trust_store_path = Path(trust_store_path_str)
         
         # API configuration
         core_api_url = os.environ.get("CORE_API_URL", "https://localhost")
@@ -100,6 +105,7 @@ class Config:
             evaluation_interval_seconds=evaluation_interval_seconds,
             drift_detection_window_hours=drift_detection_window_hours,
             signing_key_path=signing_key_path,
+            trust_store_path=trust_store_path,
             core_api_url=core_api_url,
             core_api_port=core_api_port,
         )

@@ -7,6 +7,7 @@ pub mod chaos;
 pub mod replay;
 pub mod verifier;
 pub mod auditor;
+pub mod release_gate;
 pub mod suites;
 
 pub use core::{Finding, Severity, ValidationResult};
@@ -14,4 +15,5 @@ pub use chaos::ChaosEngine;
 pub use replay::{ReplayEngine, Event, ReplayResult};
 pub use verifier::Verifier;
 pub use auditor::Auditor;
+pub use release_gate::{ReleaseGate, Decision, ReleaseDecision, ReleaseGateError};
 

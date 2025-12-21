@@ -32,6 +32,8 @@ from .drift_detector import DriftDetector
 from .report_generator import ReportGenerator
 from .output_signer import OutputSigner
 from .audit_trail import AuditTrail, AuditAction
+from .signature_verifier import SignatureVerifier
+from .policy_metadata import PolicyMetadataManager
 
 logger = logging.getLogger("ransomeye_posture_engine.daemon")
 
@@ -42,19 +44,25 @@ class PostureDaemon:
         self.config = config
         self.running = False
         
+        # Initialize policy metadata manager (MANDATORY for policy hash pinning)
+        self.policy_metadata_manager = PolicyMetadataManager()
+        
+        # Initialize signature verifier (MANDATORY - database is UNTRUSTED)
+        self.signature_verifier = SignatureVerifier(config.trust_store_path)
+        
         # Initialize components
-        self.ingester = TelemetryIngester(config)
+        self.ingester = TelemetryIngester(config, self.signature_verifier)
         self.normalizer = SignalNormalizer()
-        self.cis_evaluator = CISEvaluator(config.cis_benchmarks_dir)
-        self.stig_evaluator = STIGEvaluator(config.stig_profiles_dir)
-        self.custom_evaluator = CustomPolicyEvaluator(config.custom_policies_dir)
+        self.cis_evaluator = CISEvaluator(config.cis_benchmarks_dir, self.policy_metadata_manager)
+        self.stig_evaluator = STIGEvaluator(config.stig_profiles_dir, self.policy_metadata_manager)
+        self.custom_evaluator = CustomPolicyEvaluator(config.custom_policies_dir, self.policy_metadata_manager)
         self.scorer = PostureScorer()
         self.drift_detector = DriftDetector(
             config.output_dir / "baselines",
             config.drift_detection_window_hours
         )
-        self.report_generator = ReportGenerator(config.output_dir)
-        self.signer = OutputSigner(config.signing_key_path)
+        self.report_generator = ReportGenerator(config.output_dir, self.policy_metadata_manager)
+        self.signer = OutputSigner(config.signing_key_path, config.trust_store_path)
         self.audit_trail = AuditTrail(config.audit_log_dir)
         
         # Track processed hosts

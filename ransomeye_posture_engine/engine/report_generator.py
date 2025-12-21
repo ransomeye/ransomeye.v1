@@ -16,20 +16,23 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 import hashlib
+from datetime import datetime
 
 from .scorer import HostPostureScore, NetworkPostureScore
 from .cis_evaluator import CISEvaluationResult
 from .stig_evaluator import STIGEvaluationResult
 from .custom_policy_evaluator import CustomPolicyEvaluationResult
 from .drift_detector import DriftAlert
+from .policy_metadata import PolicyMetadataManager
 
 logger = logging.getLogger("ransomeye_posture_engine.report_generator")
 
 class ReportGenerator:
-    """Generates compliance reports."""
+    """Generates compliance reports with policy metadata."""
     
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, metadata_manager: Optional[PolicyMetadataManager] = None):
         self.output_dir = output_dir
+        self.metadata_manager = metadata_manager
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.footer = "© RansomEye.Tech | Support: Gagan@RansomEye.Tech"
     
@@ -148,6 +151,7 @@ class ReportGenerator:
                              stig_results: List[STIGEvaluationResult],
                              custom_results: List[CustomPolicyEvaluationResult],
                              drift_alerts: List[DriftAlert]) -> Path:
+        """Generate HTML report with policy metadata."""
         """Generate HTML report."""
         html_path = self.output_dir / f"{report_id}.html"
         
@@ -188,8 +192,25 @@ class ReportGenerator:
     <h2>Drift Alerts</h2>
     <p>Total Drift Alerts: {len(drift_alerts)}</p>
     
+    <h2>Policy Metadata</h2>
+    <table>
+        <tr><th>Policy ID</th><th>Type</th><th>Version</th><th>SHA-256 Hash</th><th>Source Path</th></tr>
+"""
+        
+        # Add policy metadata from all results
+        all_policies = []
+        for result in cis_results + stig_results + custom_results:
+            if hasattr(result, 'policy_metadata'):
+                meta = result.policy_metadata
+                all_policies.append((meta.policy_id, meta.policy_type, meta.version, meta.sha256_hash, str(meta.source_path)))
+        
+        for policy_id, policy_type, version, hash_val, source_path in all_policies:
+            html_content += f"        <tr><td>{policy_id}</td><td>{policy_type}</td><td>{version}</td><td>{hash_val[:16]}...</td><td>{source_path}</td></tr>\n"
+        
+        html_content += """    </table>
+    
     <div class="footer">
-        {self.footer}
+        """ + self.footer + """
     </div>
 </body>
 </html>
@@ -237,6 +258,15 @@ class ReportGenerator:
                 writer.writerow(['Findings'])
                 writer.writerow(['Total Findings', score.findings_count])
                 writer.writerow(['Critical Findings', score.critical_findings_count])
+                writer.writerow([])
+                
+                # Policy Metadata (MANDATORY)
+                writer.writerow(['Policy Metadata'])
+                writer.writerow(['Policy ID', 'Type', 'Version', 'SHA-256 Hash', 'Source Path'])
+                for result in cis_results + stig_results + custom_results:
+                    if hasattr(result, 'policy_metadata'):
+                        meta = result.policy_metadata
+                        writer.writerow([meta.policy_id, meta.policy_type, meta.version, meta.sha256_hash, str(meta.source_path)])
                 writer.writerow([])
                 
                 # Footer

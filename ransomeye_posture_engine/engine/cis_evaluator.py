@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .normalizer import PostureFact, PostureCategory
+from .policy_metadata import PolicyMetadataManager, PolicyMetadata
 
 logger = logging.getLogger("ransomeye_posture_engine.cis_evaluator")
 
@@ -41,18 +42,20 @@ class CISControl:
 
 @dataclass
 class CISEvaluationResult:
-    """CIS evaluation result."""
+    """CIS evaluation result with policy metadata."""
     control_id: str
     status: ComplianceStatus
     findings: List[str]
     score: float  # 0.0 to 1.0
     timestamp: str
+    policy_metadata: PolicyMetadata  # MANDATORY: policy hash, version, source path
 
 class CISEvaluator:
     """Evaluates posture facts against CIS Benchmarks."""
     
-    def __init__(self, benchmarks_dir: Path):
+    def __init__(self, benchmarks_dir: Path, metadata_manager: PolicyMetadataManager):
         self.benchmarks_dir = benchmarks_dir
+        self.metadata_manager = metadata_manager
         self.controls: Dict[str, CISControl] = {}
         self._load_controls()
     
@@ -71,8 +74,25 @@ class CISEvaluator:
                     continue
                 
                 for control_data in data['controls']:
+                    control_id = control_data.get('id', '')
+                    if not control_id:
+                        continue
+                    
+                    # Check for policy drift
+                    if self.metadata_manager.detect_policy_drift(control_id, yaml_file):
+                        logger.warning(f"Policy drift detected for CIS control {control_id} - hash changed")
+                        # Fail-closed: policy change without baseline reset
+                    
+                    # Register policy metadata (MANDATORY)
+                    self.metadata_manager.register_policy(
+                        policy_id=control_id,
+                        policy_type='cis',
+                        source_path=yaml_file,
+                        version=control_data.get('version')
+                    )
+                    
                     control = CISControl(
-                        control_id=control_data.get('id', ''),
+                        control_id=control_id,
                         title=control_data.get('title', ''),
                         description=control_data.get('description', ''),
                         severity=control_data.get('severity', 'medium'),
@@ -173,12 +193,19 @@ class CISEvaluator:
                 score = 0.0
                 findings.append(f"Unknown check type: {check_type}")
         
+        # Get policy metadata (MANDATORY)
+        policy_metadata = self.metadata_manager.get_metadata(control.control_id)
+        if not policy_metadata:
+            # Fail-closed: policy metadata is mandatory
+            raise RuntimeError(f"Policy metadata not found for control {control.control_id} (FAIL-CLOSED)")
+        
         return CISEvaluationResult(
             control_id=control.control_id,
             status=status,
             findings=findings,
             score=score,
             timestamp=str(facts[0].timestamp) if facts else "",
+            policy_metadata=policy_metadata,
         )
     
     def _filter_relevant_facts(self, control: CISControl, 

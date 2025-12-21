@@ -19,6 +19,7 @@ from enum import Enum
 
 from .normalizer import PostureFact
 from .cis_evaluator import ComplianceStatus
+from .policy_metadata import PolicyMetadataManager, PolicyMetadata
 
 logger = logging.getLogger("ransomeye_posture_engine.custom_policy_evaluator")
 
@@ -35,18 +36,20 @@ class CustomPolicy:
 
 @dataclass
 class CustomPolicyEvaluationResult:
-    """Custom policy evaluation result."""
+    """Custom policy evaluation result with policy metadata."""
     policy_id: str
     status: ComplianceStatus
     findings: List[str]
     score: float
     timestamp: str
+    policy_metadata: PolicyMetadata  # MANDATORY: policy hash, version, source path
 
 class CustomPolicyEvaluator:
     """Evaluates posture facts against custom YAML policies."""
     
-    def __init__(self, policies_dir: Path):
+    def __init__(self, policies_dir: Path, metadata_manager: PolicyMetadataManager):
         self.policies_dir = policies_dir
+        self.metadata_manager = metadata_manager
         self.policies: Dict[str, CustomPolicy] = {}
         self._load_policies()
     
@@ -68,8 +71,24 @@ class CustomPolicyEvaluator:
                 policies_data = data.get('policies', [data] if 'policy_id' in data else [])
                 
                 for policy_data in policies_data:
+                    policy_id = policy_data.get('policy_id', '')
+                    if not policy_id:
+                        continue
+                    
+                    # Check for policy drift
+                    if self.metadata_manager.detect_policy_drift(policy_id, yaml_file):
+                        logger.warning(f"Policy drift detected for custom policy {policy_id} - hash changed")
+                    
+                    # Register policy metadata (MANDATORY)
+                    self.metadata_manager.register_policy(
+                        policy_id=policy_id,
+                        policy_type='custom',
+                        source_path=yaml_file,
+                        version=policy_data.get('version')
+                    )
+                    
                     policy = CustomPolicy(
-                        policy_id=policy_data.get('policy_id', ''),
+                        policy_id=policy_id,
                         name=policy_data.get('name', ''),
                         description=policy_data.get('description', ''),
                         severity=policy_data.get('severity', 'medium'),
@@ -166,12 +185,18 @@ class CustomPolicyEvaluator:
                 score = 0.0
                 findings.append(f"Unknown check type: {check_type}")
         
+        # Get policy metadata (MANDATORY)
+        policy_metadata = self.metadata_manager.get_metadata(policy.policy_id)
+        if not policy_metadata:
+            raise RuntimeError(f"Policy metadata not found for policy {policy.policy_id} (FAIL-CLOSED)")
+        
         return CustomPolicyEvaluationResult(
             policy_id=policy.policy_id,
             status=status,
             findings=findings,
             score=score,
             timestamp=str(facts[0].timestamp) if facts else "",
+            policy_metadata=policy_metadata,
         )
     
     def _filter_relevant_facts(self, policy: CustomPolicy, 

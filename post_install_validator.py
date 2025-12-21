@@ -781,9 +781,75 @@ def main():
         print(f"\nValidation report: {VALIDATION_REPORT}")
         sys.exit(1)
     
+    # Invoke Release Gate (FINAL AUTHORITY)
+    print("\n" + "="*80)
+    print("RELEASE GATE EVALUATION (FINAL AUTHORITY)")
+    print("="*80)
+    
+    release_gate_result = invoke_release_gate()
+    
+    if not release_gate_result:
+        print(f"\n{RED}RELEASE GATE BLOCKED - Installation cannot proceed{NC}")
+        print(f"\nValidation report: {VALIDATION_REPORT}")
+        sys.exit(1)
+    
     print(f"\n{GREEN}VALIDATION PASSED - All checks completed successfully{NC}")
+    print(f"{GREEN}RELEASE GATE: ALLOW{NC}")
     print(f"\nValidation report: {VALIDATION_REPORT}")
     sys.exit(0)
+
+
+def invoke_release_gate() -> bool:
+    """
+    Invoke Release Gate (FINAL AUTHORITY).
+    
+    Returns:
+        True if decision is ALLOW, False otherwise (BLOCK or HOLD)
+    """
+    try:
+        # Invoke ransomeye_validator binary
+        validator_path = PROJECT_ROOT / "target" / "release" / "ransomeye_validator"
+        
+        if not validator_path.exists():
+            # Try debug build
+            validator_path = PROJECT_ROOT / "target" / "debug" / "ransomeye_validator"
+        
+        if not validator_path.exists():
+            log_warn("Release Gate", "ransomeye_validator binary not found - skipping release gate")
+            return False
+        
+        # Run release gate
+        result = subprocess.run(
+            [str(validator_path)],
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+        
+        # Print output
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        
+        # Exit code 0 = ALLOW, non-zero = BLOCK/HOLD
+        if result.returncode == 0:
+            log_pass("Release Gate", "Decision: ALLOW")
+            return True
+        elif result.returncode == 2:
+            log_warn("Release Gate", "Decision: HOLD - Review required")
+            return False
+        else:
+            log_fail("Release Gate", f"Decision: BLOCK (exit code {result.returncode})")
+            return False
+    
+    except subprocess.TimeoutExpired:
+        log_fail("Release Gate", "Evaluation timed out (FAIL-CLOSED)")
+        return False
+    except Exception as e:
+        log_fail("Release Gate", f"Exception: {e} (FAIL-CLOSED)")
+        return False
 
 
 if __name__ == '__main__':
