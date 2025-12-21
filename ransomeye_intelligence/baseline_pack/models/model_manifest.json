@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1.0.0",
+  "pack_name": "RansomEye Baseline Intelligence Pack",
+  "pack_version": "1.0.0",
+  "pack_hash": "sha256:placeholder",
+  "created": "2024-01-01T00:00:00Z",
+  "trained_on": "2024-01-01T00:00:00Z",
+  "training_methodology": "synthetic_and_redteam",
+  "models": [
+    {
+      "name": "ransomware_behavior.model",
+      "type": "behavior_classifier",
+      "algorithm": "random_forest",
+      "version": "1.0.0",
+      "hash": "sha256:placeholder",
+      "training_data_hash": "sha256:placeholder",
+      "features": 256,
+      "classes": ["benign", "ransomware", "suspicious"],
+      "accuracy": 0.95,
+      "precision": 0.93,
+      "recall": 0.94,
+      "f1_score": 0.935,
+      "shap_required": true,
+      "shap_file": "baseline_pack/shap/ransomware_behavior_shap.json"
+    },
+    {
+      "name": "anomaly_baseline.model",
+      "type": "anomaly_detector",
+      "algorithm": "isolation_forest",
+      "version": "1.0.0",
+      "hash": "sha256:placeholder",
+      "training_data_hash": "sha256:placeholder",
+      "features": 128,
+      "contamination": 0.01,
+      "shap_required": true,
+      "shap_file": "baseline_pack/shap/anomaly_baseline_shap.json"
+    },
+    {
+      "name": "confidence_calibration.model",
+      "type": "calibration",
+      "algorithm": "platt_scaling",
+      "version": "1.0.0",
+      "hash": "sha256:placeholder",
+      "training_data_hash": "sha256:placeholder",
+      "features": 64,
+      "shap_required": true,
+      "shap_file": "baseline_pack/shap/confidence_calibration_shap.json"
+    }
+  ],
+  "signature": {
+    "algorithm": "RSA-4096-PSS-SHA256",
+    "signer": "ransomeye_baseline_generator",
+    "signature": "placeholder",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+

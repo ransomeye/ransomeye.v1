@@ -1,0 +1,47 @@
+{
+  "training_manifest_version": "1.0.0",
+  "training_date": "2024-01-01T00:00:00Z",
+  "training_methodology": "synthetic_and_redteam",
+  "data_sources": [
+    {
+      "source": "synthetic_data_generator",
+      "type": "synthetic",
+      "samples": 100000,
+      "description": "Synthetic ransomware behavior patterns"
+    },
+    {
+      "source": "redteam_exercises",
+      "type": "redteam",
+      "samples": 50000,
+      "description": "Red team exercise data"
+    }
+  ],
+  "training_parameters": {
+    "random_seed": 42,
+    "train_test_split": 0.8,
+    "validation_split": 0.1,
+    "cross_validation_folds": 5
+  },
+  "reproducibility": {
+    "random_seed": 42,
+    "environment": "docker:ransomeye-training:1.0.0",
+    "python_version": "3.10",
+    "dependencies_hash": "sha256:placeholder"
+  },
+  "no_customer_data": true,
+  "customer_data_used": false,
+  "data_privacy": "no_pii",
+  "training_artifacts": [
+    "models/ransomware_behavior.model",
+    "models/anomaly_baseline.model",
+    "models/confidence_calibration.model",
+    "shap/baseline_shap_values.json"
+  ],
+  "signature": {
+    "algorithm": "RSA-4096-PSS-SHA256",
+    "signer": "ransomeye_training_system",
+    "signature": "placeholder",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+

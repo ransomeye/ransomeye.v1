@@ -1,0 +1,32 @@
+{
+  "license_manifest_version": "1.0.0",
+  "baseline_pack_license": "RANSOMEYE_PROPRIETARY",
+  "models_license": "RANSOMEYE_PROPRIETARY",
+  "training_data_license": "RANSOMEYE_PROPRIETARY",
+  "data_sources": {
+    "synthetic_data": {
+      "license": "RANSOMEYE_PROPRIETARY",
+      "generator": "ransomeye_synthetic_generator",
+      "rights": "full"
+    },
+    "redteam_data": {
+      "license": "RANSOMEYE_PROPRIETARY",
+      "source": "ransomeye_redteam",
+      "rights": "full"
+    }
+  },
+  "no_third_party_data": true,
+  "no_customer_data": true,
+  "export_compliance": {
+    "classification": "UNRESTRICTED",
+    "export_control": "NONE",
+    "encryption_regulations": "COMPLIANT"
+  },
+  "signature": {
+    "algorithm": "RSA-4096-PSS-SHA256",
+    "signer": "ransomeye_legal",
+    "signature": "placeholder",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+

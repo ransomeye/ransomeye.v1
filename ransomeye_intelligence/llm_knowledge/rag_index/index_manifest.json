@@ -1,0 +1,38 @@
+{
+  "index_version": "1.0.0",
+  "index_type": "faiss",
+  "index_file": "index.bin",
+  "created": "2024-01-01T00:00:00Z",
+  "document_count": 0,
+  "embedding_dimension": 768,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "documents": [
+    {
+      "path": "documents/ransomware_playbooks.md",
+      "chunks": 0,
+      "hash": "sha256:placeholder"
+    },
+    {
+      "path": "documents/kill_chain_reference.md",
+      "chunks": 0,
+      "hash": "sha256:placeholder"
+    },
+    {
+      "path": "documents/policy_explanations.md",
+      "chunks": 0,
+      "hash": "sha256:placeholder"
+    },
+    {
+      "path": "documents/forensics_guides.md",
+      "chunks": 0,
+      "hash": "sha256:placeholder"
+    }
+  ],
+  "signature": {
+    "algorithm": "RSA-4096-PSS-SHA256",
+    "signer": "ransomeye_rag_indexer",
+    "signature": "placeholder",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+

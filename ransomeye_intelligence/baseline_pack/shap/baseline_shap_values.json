@@ -1,0 +1,55 @@
+{
+  "baseline_shap_version": "1.0.0",
+  "generated": "2024-01-01T00:00:00Z",
+  "models": {
+    "ransomware_behavior.model": {
+      "baseline_shap": {
+        "mean_absolute_shap": [0.15, 0.12, 0.18, 0.10, 0.08],
+        "std_absolute_shap": [0.05, 0.04, 0.06, 0.03, 0.02],
+        "feature_importance_rank": [3, 1, 2, 4, 5],
+        "expected_base_value": 0.5
+      },
+      "validation_thresholds": {
+        "min_shap_sum": -1.0,
+        "max_shap_sum": 1.0,
+        "min_feature_contribution": 0.01,
+        "max_feature_contribution": 0.5
+      }
+    },
+    "anomaly_baseline.model": {
+      "baseline_shap": {
+        "mean_absolute_shap": [0.08, 0.06, 0.10, 0.05, 0.04],
+        "std_absolute_shap": [0.03, 0.02, 0.04, 0.02, 0.01],
+        "feature_importance_rank": [3, 1, 2, 4, 5],
+        "expected_base_value": 0.0
+      },
+      "validation_thresholds": {
+        "min_shap_sum": -0.5,
+        "max_shap_sum": 0.5,
+        "min_feature_contribution": 0.005,
+        "max_feature_contribution": 0.3
+      }
+    },
+    "confidence_calibration.model": {
+      "baseline_shap": {
+        "mean_absolute_shap": [0.12, 0.10, 0.14, 0.08, 0.06],
+        "std_absolute_shap": [0.04, 0.03, 0.05, 0.02, 0.01],
+        "feature_importance_rank": [3, 1, 2, 4, 5],
+        "expected_base_value": 0.5
+      },
+      "validation_thresholds": {
+        "min_shap_sum": -0.8,
+        "max_shap_sum": 0.8,
+        "min_feature_contribution": 0.01,
+        "max_feature_contribution": 0.4
+      }
+    }
+  },
+  "signature": {
+    "algorithm": "RSA-4096-PSS-SHA256",
+    "signer": "ransomeye_shap_generator",
+    "signature": "placeholder",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+
