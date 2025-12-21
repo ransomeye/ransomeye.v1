@@ -1,0 +1,37 @@
+# Path and File Name : /home/ransomeye/rebuild/systemd/ransomeye-posture-engine.service
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Systemd service unit for RansomEye Posture Engine
+
+[Unit]
+Description=RansomEye Posture Engine - Host & Network Management Posture Evaluation
+After=network.target postgresql.service
+Requires=network.target
+ConditionPathExists=/home/ransomeye/rebuild/ransomeye_posture_engine
+
+[Service]
+Type=simple
+User=ransomeye
+Group=ransomeye
+WorkingDirectory=/home/ransomeye/rebuild
+RuntimeDirectory=ransomeye/posture_engine
+StateDirectory=ransomeye/posture_engine
+ExecStart=/usr/bin/python3 -m ransomeye_posture_engine
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening - Rootless runtime enforcement
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/ransomeye/rebuild/ransomeye_posture_engine /var/lib/ransomeye/posture_engine /run/ransomeye/posture_engine /home/ransomeye/rebuild/logs/posture_engine
+
+# Environment variables
+Environment="PYTHONUNBUFFERED=1"
+Environment="RANSOMEYE_ROOT=/home/ransomeye/rebuild"
+
+[Install]
+WantedBy=multi-user.target
+
