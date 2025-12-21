@@ -1,0 +1,34 @@
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_policy/policies/privilege_abuse.yaml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Privilege abuse policy
+
+id: privilege_abuse
+version: "1.0.0"
+name: "Privilege Abuse Policy"
+description: "Policy for responding to privilege abuse alerts"
+enabled: true
+priority: 70
+
+match_conditions:
+  - field: "kill_chain_stage"
+    operator: "equals"
+    value: "exploitation"
+  
+  - field: "alert_severity"
+    operator: "in"
+    value: ["high", "medium"]
+
+decision:
+  action: "block"
+  allowed_actions:
+    - "block"
+    - "monitor"
+    - "escalate"
+  reasoning: "Privilege abuse detected - block unauthorized access"
+
+required_approvals:
+  - "security_team"
+
+signature: "dGVzdF9zaWduYXR1cmU="
+signature_hash: "a1b2c3d4e5f6..."
+

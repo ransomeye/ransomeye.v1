@@ -15,7 +15,8 @@ use std::path::Path;
 use std::fs;
 use dashmap::DashMap;
 use x509_parser::prelude::*;
-use x509_parser::pem::pem_to_der;
+use rustls_pemfile::{Item, read_one};
+use std::io::Cursor;
 use tracing::{error, info, warn};
 use parking_lot::RwLock;
 
@@ -139,23 +140,34 @@ impl TrustStore {
     
     fn parse_certificate(bytes: &[u8]) -> Result<CertificateData, IdentityError> {
         // Try parsing as PEM first
-        if bytes.starts_with(b"-----BEGIN") {
-            // Parse PEM format
-            let pem_result = pem::parse(bytes);
-            match pem_result {
-                Ok(pem) => {
-                    // Store DER bytes and create CertificateData
-                    CertificateData::new(pem.contents)
+        let der_bytes = if bytes.starts_with(b"-----BEGIN") {
+            // Parse PEM format using rustls-pemfile
+            let mut cursor = Cursor::new(bytes);
+            match read_one(&mut cursor) {
+                Ok(Some(Item::X509Certificate(der))) => der,
+                Ok(Some(Item::RSAKey(_))) | Ok(Some(Item::PKCS8Key(_))) | Ok(Some(Item::ECKey(_))) => {
+                    return Err(IdentityError::CertificateParseError(
+                        "PEM file contains a key, not a certificate".to_string()
+                    ));
                 }
-                Err(_) => {
-                    // If PEM parsing fails, try as DER directly
-                    CertificateData::new(bytes.to_vec())
+                Ok(None) => {
+                    return Err(IdentityError::CertificateParseError(
+                        "No certificate found in PEM file".to_string()
+                    ));
+                }
+                Err(e) => {
+                    return Err(IdentityError::CertificateParseError(
+                        format!("PEM parsing failed: {}", e)
+                    ));
                 }
             }
         } else {
             // Assume DER format
-            CertificateData::new(bytes.to_vec())
-        }
+            bytes.to_vec()
+        };
+        
+        // Store DER bytes and create CertificateData
+        CertificateData::new(der_bytes)
     }
     
     /// Get root CA certificate

@@ -1,0 +1,34 @@
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_policy/policies/lateral_movement.yaml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Lateral movement policy
+
+id: lateral_movement
+version: "1.0.0"
+name: "Lateral Movement Policy"
+description: "Policy for responding to lateral movement alerts"
+enabled: true
+priority: 80
+
+match_conditions:
+  - field: "kill_chain_stage"
+    operator: "equals"
+    value: "command_control"
+  
+  - field: "alert_severity"
+    operator: "in"
+    value: ["high", "medium"]
+
+decision:
+  action: "quarantine"
+  allowed_actions:
+    - "quarantine"
+    - "monitor"
+    - "escalate"
+  reasoning: "Lateral movement detected - quarantine affected assets"
+
+required_approvals:
+  - "security_team"
+
+signature: "dGVzdF9zaWduYXR1cmU="
+signature_hash: "a1b2c3d4e5f6..."
+

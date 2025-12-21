@@ -1,0 +1,32 @@
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_policy/policies/persistence.yaml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Persistence mechanism policy
+
+id: persistence
+version: "1.0.0"
+name: "Persistence Mechanism Policy"
+description: "Policy for responding to persistence mechanism alerts"
+enabled: true
+priority: 60
+
+match_conditions:
+  - field: "kill_chain_stage"
+    operator: "equals"
+    value: "installation"
+  
+  - field: "alert_severity"
+    operator: "in"
+    value: ["medium", "low"]
+
+decision:
+  action: "monitor"
+  allowed_actions:
+    - "monitor"
+    - "escalate"
+  reasoning: "Persistence mechanism detected - monitor for further activity"
+
+required_approvals: []
+
+signature: "dGVzdF9zaWduYXR1cmU="
+signature_hash: "a1b2c3d4e5f6..."
+

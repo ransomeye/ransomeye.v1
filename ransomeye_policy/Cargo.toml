@@ -1,5 +1,5 @@
 [package]
-name = "ransomeye_ingestion"
+name = "ransomeye_policy"
 version = "1.0.0"
 edition = "2021"
 
@@ -7,28 +7,24 @@ edition = "2021"
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-rustls = "0.21"
-rustls-pemfile = "1.0"
-ring = "0.17"
-sha2 = "0.10"
+serde_yaml = "0.9"
 chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
+sha2 = "0.10"
+ring = "0.17"
+base64 = "0.21"
 thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 dashmap = "5.0"
 parking_lot = "0.12"
-crossbeam-channel = "0.5"
-x509-parser = "0.16"
-base64 = "0.21"
-asn1-rs = "0.6"
+uuid = { version = "1.0", features = ["v4", "serde"] }
 hex = "0.4"
 
 [dev-dependencies]
-criterion = "0.5"
 tempfile = "3.8"
+criterion = "0.5"
 
 [[bin]]
-name = "ransomeye_ingestion"
+name = "ransomeye_policy"
 path = "src/main.rs"
 

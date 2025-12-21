@@ -1,0 +1,37 @@
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_correlation/rules/privilege_escalation.yaml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Privilege escalation detection rules
+
+id: privilege_escalation_detected
+version: "1.0.0"
+name: "Privilege Escalation Detected"
+description: "Detects privilege escalation attempts"
+enabled: true
+confidence: "high"
+kill_chain_stage: "exploitation"
+
+conditions:
+  - field: "event_type"
+    operator: "equals"
+    value: "privilege_escalation"
+    required: true
+  
+  - field: "target_user"
+    operator: "matches"
+    value: ".*"
+    required: true
+  
+  - field: "escalation_method"
+    operator: "in"
+    value: ["sudo", "su", "runas", "token_impersonation"]
+    required: true
+
+actions:
+  - action_type: "alert"
+    parameters:
+      severity: "high"
+      escalation: "standard"
+
+signature: "dGVzdF9zaWduYXR1cmU="
+signature_hash: "a1b2c3d4e5f6..."
+

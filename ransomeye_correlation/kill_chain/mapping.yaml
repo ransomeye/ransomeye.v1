@@ -1,0 +1,64 @@
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_correlation/kill_chain/mapping.yaml
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Kill-chain stage mapping - maps event types to kill-chain stages
+
+# Kill-Chain Stage Mappings
+# Maps event types to MITRE ATT&CK kill-chain stages
+
+mappings:
+  - event_type: "port_scan"
+    stage: "reconnaissance"
+    indicators:
+      - "multiple_port_connections"
+      - "rapid_connection_attempts"
+    confidence: "high"
+  
+  - event_type: "network_scan"
+    stage: "reconnaissance"
+    indicators:
+      - "subnet_scanning"
+      - "host_discovery"
+    confidence: "high"
+  
+  - event_type: "malware_download"
+    stage: "weaponization"
+    indicators:
+      - "suspicious_download"
+      - "executable_from_unknown_source"
+    confidence: "medium"
+  
+  - event_type: "email_attachment"
+    stage: "delivery"
+    indicators:
+      - "suspicious_attachment"
+      - "phishing_email"
+    confidence: "high"
+  
+  - event_type: "exploit_execution"
+    stage: "exploitation"
+    indicators:
+      - "buffer_overflow"
+      - "code_injection"
+    confidence: "high"
+  
+  - event_type: "persistence_mechanism"
+    stage: "installation"
+    indicators:
+      - "service_creation"
+      - "scheduled_task"
+    confidence: "medium"
+  
+  - event_type: "c2_communication"
+    stage: "command_control"
+    indicators:
+      - "beacon"
+      - "command_channel"
+    confidence: "high"
+  
+  - event_type: "ransomware_execution"
+    stage: "actions_on_objectives"
+    indicators:
+      - "file_encryption"
+      - "ransom_note"
+    confidence: "high"
+
