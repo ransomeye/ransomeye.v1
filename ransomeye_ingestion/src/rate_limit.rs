@@ -65,7 +65,7 @@ impl RateLimiter {
         })
     }
     
-    pub async fn check_limit(&self, producer_id: &str) -> Result<bool, Box<dyn std::error::Error>> {
+    pub async fn check_limit(&self, producer_id: &str, component_type: &str) -> Result<bool, Box<dyn std::error::Error>> {
         // Check global cap
         if !self.check_global_cap().await {
             warn!("Global rate limit exceeded");
@@ -78,8 +78,11 @@ impl RateLimiter {
             return Ok(false);
         }
         
-        // Check component quota (would need component type from envelope)
-        // For now, skip component quota check
+        // Check component quota
+        if !self.check_component_quota(component_type).await {
+            warn!("Component quota exceeded: {}", component_type);
+            return Ok(false);
+        }
         
         Ok(true)
     }
@@ -130,6 +133,37 @@ impl RateLimiter {
         }
         
         producer_limit.count += 1;
+        true
+    }
+    
+    async fn check_component_quota(&self, component_type: &str) -> bool {
+        let now = Instant::now();
+        let window_duration = Duration::from_secs(self.config.rate_limit_window_seconds);
+        // Default component quota: same as producer limit (can be configured per component)
+        let quota = self.config.producer_rate_limit;
+        
+        // Get or create component quota
+        let mut component_quota = self.component_quotas
+            .entry(component_type.to_string())
+            .or_insert_with(|| ComponentQuota {
+                count: 0,
+                window_start: now,
+                quota,
+                window_duration,
+            });
+        
+        // Reset window if expired
+        if now.duration_since(component_quota.window_start) >= component_quota.window_duration {
+            component_quota.count = 0;
+            component_quota.window_start = now;
+        }
+        
+        // Check quota
+        if component_quota.count >= component_quota.quota {
+            return false;
+        }
+        
+        component_quota.count += 1;
         true
     }
 }

@@ -1,6 +1,6 @@
 {
   "training_manifest_version": "1.0.0",
-  "training_date": "2024-01-01T00:00:00Z",
+  "training_date": "2025-12-22T08:11:31.332169Z",
   "training_methodology": "synthetic_and_redteam",
   "data_sources": [
     {
@@ -44,4 +44,3 @@
     "timestamp": "2024-01-01T00:00:00Z"
   }
 }
-

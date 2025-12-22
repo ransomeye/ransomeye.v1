@@ -23,10 +23,17 @@ x509-parser = "0.16"
 base64 = "0.21"
 asn1-rs = "0.6"
 hex = "0.4"
+jsonschema = "0.17"
+url = "2.4"
 
 [dev-dependencies]
 criterion = "0.5"
 tempfile = "3.8"
+tokio-test = "0.4"
+
+[lib]
+name = "ransomeye_ingestion"
+path = "src/lib.rs"
 
 [[bin]]
 name = "ransomeye_ingestion"

@@ -153,8 +153,8 @@ impl EventListener {
         // Step 3: Validate schema
         schema_validator.validate(&envelope).await?;
         
-        // Step 4: Check rate limit
-        if !rate_limiter.check_limit(&producer_id).await? {
+        // Step 4: Check rate limit (including component quota)
+        if !rate_limiter.check_limit(&producer_id, &envelope.component_type).await? {
             // Rate limit exceeded - send backpressure signal
             backpressure.signal_backpressure(&producer_id).await;
             let response = b"RATE_LIMIT_EXCEEDED\n";

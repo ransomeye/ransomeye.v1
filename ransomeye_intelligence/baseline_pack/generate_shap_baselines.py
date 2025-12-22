@@ -196,7 +196,16 @@ def main():
     # Generate for confidence calibration model
     print("Generating SHAP baseline for confidence_calibration.model...")
     # Extract base estimator from calibrated model
-    base_model = models['confidence_calibration.model'].base_estimator
+    calibrated_model = models['confidence_calibration.model']
+    # Access base estimator - in sklearn, calibrated models have calibrated_classifiers_ list
+    if hasattr(calibrated_model, 'calibrated_classifiers_'):
+        base_model = calibrated_model.calibrated_classifiers_[0].estimator
+    elif hasattr(calibrated_model, 'base_estimator'):
+        base_model = calibrated_model.base_estimator
+    else:
+        # Fallback: use the calibrated model directly (SHAP can work with it)
+        base_model = calibrated_model
+    
     shap_baseline = generate_shap_baseline_for_classifier(
         base_model,
         'confidence_calibration.model',

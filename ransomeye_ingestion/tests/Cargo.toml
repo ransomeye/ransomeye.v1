@@ -23,3 +23,7 @@ path = "overload_tests.rs"
 name = "replay_attack_tests"
 path = "replay_attack_tests.rs"
 
+[[test]]
+name = "backpressure_tests"
+path = "backpressure_tests.rs"
+

@@ -14,6 +14,7 @@ use std::sync::Arc;
 use std::collections::HashMap;
 use serde_json::Value;
 use tracing::{error, debug};
+use jsonschema::{JSONSchema, Draft};
 
 use crate::protocol::event_envelope::EventEnvelope;
 use crate::config::Config;
@@ -23,21 +24,31 @@ pub struct SchemaValidator {
     config: Config,
     version_manager: Arc<VersionManager>,
     schemas: HashMap<u32, Value>,
+    compiled_schemas: HashMap<u32, JSONSchema>,
 }
 
 impl SchemaValidator {
     pub fn new(config: &Config) -> Result<Self, Box<dyn std::error::Error>> {
         let mut schemas = HashMap::new();
+        let mut compiled_schemas = HashMap::new();
         
         // Load schema v1
-        let schema_v1 = std::fs::read_to_string("protocol/event_schema_v1.json")?;
-        let schema_v1: Value = serde_json::from_str(&schema_v1)?;
+        let schema_v1_path = std::path::Path::new("protocol/event_schema_v1.json");
+        let schema_v1_str = std::fs::read_to_string(schema_v1_path)?;
+        let schema_v1: Value = serde_json::from_str(&schema_v1_str)?;
+        
+        // Compile JSON schema for validation
+        let compiled = JSONSchema::compile(&schema_v1)
+            .map_err(|e| format!("Failed to compile JSON schema: {}", e))?;
+        
         schemas.insert(1, schema_v1);
+        compiled_schemas.insert(1, compiled);
         
         Ok(Self {
             config: config.clone(),
             version_manager: Arc::new(VersionManager::new()?),
             schemas,
+            compiled_schemas,
         })
     }
     
@@ -48,16 +59,13 @@ impl SchemaValidator {
             return Err("Incompatible schema version".into());
         }
         
-        // Get schema for version
-        let schema = self.schemas.get(&envelope.schema_version)
-            .ok_or("Schema not found for version")?;
-        
         // Validate envelope structure
         self.validate_envelope_structure(envelope)?;
         
         // Validate event data against schema
-        let event_data: Value = serde_json::from_str(&envelope.event_data)?;
-        self.validate_against_schema(&event_data, schema)?;
+        let event_data: Value = serde_json::from_str(&envelope.event_data)
+            .map_err(|e| format!("Failed to parse event data as JSON: {}", e))?;
+        self.validate_against_schema(&event_data, envelope.schema_version)?;
         
         debug!("Schema validation passed for producer: {}", envelope.producer_id);
         Ok(())
@@ -81,22 +89,30 @@ impl SchemaValidator {
         Ok(())
     }
     
-    fn validate_against_schema(&self, data: &Value, schema: &Value) -> Result<(), Box<dyn std::error::Error>> {
-        // Basic JSON schema validation
-        // In production, use a proper JSON schema validator library
-        // For now, validate required fields exist
+    fn validate_against_schema(&self, data: &Value, schema_version: u32) -> Result<(), Box<dyn std::error::Error>> {
+        // Use compiled JSON schema for strict validation
+        let compiled_schema = self.compiled_schemas
+            .get(&schema_version)
+            .ok_or("Schema not compiled for version")?;
         
-        if let Some(required) = schema.get("required").and_then(|v| v.as_array()) {
-            for field in required {
-                if let Some(field_name) = field.as_str() {
-                    if !data.get(field_name).is_some() {
-                        return Err(format!("Required field missing: {}", field_name).into());
-                    }
+        // Validate event data against JSON schema
+        let validation_result = compiled_schema.validate(data);
+        
+        match validation_result {
+            Ok(_) => {
+                debug!("Schema validation passed");
+                Ok(())
+            }
+            Err(errors) => {
+                let mut error_messages = Vec::new();
+                for error in errors {
+                    error_messages.push(format!("Schema validation error: {}", error));
                 }
+                let combined_error = error_messages.join("; ");
+                error!("Schema validation failed: {}", combined_error);
+                Err(combined_error.into())
             }
         }
-        
-        Ok(())
     }
 }
 

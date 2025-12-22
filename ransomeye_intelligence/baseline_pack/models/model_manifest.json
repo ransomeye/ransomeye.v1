@@ -2,9 +2,9 @@
   "manifest_version": "1.0.0",
   "pack_name": "RansomEye Baseline Intelligence Pack",
   "pack_version": "1.0.0",
-  "pack_hash": "sha256:placeholder",
-  "created": "2024-01-01T00:00:00Z",
-  "trained_on": "2024-01-01T00:00:00Z",
+  "pack_hash": "sha256:4ed05902e48ee91fef6caf7b6f40b017ce6b91b1b43858db7cca6d7b0dcb2ab8",
+  "created": "2025-12-22T08:10:50.108834Z",
+  "trained_on": "2025-12-22T08:10:50.108860Z",
   "training_methodology": "synthetic_and_redteam",
   "models": [
     {
@@ -12,14 +12,18 @@
       "type": "behavior_classifier",
       "algorithm": "random_forest",
       "version": "1.0.0",
-      "hash": "sha256:placeholder",
-      "training_data_hash": "sha256:placeholder",
+      "hash": "sha256:78a5feb8fe4c4f4f8d5829ca7069d70439136f59cf4b49b0e9e60581de7b3f58",
+      "training_data_hash": "sha256:4f95e3679f1aa2328a83e224c8696e6b79fba11c5c1504e1f12319b4625395c6",
       "features": 256,
-      "classes": ["benign", "ransomware", "suspicious"],
-      "accuracy": 0.95,
-      "precision": 0.93,
-      "recall": 0.94,
-      "f1_score": 0.935,
+      "classes": [
+        "benign",
+        "ransomware",
+        "suspicious"
+      ],
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
       "shap_required": true,
       "shap_file": "baseline_pack/shap/ransomware_behavior_shap.json"
     },
@@ -28,8 +32,8 @@
       "type": "anomaly_detector",
       "algorithm": "isolation_forest",
       "version": "1.0.0",
-      "hash": "sha256:placeholder",
-      "training_data_hash": "sha256:placeholder",
+      "hash": "sha256:10566a07cf4c261e0ccd9f952b8d38fa8de4f847be8af49248d43dba8ad48333",
+      "training_data_hash": "sha256:d94cb7579829acb81c7a6e5edbc337068df19f35e78e811b3426bace96b8548d",
       "features": 128,
       "contamination": 0.01,
       "shap_required": true,
@@ -40,8 +44,8 @@
       "type": "calibration",
       "algorithm": "platt_scaling",
       "version": "1.0.0",
-      "hash": "sha256:placeholder",
-      "training_data_hash": "sha256:placeholder",
+      "hash": "sha256:d807f687dbeb5e17a035ec97ed3c36dc3da8b8d539f30d251d6f64153025bc03",
+      "training_data_hash": "sha256:928958fc7fb1b2b6170a2cf5c9a2ac92e46ce378449977f05c87dacceb14a5bf",
       "features": 64,
       "shap_required": true,
       "shap_file": "baseline_pack/shap/confidence_calibration_shap.json"
@@ -54,4 +58,3 @@
     "timestamp": "2024-01-01T00:00:00Z"
   }
 }
-
