@@ -8,6 +8,7 @@ members = [
     "ransomeye_architecture/tests",
     "ransomeye_correlation",
     "ransomeye_dpi_probe",
+    "ransomeye_dispatcher",
     "ransomeye_enforcement",
     "ransomeye_ingestion",
     "ransomeye_ingestion/tests",

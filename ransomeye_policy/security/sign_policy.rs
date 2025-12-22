@@ -65,21 +65,27 @@ pub fn sign_policy(
 
 /// Sign a policy file
 /// 
-/// Reads the policy file, removes signature fields, signs the content,
+/// Reads the policy file as RAW BYTES, removes signature fields, signs the content,
 /// and returns the signature and hash.
+/// 
+/// This ensures byte-exact parity with verification.
 pub fn sign_policy_file(
     policy_path: &Path,
     private_key_path: &Path,
 ) -> Result<(String, String), Box<dyn std::error::Error>> {
-    // Read policy file
-    let policy_content = fs::read_to_string(policy_path)
+    // Step 1: Read policy file as RAW BYTES (fs::read - no string conversion)
+    let raw_policy_bytes = fs::read(policy_path)
         .map_err(|e| format!("Failed to read policy file: {}", e))?;
     
-    // Parse YAML to remove signature fields
+    // Step 2: Convert to string for parsing (preserving exact encoding)
+    let policy_content = String::from_utf8(raw_policy_bytes)
+        .map_err(|e| format!("Failed to convert policy bytes to UTF-8: {}", e))?;
+    
+    // Step 3: Parse YAML to remove signature fields
     let mut policy_data: serde_yaml::Value = serde_yaml::from_str(&policy_content)
         .map_err(|e| format!("Failed to parse policy YAML: {}", e))?;
     
-    // Remove signature-related fields
+    // Step 4: Remove signature-related fields
     if let Some(obj) = policy_data.as_mapping_mut() {
         obj.remove("signature");
         obj.remove("signature_hash");
@@ -87,15 +93,15 @@ pub fn sign_policy_file(
         obj.remove("key_id");
     }
     
-    // Serialize back to YAML (preserving field order from struct)
+    // Step 5: Serialize back to YAML (this is what gets signed - must match verification exactly)
     let policy_bytes = serde_yaml::to_string(&policy_data)
         .map_err(|e| format!("Failed to serialize policy: {}", e))?;
     
-    // Read private key (DER format)
+    // Step 6: Read private key (DER format)
     let private_key_der = fs::read(private_key_path)
         .map_err(|e| format!("Failed to read private key: {}", e))?;
     
-    // Sign the policy
+    // Step 7: Sign the EXACT serialized bytes
     sign_policy(policy_bytes.as_bytes(), &private_key_der)
 }
 

@@ -7,10 +7,7 @@ use std::fs;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use sha2::Sha256;
-use hex;
-use tracing::{error, info, warn, debug};
-use std::sync::Arc;
+use tracing::{error, info, debug};
 
 use crate::errors::PolicyError;
 use crate::decision::AllowedAction;
@@ -174,25 +171,33 @@ impl PolicyLoader {
     }
 
     fn load_policy_file(&self, path: &Path) -> Result<Policy, PolicyError> {
-        let content = fs::read_to_string(path)
+        // Step 1: Read policy file as RAW BYTES (no string conversion, no parsing)
+        let raw_policy_bytes = fs::read(path)
             .map_err(|e| PolicyError::ConfigurationError(
                 format!("Failed to read policy file {}: {}", path.display(), e)
             ))?;
 
-        let mut policy: Policy = serde_yaml::from_str(&content)
+        // Step 2: Extract signature field by parsing a COPY of the policy
+        // Convert bytes to string for parsing (but don't modify raw_policy_bytes)
+        let content_str = String::from_utf8(raw_policy_bytes.clone())
+            .map_err(|e| PolicyError::ConfigurationError(
+                format!("Failed to convert policy bytes to UTF-8: {}", e)
+            ))?;
+
+        let policy: Policy = serde_yaml::from_str(&content_str)
             .map_err(|e| PolicyError::ConfigurationError(
                 format!("Failed to parse policy file {}: {}", path.display(), e)
             ))?;
 
         if let Some(ref signature) = policy.signature {
-            // Reconstruct content without signature fields for verification (matching signing process exactly)
-            // Parse to YAML Value, remove signature fields, then serialize (matching sign_policies.rs)
-            let mut policy_value: serde_yaml::Value = serde_yaml::from_str(&content)
+            // Step 3: Parse YAML Value from COPY to remove signature fields
+            // DO NOT modify raw_policy_bytes
+            let mut policy_value: serde_yaml::Value = serde_yaml::from_str(&content_str)
                 .map_err(|e| PolicyError::ConfigurationError(
                     format!("Failed to parse policy as YAML Value: {}", e)
                 ))?;
             
-            // Remove signature fields (matching sign_policies.rs)
+            // Remove signature fields (matching sign_policies.rs exactly)
             if let Some(obj) = policy_value.as_mapping_mut() {
                 obj.remove("signature");
                 obj.remove("signature_hash");
@@ -200,12 +205,15 @@ impl PolicyLoader {
                 obj.remove("key_id");
             }
             
-            // Serialize to YAML (matching sign_policies.rs exactly)
+            // Step 4: Serialize to YAML (matching sign_policies.rs exactly)
+            // This produces the exact bytes that were signed
             let content_to_verify = serde_yaml::to_string(&policy_value)
                 .map_err(|e| PolicyError::ConfigurationError(
                     format!("Failed to serialize policy for verification: {}", e)
                 ))?;
 
+            // Step 5: Verify signature using ring with the serialized bytes
+            // This matches exactly what was signed
             let verified = self.signature_verifier.verify(&content_to_verify, signature)
                 .map_err(|e| PolicyError::PolicySignatureInvalid(
                     format!("Policy {} signature verification failed: {}", policy.id, e)
@@ -226,9 +234,8 @@ impl PolicyLoader {
 
         // Verify hash matches the content without signature fields (matching signing process)
         if let Some(ref expected_hash) = policy.signature_hash {
-            // Use the same content_to_verify we used for signature verification
-            // (already computed above, but we need to recompute if signature check passed)
-            let mut policy_value: serde_yaml::Value = serde_yaml::from_str(&content)
+            // Recompute content without signature fields for hash verification
+            let mut policy_value: serde_yaml::Value = serde_yaml::from_str(&content_str)
                 .map_err(|e| PolicyError::ConfigurationError(
                     format!("Failed to parse policy as YAML Value for hash: {}", e)
                 ))?;

@@ -67,10 +67,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         
         println!("Signing policy: {}", policy_path.display());
         
-        // Read policy file
-        let content = fs::read_to_string(policy_path)?;
+        // Step 1: Read policy file as RAW BYTES (fs::read - ensures byte-exact signing)
+        let raw_policy_bytes = fs::read(policy_path)?;
         
-        // Parse YAML
+        // Step 2: Convert to string for parsing (preserving exact encoding)
+        let content = String::from_utf8(raw_policy_bytes)
+            .map_err(|e| format!("Failed to convert policy bytes to UTF-8: {}", e))?;
+        
+        // Step 3: Parse YAML
         let mut policy_data: serde_yaml::Value = serde_yaml::from_str(&content)?;
         
         // Extract header comments

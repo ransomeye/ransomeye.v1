@@ -3,7 +3,6 @@
 // Details of functionality of this file: Real cryptographic policy signature verification using RSA-4096
 
 use ring::signature::{self, UnparsedPublicKey};
-use sha2::{Sha256, Digest};
 use base64::{Engine as _, engine::general_purpose};
 use std::path::Path;
 use std::fs;
@@ -106,6 +105,7 @@ impl PolicySignatureVerifier {
     pub fn verify(&self, content: &str, signature: &str) -> Result<bool, Box<dyn std::error::Error>> {
         // Ring's RSA_PKCS1_2048_8192_SHA256 expects the message (not the hash)
         // It will compute SHA-256 internally and verify the signature
+        // Content must be the EXACT bytes that were signed (after removing signature fields and serializing)
         let signature_bytes = general_purpose::STANDARD.decode(signature)
             .map_err(|e| format!("Failed to decode signature: {}", e))?;
 
@@ -117,19 +117,24 @@ impl PolicySignatureVerifier {
             return Ok(false);
         }
 
+        // Get content as raw bytes for verification
+        let content_bytes = content.as_bytes();
+
         for (idx, public_key_bytes) in public_keys.iter().enumerate() {
             debug!("Trying public key {} ({} bytes)", idx, public_key_bytes.len());
+            // Use RSA_PKCS1_2048_8192_SHA256 for verification (matches signing algorithm)
             let public_key = UnparsedPublicKey::new(&signature::RSA_PKCS1_2048_8192_SHA256, public_key_bytes);
             
-            // Pass the content (message), not the hash - ring will hash it internally
-            match public_key.verify(content.as_bytes(), &signature_bytes) {
+            // Verify using EXACT bytes that were signed (no transformation, no hashing)
+            // ring will compute SHA-256 internally as part of RSA_PKCS1_2048_8192_SHA256
+            match public_key.verify(content_bytes, &signature_bytes) {
                 Ok(_) => {
                     debug!("Policy signature verified successfully with key {}", idx);
                     return Ok(true);
                 }
                 Err(e) => {
                     error!("Signature verification failed with key {}: {:?}", idx, e);
-                    debug!("Content length: {} bytes, Signature length: {} bytes", content.len(), signature_bytes.len());
+                    debug!("Content length: {} bytes, Signature length: {} bytes", content_bytes.len(), signature_bytes.len());
                     continue;
                 }
             }
@@ -143,10 +148,13 @@ impl PolicySignatureVerifier {
         let signature_bytes = general_purpose::STANDARD.decode(signature)
             .map_err(|e| format!("Failed to decode signature: {}", e))?;
 
+        // Use RSA_PKCS1_2048_8192_SHA256 for verification (matches signing algorithm)
         let public_key = UnparsedPublicKey::new(&signature::RSA_PKCS1_2048_8192_SHA256, public_key_bytes);
         
-        // Pass the content (message), not the hash - ring will hash it internally
-        match public_key.verify(content.as_bytes(), &signature_bytes) {
+        // Verify using EXACT bytes that were signed (no transformation, no hashing)
+        // ring will compute SHA-256 internally as part of RSA_PKCS1_2048_8192_SHA256
+        let content_bytes = content.as_bytes();
+        match public_key.verify(content_bytes, &signature_bytes) {
             Ok(_) => {
                 debug!("Policy signature verified successfully");
                 Ok(true)
