@@ -139,6 +139,23 @@ impl KillChainRuleEngine {
                     min_interval_seconds: Some(1),
                 }),
             },
+            KillChainRule {
+                id: "impact_1".to_string(),
+                version: "1.0".to_string(),
+                target_stage: RansomwareStage::Impact,
+                required_signals: vec![
+                    SignalPattern {
+                        signal_type: "ransom_note".to_string(),
+                        min_count: 1,
+                        max_count: None,
+                    },
+                ],
+                min_confidence: 0.9,
+                temporal_constraints: Some(TemporalConstraint {
+                    max_window_seconds: 300,
+                    min_interval_seconds: None,
+                }),
+            },
         ]
     }
 
@@ -182,6 +199,7 @@ impl KillChainRuleEngine {
         let mut matched_signals = 0;
         let mut total_confidence = 0.0;
         let mut signal_count = 0;
+        let mut pattern_matching_signals: Vec<&Signal> = Vec::new();
 
         for pattern in &rule.required_signals {
             let matching: Vec<_> = signals
@@ -201,15 +219,16 @@ impl KillChainRuleEngine {
             }
 
             matched_signals += 1;
-            for signal in matching {
+            for signal in &matching {
                 total_confidence += signal.confidence;
                 signal_count += 1;
+                pattern_matching_signals.push(*signal);
             }
         }
 
-        // Check temporal constraints
+        // Check temporal constraints on pattern-matching signals only
         if let Some(temporal) = &rule.temporal_constraints {
-            if !self.check_temporal_constraints(signals, temporal) {
+            if !self.check_temporal_constraints(&pattern_matching_signals, temporal) {
                 return None;
             }
         }
@@ -224,7 +243,7 @@ impl KillChainRuleEngine {
     /// Check temporal constraints
     fn check_temporal_constraints(
         &self,
-        signals: &[Signal],
+        signals: &[&Signal],
         constraint: &TemporalConstraint,
     ) -> bool {
         if signals.is_empty() {
@@ -241,11 +260,29 @@ impl KillChainRuleEngine {
         }
 
         // Check minimum interval if specified
+        // This ensures signals of the same type are spaced out (not all signals)
+        // We check intervals between consecutive signals of the same type
         if let Some(min_interval) = constraint.min_interval_seconds {
-            for i in 1..timestamps.len() {
-                let interval = (timestamps[i] - timestamps[i - 1]).num_seconds() as u64;
-                if interval < min_interval {
-                    return false;
+            // Group signals by type and check intervals within each group
+            use std::collections::HashMap;
+            let mut signals_by_type: HashMap<String, Vec<&Signal>> = HashMap::new();
+            for signal in signals {
+                signals_by_type
+                    .entry(signal.signal_type.clone())
+                    .or_insert_with(Vec::new)
+                    .push(signal);
+            }
+            
+            // Check intervals for each signal type
+            for (_, mut type_signals) in signals_by_type {
+                if type_signals.len() > 1 {
+                    type_signals.sort_by_key(|s| s.timestamp);
+                    for i in 1..type_signals.len() {
+                        let interval = (type_signals[i].timestamp - type_signals[i - 1].timestamp).num_seconds() as u64;
+                        if interval < min_interval {
+                            return false;
+                        }
+                    }
                 }
             }
         }

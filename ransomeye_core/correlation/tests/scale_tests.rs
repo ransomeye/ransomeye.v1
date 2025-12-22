@@ -15,6 +15,7 @@ fn test_scale_50k_entities() {
         max_transitions_per_entity: 20,
         ..Default::default()
     };
+    let max_entities = config.max_entities;
     let engine = CorrelationEngine::new(config);
 
     // Create 50k entities
@@ -40,10 +41,10 @@ fn test_scale_50k_entities() {
     
     // Should not exceed max_entities
     assert!(
-        stats.entity_count <= config.max_entities,
+        stats.entity_count <= max_entities,
         "Entity count should not exceed max_entities: {} <= {}",
         stats.entity_count,
-        config.max_entities
+        max_entities
     );
 
     // Memory should be bounded
@@ -101,6 +102,7 @@ fn test_eviction_at_capacity() {
         max_entities: 10,
         ..Default::default()
     };
+    let max_entities = config.max_entities;
     let engine = CorrelationEngine::new(config);
 
     // Fill to capacity
@@ -146,7 +148,7 @@ fn test_eviction_at_capacity() {
     
     // Should still be at or below capacity
     assert!(
-        stats_after.entity_count <= config.max_entities,
+        stats_after.entity_count <= max_entities,
         "Entity count should not exceed capacity after eviction"
     );
 }

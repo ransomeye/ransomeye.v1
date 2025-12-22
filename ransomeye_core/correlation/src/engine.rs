@@ -129,11 +129,12 @@ impl CorrelationEngine {
         // Get or create entity state
         let _entity_state = self.state_manager.get_or_create_entity(&event.entity_id)?;
 
-        // Add signal to entity
+        // Add signal to entity (use event timestamp, not processing time)
         self.state_manager.add_signal(
             &event.entity_id,
             signal.signal_type.clone(),
             signal.confidence,
+            signal.timestamp,
         )?;
 
         // Get current entity state
@@ -161,6 +162,12 @@ impl CorrelationEngine {
             .infer(entity_state.current_stage, &signals);
 
         if let Some(inference) = inference_result {
+            // Require at least 2 signals total for InitialAccess to reduce false positives
+            if inference.stage == crate::kill_chain::stages::RansomwareStage::InitialAccess 
+                && signals.len() < 2 {
+                // Not enough signals for reliable InitialAccess detection
+                return Ok(None);
+            }
             // Check invariants
             let mut enforcer = self.invariant_enforcer.write();
 
@@ -172,7 +179,11 @@ impl CorrelationEngine {
                 !inference.contributing_signals.is_empty(),
             )?;
 
-            // Calculate confidence
+            // Use inference confidence (from rule engine) for detection threshold
+            // This is the confidence that matched the rule pattern
+            let inference_confidence = inference.confidence;
+            
+            // Calculate overall entity confidence using scorer (for state tracking)
             let signal_contributions: Vec<SignalContribution> = signals
                 .iter()
                 .map(|s| SignalContribution {
@@ -193,7 +204,7 @@ impl CorrelationEngine {
             enforcer.enforce_no_confidence_increase_without_signal(
                 &event.entity_id,
                 entity_state.confidence,
-                new_confidence,
+                new_confidence.max(inference_confidence), // Use higher of the two
                 true, // We have a new signal
             )?;
 
@@ -212,8 +223,8 @@ impl CorrelationEngine {
                 new_confidence,
             )?;
 
-            // Check if detection threshold met
-            if new_confidence >= self.config.min_confidence_threshold {
+            // Check if detection threshold met (use inference confidence from rule engine)
+            if inference_confidence >= self.config.min_confidence_threshold {
                 // Generate explainability
                 let explainability = self.generate_explainability(
                     &event.entity_id,
@@ -234,7 +245,7 @@ impl CorrelationEngine {
                 let detection = DetectionResult::new(
                     event.entity_id.clone(),
                     inference.stage,
-                    new_confidence,
+                    inference_confidence, // Use inference confidence for detection
                     explainability,
                     metadata,
                 );

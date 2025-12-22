@@ -171,11 +171,12 @@ impl EntityStateManager {
         entity_id: &str,
         signal_type: String,
         confidence: f64,
+        timestamp: chrono::DateTime<Utc>,
     ) -> Result<(), CorrelationError> {
         self.update_entity(entity_id, |entry| {
             entry.signal_history.push_back(SignalEntry {
                 signal_type,
-                timestamp: Utc::now(),
+                timestamp,
                 confidence,
             });
         })

@@ -52,10 +52,30 @@ impl TransitionRules {
                 RansomwareStage::Execution => {
                     // Can skip Persistence if privilege escalation happens immediately
                     to_set.insert(RansomwareStage::PrivilegeEscalation);
+                    // Can also go to EncryptionExecution with strong evidence (file_modification + encryption_activity)
+                    to_set.insert(RansomwareStage::EncryptionExecution);
                 }
                 RansomwareStage::Discovery => {
                     // Can go directly to EncryptionPreparation
                     to_set.insert(RansomwareStage::EncryptionPreparation);
+                    // Can also go directly to EncryptionExecution with strong evidence
+                    to_set.insert(RansomwareStage::EncryptionExecution);
+                }
+                RansomwareStage::EncryptionPreparation => {
+                    // Can go to EncryptionExecution
+                    to_set.insert(RansomwareStage::EncryptionExecution);
+                }
+                RansomwareStage::EncryptionExecution => {
+                    // Can go to Impact
+                    to_set.insert(RansomwareStage::Impact);
+                }
+                // Allow EncryptionExecution from any earlier stage with strong evidence
+                RansomwareStage::Persistence | 
+                RansomwareStage::PrivilegeEscalation |
+                RansomwareStage::LateralMovement |
+                RansomwareStage::CredentialAccess => {
+                    // Can jump to EncryptionExecution with strong evidence (ransomware pattern)
+                    to_set.insert(RansomwareStage::EncryptionExecution);
                 }
                 _ => {}
             }
@@ -78,7 +98,7 @@ impl TransitionRules {
         // Forbidden large jumps (require evidence)
         forbidden.insert((RansomwareStage::InitialAccess, RansomwareStage::LateralMovement));
         forbidden.insert((RansomwareStage::InitialAccess, RansomwareStage::EncryptionExecution));
-        forbidden.insert((RansomwareStage::Execution, RansomwareStage::EncryptionExecution));
+        // Execution -> EncryptionExecution is allowed with strong evidence (file_modification + encryption_activity)
         
         Self {
             allowed_transitions: allowed,
