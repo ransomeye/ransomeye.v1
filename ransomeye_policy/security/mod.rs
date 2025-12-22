@@ -7,6 +7,9 @@ pub mod verification;
 pub mod trust_chain;
 pub mod revocation;
 
+#[cfg(feature = "signing")]
+pub mod sign_policy;
+
 pub use signature::PolicySignatureVerifier;
 pub use verification::PolicyVerifier;
 pub use trust_chain::{initialize_trust_chain, verify_key_in_trust_chain, get_public_key_from_chain};

@@ -2,9 +2,9 @@
 // Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
 // Details of functionality of this file: Real cryptographic policy signature verification using RSA-4096
 
-use ring::signature::{self, UnparsedPublicKey, VerificationAlgorithm};
+use ring::signature::{self, UnparsedPublicKey};
 use sha2::{Sha256, Digest};
-use base64;
+use base64::{Engine as _, engine::general_purpose};
 use std::path::Path;
 use std::fs;
 use std::sync::Arc;
@@ -28,14 +28,38 @@ impl TrustStore {
     }
 
     pub fn load_public_key(&mut self, key_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let path = Path::new(key_path);
+        
+        // Try DER format first (preferred for ring)
+        if path.extension().and_then(|s| s.to_str()) == Some("der") {
+            let key_bytes = fs::read(key_path)
+                .map_err(|e| format!("Failed to read DER public key from {}: {}", key_path, e))?;
+            self.public_keys.push(key_bytes);
+            debug!("Loaded DER public key from {}", key_path);
+            return Ok(());
+        }
+        
+        // Fall back to PEM format
         let key_data = fs::read_to_string(key_path)
             .map_err(|e| format!("Failed to read public key from {}: {}", key_path, e))?;
         
-        let key_bytes = base64::decode(key_data.trim())
-            .map_err(|e| format!("Failed to decode public key: {}", e))?;
+        // Parse PEM format: extract base64 content between headers
+        let key_bytes = if key_data.contains("-----BEGIN") {
+            // PEM format - extract base64 content
+            let lines: Vec<&str> = key_data.lines()
+                .filter(|line| !line.starts_with("-----"))
+                .collect();
+            let base64_content: String = lines.join("");
+            general_purpose::STANDARD.decode(base64_content.trim())
+                .map_err(|e| format!("Failed to decode PEM public key: {}", e))?
+        } else {
+            // Assume raw base64
+            general_purpose::STANDARD.decode(key_data.trim())
+                .map_err(|e| format!("Failed to decode public key: {}", e))?
+        };
         
         self.public_keys.push(key_bytes);
-        debug!("Loaded public key from {}", key_path);
+        debug!("Loaded PEM public key from {}", key_path);
         Ok(())
     }
 
@@ -44,15 +68,11 @@ impl TrustStore {
     }
 }
 
-pub struct PolicySignatureVerifier {
-    algorithm: &'static dyn VerificationAlgorithm,
-}
+pub struct PolicySignatureVerifier;
 
 impl PolicySignatureVerifier {
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        Ok(Self {
-            algorithm: &signature::RSA_PSS_SAE_SHA256,
-        })
+        Ok(Self {})
     }
 
     pub fn load_trust_store(trust_store_path: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -65,7 +85,9 @@ impl PolicySignatureVerifier {
         for entry in fs::read_dir(trust_dir)? {
             let entry = entry?;
             let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("pem") ||
+            // Load DER format first (preferred), then PEM
+            if path.extension().and_then(|s| s.to_str()) == Some("der") ||
+               path.extension().and_then(|s| s.to_str()) == Some("pem") ||
                path.extension().and_then(|s| s.to_str()) == Some("pub") {
                 if let Err(e) = store.load_public_key(path.to_str().unwrap()) {
                     warn!("Failed to load public key from {}: {}", path.display(), e);
@@ -74,21 +96,17 @@ impl PolicySignatureVerifier {
         }
 
         if store.public_keys.is_empty() {
-            return Err("No valid public keys found in trust store".into());
+            warn!("No public keys found in trust store - signature verification will fail");
+        } else {
+            debug!("Loaded {} public keys from trust store", store.public_keys.len());
         }
-
-        debug!("Loaded {} public keys from trust store", store.public_keys.len());
         Ok(())
     }
 
     pub fn verify(&self, content: &str, signature: &str) -> Result<bool, Box<dyn std::error::Error>> {
-        let content_hash = {
-            let mut hasher = Sha256::new();
-            hasher.update(content.as_bytes());
-            hasher.finalize()
-        };
-
-        let signature_bytes = base64::decode(signature)
+        // Ring's RSA_PKCS1_2048_8192_SHA256 expects the message (not the hash)
+        // It will compute SHA-256 internally and verify the signature
+        let signature_bytes = general_purpose::STANDARD.decode(signature)
             .map_err(|e| format!("Failed to decode signature: {}", e))?;
 
         let store = TRUST_STORE.read();
@@ -99,15 +117,19 @@ impl PolicySignatureVerifier {
             return Ok(false);
         }
 
-        for public_key_bytes in public_keys {
-            let public_key = UnparsedPublicKey::new(self.algorithm, public_key_bytes);
+        for (idx, public_key_bytes) in public_keys.iter().enumerate() {
+            debug!("Trying public key {} ({} bytes)", idx, public_key_bytes.len());
+            let public_key = UnparsedPublicKey::new(&signature::RSA_PKCS1_2048_8192_SHA256, public_key_bytes);
             
-            match public_key.verify(&content_hash, &signature_bytes) {
+            // Pass the content (message), not the hash - ring will hash it internally
+            match public_key.verify(content.as_bytes(), &signature_bytes) {
                 Ok(_) => {
-                    debug!("Policy signature verified successfully");
+                    debug!("Policy signature verified successfully with key {}", idx);
                     return Ok(true);
                 }
-                Err(_) => {
+                Err(e) => {
+                    error!("Signature verification failed with key {}: {:?}", idx, e);
+                    debug!("Content length: {} bytes, Signature length: {} bytes", content.len(), signature_bytes.len());
                     continue;
                 }
             }
@@ -118,18 +140,13 @@ impl PolicySignatureVerifier {
     }
 
     pub fn verify_with_key(&self, content: &str, signature: &str, public_key_bytes: &[u8]) -> Result<bool, Box<dyn std::error::Error>> {
-        let content_hash = {
-            let mut hasher = Sha256::new();
-            hasher.update(content.as_bytes());
-            hasher.finalize()
-        };
-
-        let signature_bytes = base64::decode(signature)
+        let signature_bytes = general_purpose::STANDARD.decode(signature)
             .map_err(|e| format!("Failed to decode signature: {}", e))?;
 
-        let public_key = UnparsedPublicKey::new(self.algorithm, public_key_bytes);
+        let public_key = UnparsedPublicKey::new(&signature::RSA_PKCS1_2048_8192_SHA256, public_key_bytes);
         
-        match public_key.verify(&content_hash, &signature_bytes) {
+        // Pass the content (message), not the hash - ring will hash it internally
+        match public_key.verify(content.as_bytes(), &signature_bytes) {
             Ok(_) => {
                 debug!("Policy signature verified successfully");
                 Ok(true)

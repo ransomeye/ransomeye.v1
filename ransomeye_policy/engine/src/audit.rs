@@ -190,5 +190,4 @@ pub fn verify_audit_chain() -> Result<bool, PolicyError> {
 }
 
 use std::sync::Arc;
-use std::io::BufRead;
 

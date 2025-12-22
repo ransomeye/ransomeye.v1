@@ -10,6 +10,10 @@ path = "engine/src/lib.rs"
 name = "ransomeye_policy"
 path = "engine/src/main.rs"
 
+[[bin]]
+name = "sign_policies"
+path = "tools/sign_policies.rs"
+
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }

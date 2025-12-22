@@ -56,5 +56,20 @@ pub enum PolicyError {
     
     #[error("Audit logging failed: {0}")]
     AuditLoggingFailed(String),
+    
+    #[error("IO error: {0}")]
+    IoError(String),
+}
+
+impl From<std::io::Error> for PolicyError {
+    fn from(err: std::io::Error) -> Self {
+        PolicyError::IoError(err.to_string())
+    }
+}
+
+impl From<Box<dyn std::error::Error>> for PolicyError {
+    fn from(err: Box<dyn std::error::Error>) -> Self {
+        PolicyError::InternalError(err.to_string())
+    }
 }
 

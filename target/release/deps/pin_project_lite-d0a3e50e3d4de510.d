@@ -1,7 +1,0 @@
-/home/ransomeye/rebuild/target/release/deps/libpin_project_lite-d0a3e50e3d4de510.rmeta: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pin-project-lite-0.2.16/src/lib.rs
-
-/home/ransomeye/rebuild/target/release/deps/libpin_project_lite-d0a3e50e3d4de510.rlib: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pin-project-lite-0.2.16/src/lib.rs
-
-/home/ransomeye/rebuild/target/release/deps/pin_project_lite-d0a3e50e3d4de510.d: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pin-project-lite-0.2.16/src/lib.rs
-
-/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pin-project-lite-0.2.16/src/lib.rs:

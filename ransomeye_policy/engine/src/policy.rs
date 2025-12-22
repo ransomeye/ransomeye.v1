@@ -6,13 +6,44 @@ use std::path::Path;
 use std::fs;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use sha2::{Sha256, Digest};
+use serde_json;
+use sha2::Sha256;
 use hex;
 use tracing::{error, info, warn, debug};
 use std::sync::Arc;
 
 use crate::errors::PolicyError;
 use crate::decision::AllowedAction;
+
+// Helper function to sort JSON object keys recursively
+fn sort_json_value_keys(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(map) => {
+            // Collect keys and sort them
+            let mut sorted_pairs: Vec<(String, serde_json::Value)> = map
+                .iter()
+                .map(|(k, v)| {
+                    let mut val = v.clone();
+                    sort_json_value_keys(&mut val);
+                    (k.clone(), val)
+                })
+                .collect();
+            sorted_pairs.sort_by(|a, b| a.0.cmp(&b.0));
+            
+            // Rebuild the map with sorted keys
+            map.clear();
+            for (k, v) in sorted_pairs {
+                map.insert(k, v);
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for item in arr.iter_mut() {
+                sort_json_value_keys(item);
+            }
+        }
+        _ => {}
+    }
+}
 
 #[path = "../../security/signature.rs"]
 mod signature;
@@ -154,7 +185,28 @@ impl PolicyLoader {
             ))?;
 
         if let Some(ref signature) = policy.signature {
-            let verified = self.signature_verifier.verify(&content, signature)
+            // Reconstruct content without signature fields for verification (matching signing process exactly)
+            // Parse to YAML Value, remove signature fields, then serialize (matching sign_policies.rs)
+            let mut policy_value: serde_yaml::Value = serde_yaml::from_str(&content)
+                .map_err(|e| PolicyError::ConfigurationError(
+                    format!("Failed to parse policy as YAML Value: {}", e)
+                ))?;
+            
+            // Remove signature fields (matching sign_policies.rs)
+            if let Some(obj) = policy_value.as_mapping_mut() {
+                obj.remove("signature");
+                obj.remove("signature_hash");
+                obj.remove("signature_alg");
+                obj.remove("key_id");
+            }
+            
+            // Serialize to YAML (matching sign_policies.rs exactly)
+            let content_to_verify = serde_yaml::to_string(&policy_value)
+                .map_err(|e| PolicyError::ConfigurationError(
+                    format!("Failed to serialize policy for verification: {}", e)
+                ))?;
+
+            let verified = self.signature_verifier.verify(&content_to_verify, signature)
                 .map_err(|e| PolicyError::PolicySignatureInvalid(
                     format!("Policy {} signature verification failed: {}", policy.id, e)
                 ))?;
@@ -172,8 +224,28 @@ impl PolicyLoader {
             ));
         }
 
+        // Verify hash matches the content without signature fields (matching signing process)
         if let Some(ref expected_hash) = policy.signature_hash {
-            if !self.hash_verifier.verify_hash(&content, expected_hash) {
+            // Use the same content_to_verify we used for signature verification
+            // (already computed above, but we need to recompute if signature check passed)
+            let mut policy_value: serde_yaml::Value = serde_yaml::from_str(&content)
+                .map_err(|e| PolicyError::ConfigurationError(
+                    format!("Failed to parse policy as YAML Value for hash: {}", e)
+                ))?;
+            
+            if let Some(obj) = policy_value.as_mapping_mut() {
+                obj.remove("signature");
+                obj.remove("signature_hash");
+                obj.remove("signature_alg");
+                obj.remove("key_id");
+            }
+            
+            let content_for_hashing = serde_yaml::to_string(&policy_value)
+                .map_err(|e| PolicyError::ConfigurationError(
+                    format!("Failed to serialize policy for hash verification: {}", e)
+                ))?;
+            
+            if !self.hash_verifier.verify_hash(&content_for_hashing, expected_hash) {
                 return Err(PolicyError::PolicyTampered(
                     format!("Policy {} hash mismatch", policy.id)
                 ));

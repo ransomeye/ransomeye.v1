@@ -18,6 +18,10 @@ pub mod matcher;
 
 pub use engine::PolicyEngine;
 pub use errors::PolicyError;
-pub use decision::PolicyDecision;
+pub use decision::{PolicyDecision, AllowedAction};
 pub use context::EvaluationContext;
+pub use precedence::PrecedenceRules;
+pub use policy::{PolicyRule, PolicyMatchCondition};
+pub use conflict::{ConflictDetector, ConflictResolver, PolicyConflict, ConflictType, ConflictResolution};
+pub use audit::{initialize_audit_logger, verify_audit_chain, log_decision};
 

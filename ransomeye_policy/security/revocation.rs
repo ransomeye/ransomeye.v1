@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::fs;
 use std::io::{BufRead, BufWriter, Write};
-use tracing::{debug, warn, error};
+use tracing::{debug, warn};
 use parking_lot::RwLock;
 use once_cell::sync::Lazy;
 use chrono::{DateTime, Utc};

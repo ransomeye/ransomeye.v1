@@ -50,8 +50,8 @@ impl DirectiveGenerator {
         let nonce = Uuid::new_v4().to_string();
 
         let target_scope = TargetScope {
-            entity_id: decision.asset_id.clone(),
-            host_id: decision.asset_id.clone(),
+            entity_id: decision.asset_class.clone(),
+            host_id: decision.asset_class.clone(),
             network_id: None,
             time_window: Some(TimeWindow {
                 start: Utc::now(),
