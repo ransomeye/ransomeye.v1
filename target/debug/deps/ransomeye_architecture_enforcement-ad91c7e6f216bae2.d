@@ -1,0 +1,11 @@
+/home/ransomeye/rebuild/target/debug/deps/ransomeye_architecture_enforcement-ad91c7e6f216bae2: ransomeye_architecture/enforcement/src/lib.rs ransomeye_architecture/enforcement/src/boundary_enforcer.rs ransomeye_architecture/enforcement/src/audit_logger.rs ransomeye_architecture/enforcement/src/identity_enforcer.rs ransomeye_architecture/enforcement/src/fail_closed.rs ransomeye_architecture/enforcement/src/plane_classifier.rs ransomeye_architecture/enforcement/src/contract_version.rs
+
+/home/ransomeye/rebuild/target/debug/deps/ransomeye_architecture_enforcement-ad91c7e6f216bae2.d: ransomeye_architecture/enforcement/src/lib.rs ransomeye_architecture/enforcement/src/boundary_enforcer.rs ransomeye_architecture/enforcement/src/audit_logger.rs ransomeye_architecture/enforcement/src/identity_enforcer.rs ransomeye_architecture/enforcement/src/fail_closed.rs ransomeye_architecture/enforcement/src/plane_classifier.rs ransomeye_architecture/enforcement/src/contract_version.rs
+
+ransomeye_architecture/enforcement/src/lib.rs:
+ransomeye_architecture/enforcement/src/boundary_enforcer.rs:
+ransomeye_architecture/enforcement/src/audit_logger.rs:
+ransomeye_architecture/enforcement/src/identity_enforcer.rs:
+ransomeye_architecture/enforcement/src/fail_closed.rs:
+ransomeye_architecture/enforcement/src/plane_classifier.rs:
+ransomeye_architecture/enforcement/src/contract_version.rs:

@@ -3,8 +3,9 @@ name = "ransomeye_architecture_tests"
 version = "1.0.0"
 edition = "2021"
 
-[lib]
-path = "lib.rs"
+[dependencies]
+ransomeye_architecture_enforcement = { path = "../enforcement" }
+tempfile = "3.8"
 
 [[test]]
 name = "forbidden_flow_tests"

@@ -52,6 +52,7 @@ This contract defines the **one-way, read-only data flow** from Control Plane to
 
 ```json
 {
+  "contract_version": "1.0.0",
   "request_id": "<unique-request-id>",
   "timestamp": "<ISO-8601-timestamp>",
   "component_identity": "<control-plane-identity-hash>",
@@ -72,12 +73,21 @@ This contract defines the **one-way, read-only data flow** from Control Plane to
 
 ### Required Fields
 
+- `contract_version`: Contract version (MANDATORY - format: "MAJOR.MINOR.PATCH")
 - `request_id`: Unique request identifier
 - `timestamp`: Request timestamp (ISO-8601)
 - `component_identity`: Control Plane identity hash
 - `data`: Read-only data for analysis
 - `analysis_type`: Type of analysis requested
 - `signature`: Cryptographic signature
+
+### Versioning Rules
+
+- **Current Version:** 1.0.0
+- **Compatibility:** Only exact version match accepted (fail-closed)
+- **Version Mismatch:** Reject request, terminate AI component, audit log
+- **Schema Evolution:** Requires version bump (MAJOR for breaking, MINOR for additions, PATCH for fixes)
+- **No Backward Compatibility:** Old versions are rejected
 
 ---
 

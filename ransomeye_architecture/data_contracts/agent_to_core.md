@@ -52,6 +52,7 @@ This contract defines the **one-way data flow** from Agents to Core Correlation 
 
 ```json
 {
+  "contract_version": "1.0.0",
   "message_id": "<unique-message-id>",
   "timestamp": "<ISO-8601-timestamp>",
   "nonce": "<unique-nonce>",
@@ -76,6 +77,7 @@ This contract defines the **one-way data flow** from Agents to Core Correlation 
 
 ### Required Fields
 
+- `contract_version`: Contract version (MANDATORY - format: "MAJOR.MINOR.PATCH")
 - `message_id`: Unique message identifier
 - `timestamp`: Message timestamp (ISO-8601)
 - `nonce`: Unique nonce for replay protection
@@ -83,6 +85,14 @@ This contract defines the **one-way data flow** from Agents to Core Correlation 
 - `host_id`: Host identifier
 - `data`: Telemetry data
 - `signature`: Cryptographic signature
+
+### Versioning Rules
+
+- **Current Version:** 1.0.0
+- **Compatibility:** Only exact version match accepted (fail-closed)
+- **Version Mismatch:** Reject message, terminate process, audit log
+- **Schema Evolution:** Requires version bump (MAJOR for breaking, MINOR for additions, PATCH for fixes)
+- **No Backward Compatibility:** Old versions are rejected
 
 ---
 

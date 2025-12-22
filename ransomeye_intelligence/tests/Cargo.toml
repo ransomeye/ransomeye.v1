@@ -15,3 +15,11 @@ path = "shap_completeness_tests.rs"
 name = "intel_poisoning_tests"
 path = "intel_poisoning_tests.rs"
 
+[[test]]
+name = "signature_failure_tests"
+path = "signature_failure_tests.rs"
+
+[[test]]
+name = "llm_index_integrity_tests"
+path = "llm_index_integrity_tests.rs"
+

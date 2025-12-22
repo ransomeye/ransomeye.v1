@@ -52,6 +52,7 @@ This contract defines the **one-way data flow** from DPI Probe to Core Correlati
 
 ```json
 {
+  "contract_version": "1.0.0",
   "message_id": "<unique-message-id>",
   "timestamp": "<ISO-8601-timestamp>",
   "nonce": "<unique-nonce>",
@@ -78,12 +79,21 @@ This contract defines the **one-way data flow** from DPI Probe to Core Correlati
 
 ### Required Fields
 
+- `contract_version`: Contract version (MANDATORY - format: "MAJOR.MINOR.PATCH")
 - `message_id`: Unique message identifier
 - `timestamp`: Message timestamp (ISO-8601)
 - `nonce`: Unique nonce for replay protection
 - `component_identity`: DPI Probe identity hash
 - `data`: Telemetry data
 - `signature`: Cryptographic signature
+
+### Versioning Rules
+
+- **Current Version:** 1.0.0
+- **Compatibility:** Only exact version match accepted (fail-closed)
+- **Version Mismatch:** Reject message, terminate process, audit log
+- **Schema Evolution:** Requires version bump (MAJOR for breaking, MINOR for additions, PATCH for fixes)
+- **No Backward Compatibility:** Old versions are rejected
 
 ---
 
@@ -139,6 +149,22 @@ This contract defines the **one-way data flow** from DPI Probe to Core Correlati
 - Data hash matches
 
 **Failure:** Reject message, audit log
+
+### Rule 6: Version Validation (MANDATORY)
+
+**Check:**
+- `contract_version` field present
+- Version format valid (MAJOR.MINOR.PATCH)
+- Version matches expected version (1.0.0)
+- No version mismatch
+
+**Failure:** Reject message, terminate DPI Probe, audit log
+
+**Enforcement:**
+- Version check performed before any other validation
+- Missing version → immediate rejection
+- Version mismatch → immediate rejection
+- No warnings, no degraded mode
 
 ---
 

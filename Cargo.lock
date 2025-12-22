@@ -2183,8 +2183,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "ransomeye_architecture_enforcement"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+]
+
+[[package]]
 name = "ransomeye_architecture_tests"
 version = "1.0.0"
+dependencies = [
+ "ransomeye_architecture_enforcement",
+ "tempfile",
+]
 
 [[package]]
 name = "ransomeye_correlation"

@@ -1,75 +1,108 @@
 // Path and File Name : /home/ransomeye/rebuild/ransomeye_architecture/tests/identity_violation_tests.rs
 // Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
-// Details of functionality of this file: Rust tests for identity violation detection - verifies identity misuse is detected and blocked
+// Details of functionality of this file: Functional tests for identity violation detection - verifies identity misuse is detected and blocked
 
-/*
- * Identity Violation Tests
- * 
- * Tests that verify identity misuse is detected and blocked.
- * All violations must result in communication refusal and audit logging.
- */
+use ransomeye_architecture_enforcement::{IdentityEnforcer, FailClosedGuard, AuditLogger};
+use tempfile::TempDir;
 
-#[cfg(test)]
-mod tests {
-    use std::process::Command;
-    use std::fs;
-    use std::path::Path;
-
-    #[test]
-    fn test_unsigned_communication_rejected() {
-        // Test that unsigned communication is rejected
-        // All communication must be signed with component identity
-        
-        // Verify unsigned messages are rejected
-        assert!(true, "Unsigned communication must be rejected");
-    }
-
-    #[test]
-    fn test_invalid_signature_rejected() {
-        // Test that invalid signatures are rejected
-        // All signatures must be valid and match component identity
-        
-        // Verify invalid signatures are rejected
-        assert!(true, "Invalid signatures must be rejected");
-    }
-
-    #[test]
-    fn test_revoked_identity_rejected() {
-        // Test that revoked identities are rejected
-        // All identities must be checked against revocation list
-        
-        // Verify revoked identities are rejected
-        assert!(true, "Revoked identities must be rejected");
-    }
-
-    #[test]
-    fn test_expired_identity_rejected() {
-        // Test that expired identities are rejected
-        // All identities must have valid expiration dates
-        
-        // Verify expired identities are rejected
-        assert!(true, "Expired identities must be rejected");
-    }
-
-    #[test]
-    fn test_identity_misuse_detection() {
-        // Test that identity misuse is detected
-        // All misuse must result in audit log entry
-        
-        // Verify audit logging for identity misuse
-        let audit_log_path = Path::new("/home/ransomeye/rebuild/logs/audit.log");
-        
-        // Check that audit log exists and can be written
-        assert!(true, "Identity misuse must log to audit");
-    }
-
-    #[test]
-    fn test_identity_misuse_termination() {
-        // Test that identity misuse results in communication termination
-        // All misuse must terminate communication
-        
-        // Verify communication termination on misuse
-        assert!(true, "Identity misuse must terminate communication");
-    }
+#[test]
+#[should_panic(expected = "abort")]
+fn test_invalid_identity_format() {
+    // Test that invalid identity format results in abort
+    
+    let temp_dir = TempDir::new().unwrap();
+    let log_path = temp_dir.path().join("audit.log");
+    let logger = AuditLogger::new(log_path).unwrap();
+    let guard = FailClosedGuard::new(logger);
+    let enforcer = IdentityEnforcer::new(guard);
+    
+    // Attempt with invalid identity (too short)
+    let _ = enforcer.verify_identity(
+        "test_component",
+        "short",
+        None,
+    );
 }
 
+#[test]
+fn test_valid_identity_passes() {
+    // Test that valid identity passes verification
+    
+    let temp_dir = TempDir::new().unwrap();
+    let log_path = temp_dir.path().join("audit.log");
+    let logger = AuditLogger::new(log_path).unwrap();
+    let guard = FailClosedGuard::new(logger);
+    let enforcer = IdentityEnforcer::new(guard);
+    
+    // Valid identity should pass
+    let result = enforcer.verify_identity(
+        "test_component",
+        "valid_identity_hash_12345678901234567890",
+        None,
+    );
+    
+    assert!(result.is_ok(), "Valid identity should pass verification");
+}
+
+#[test]
+fn test_revoked_identity_detection() {
+    // Test that revoked identities are detected
+    
+    let temp_dir = TempDir::new().unwrap();
+    let log_path = temp_dir.path().join("audit.log");
+    let logger = AuditLogger::new(log_path).unwrap();
+    let guard = FailClosedGuard::new(logger);
+    let enforcer = IdentityEnforcer::new(guard);
+    
+    let identity = "revoked_identity_hash_12345678901234567890";
+    
+    // Revoke identity
+    enforcer.revoke_identity(identity);
+    
+    // Verify it's revoked
+    assert!(enforcer.is_revoked(identity), "Revoked identity should be detected");
+}
+
+#[test]
+#[should_panic(expected = "abort")]
+fn test_revoked_identity_blocks_access() {
+    // Test that revoked identity results in abort
+    
+    let temp_dir = TempDir::new().unwrap();
+    let log_path = temp_dir.path().join("audit.log");
+    let logger = AuditLogger::new(log_path).unwrap();
+    let guard = FailClosedGuard::new(logger);
+    let enforcer = IdentityEnforcer::new(guard);
+    
+    let identity = "revoked_identity_hash_12345678901234567890";
+    
+    // Revoke identity
+    enforcer.revoke_identity(identity);
+    
+    // Attempt to use revoked identity - should abort
+    let _ = enforcer.verify_identity(
+        "test_component",
+        identity,
+        None,
+    );
+}
+
+#[test]
+#[should_panic(expected = "abort")]
+fn test_empty_signature_rejected() {
+    // Test that empty signature results in abort
+    
+    let temp_dir = TempDir::new().unwrap();
+    let log_path = temp_dir.path().join("audit.log");
+    let logger = AuditLogger::new(log_path).unwrap();
+    let guard = FailClosedGuard::new(logger);
+    let enforcer = IdentityEnforcer::new(guard);
+    
+    // Attempt with empty signature
+    let _ = enforcer.verify_signature(
+        "test_component",
+        b"test_data",
+        "",
+        "valid_identity_hash_12345678901234567890",
+    );
+}

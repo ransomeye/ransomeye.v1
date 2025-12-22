@@ -52,6 +52,7 @@ This contract defines the **enforcement dispatch process**. Only Control Plane c
 
 ```json
 {
+  "contract_version": "1.0.0",
   "request_id": "<unique-request-id>",
   "timestamp": "<ISO-8601-timestamp>",
   "nonce": "<unique-nonce>",
@@ -77,6 +78,7 @@ This contract defines the **enforcement dispatch process**. Only Control Plane c
 
 ### Required Fields
 
+- `contract_version`: Contract version (MANDATORY - format: "MAJOR.MINOR.PATCH")
 - `request_id`: Unique request identifier
 - `timestamp`: Request timestamp (ISO-8601)
 - `nonce`: Unique nonce for replay protection
@@ -84,6 +86,14 @@ This contract defines the **enforcement dispatch process**. Only Control Plane c
 - `authorization`: Authorization details
 - `action`: Enforcement action details
 - `signature`: Cryptographic signature
+
+### Versioning Rules
+
+- **Current Version:** 1.0.0
+- **Compatibility:** Only exact version match accepted (fail-closed)
+- **Version Mismatch:** Reject request, terminate process, audit log
+- **Schema Evolution:** Requires version bump (MAJOR for breaking, MINOR for additions, PATCH for fixes)
+- **No Backward Compatibility:** Old versions are rejected
 
 ---
 

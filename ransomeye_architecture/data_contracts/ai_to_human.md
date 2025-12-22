@@ -52,6 +52,7 @@ This contract defines the **one-way data flow** from Intelligence Plane to Human
 
 ```json
 {
+  "contract_version": "1.0.0",
   "output_id": "<unique-output-id>",
   "timestamp": "<ISO-8601-timestamp>",
   "component_identity": "<ai-component-identity-hash>",
@@ -79,12 +80,21 @@ This contract defines the **one-way data flow** from Intelligence Plane to Human
 
 ### Required Fields
 
+- `contract_version`: Contract version (MANDATORY - format: "MAJOR.MINOR.PATCH")
 - `output_id`: Unique output identifier
 - `timestamp`: Output timestamp (ISO-8601)
 - `component_identity`: AI component identity hash
 - `advisory`: Must be true
 - `data`: Advisory recommendations
 - `signature`: Cryptographic signature
+
+### Versioning Rules
+
+- **Current Version:** 1.0.0
+- **Compatibility:** Only exact version match accepted (fail-closed)
+- **Version Mismatch:** Reject output, terminate AI component, audit log
+- **Schema Evolution:** Requires version bump (MAJOR for breaking, MINOR for additions, PATCH for fixes)
+- **No Backward Compatibility:** Old versions are rejected
 
 ---
 
