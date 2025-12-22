@@ -1,12 +1,13 @@
 {
   "decision": "Block",
-  "timestamp": "2025-12-21T10:18:50.328012376Z",
+  "timestamp": "2025-12-21T14:05:29.512410168Z",
+  "justification": "Release BLOCKED: Suite 'compliance' failed; Suite 'compliance' has Critical finding: Evidence integrity violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"; Suite 'compliance' has High finding: Retention enforcement violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"; Suite 'compliance' has High finding: Audit trail incomplete: Audit log not found in any expected location: [\"/home/ransomeye/rebuild/var/log/ransomeye/audit.json\", \"/home/ransomeye/rebuild/logs/audit.json\", \"/home/ransomeye/rebuild/ransomeye_reporting/audit.json\"]; Phase 12 suite 'compliance' failed; Phase 12 suite 'compliance' has Critical finding: Evidence integrity violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"; Phase 12 suite 'compliance' has High finding: Retention enforcement violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"; Phase 12 suite 'compliance' has High finding: Audit trail incomplete: Audit log not found in any expected location: [\"/home/ransomeye/rebuild/var/log/ransomeye/audit.json\", \"/home/ransomeye/rebuild/logs/audit.json\", \"/home/ransomeye/rebuild/ransomeye_reporting/audit.json\"]; Phase 10 evidence bundles directory not found; Phase 11: Install state not found; Phase 15: Posture output directory not found; MODULE_PHASE_MAP.yaml contains phantom module references; systemd service \"/home/ransomeye/rebuild/systemd/ransomeye-github-sync.service\" missing Restart=always",
   "suite_results": [
     {
       "suite_name": "security",
       "result": "Pass",
       "findings": [],
-      "timestamp": "2025-12-21T10:18:50.328004176Z"
+      "timestamp": "2025-12-21T14:05:29.509134428Z"
     },
     {
       "suite_name": "performance",
@@ -23,19 +24,19 @@
           "severity": "Info"
         }
       ],
-      "timestamp": "2025-12-21T10:18:50.328008276Z"
+      "timestamp": "2025-12-21T14:05:29.509139928Z"
     },
     {
       "suite_name": "stress",
       "result": "Pass",
       "findings": [],
-      "timestamp": "2025-12-21T10:18:50.328008676Z"
+      "timestamp": "2025-12-21T14:05:29.509140328Z"
     },
     {
       "suite_name": "fault_injection",
       "result": "Pass",
       "findings": [],
-      "timestamp": "2025-12-21T10:18:50.328008976Z"
+      "timestamp": "2025-12-21T14:05:29.509140728Z"
     },
     {
       "suite_name": "compliance",
@@ -43,19 +44,46 @@
       "findings": [
         {
           "suite": "compliance",
-          "description": "Audit trail incomplete: Completeness check failed: Audit trail incomplete: Critical actions not found in log: [\"DELETE\", \"MODIFY\", \"EXPORT\", \"SIGN\"]",
+          "description": "Evidence integrity violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"",
+          "severity": "Critical"
+        },
+        {
+          "suite": "compliance",
+          "description": "Retention enforcement violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"",
           "severity": "High"
+        },
+        {
+          "suite": "compliance",
+          "description": "Audit trail incomplete: Audit log not found in any expected location: [\"/home/ransomeye/rebuild/var/log/ransomeye/audit.json\", \"/home/ransomeye/rebuild/logs/audit.json\", \"/home/ransomeye/rebuild/ransomeye_reporting/audit.json\"]",
+          "severity": "High"
+        },
+        {
+          "suite": "compliance",
+          "description": "Reproducibility violation: Report directory not found in any expected location: [\"/home/ransomeye/rebuild/var/lib/ransomeye/reports\", \"/home/ransomeye/rebuild/ransomeye_reporting/reports\", \"/home/ransomeye/rebuild/reports\"]",
+          "severity": "Medium"
         }
       ],
-      "timestamp": "2025-12-21T10:18:50.328009976Z"
+      "timestamp": "2025-12-21T14:05:29.509145628Z"
     },
     {
       "suite_name": "regression",
       "result": "Pass",
       "findings": [],
-      "timestamp": "2025-12-21T10:18:50.328011076Z"
+      "timestamp": "2025-12-21T14:05:29.509148628Z"
     }
   ],
-  "justification": "Release BLOCKED: 1 suite(s) failed: compliance",
-  "signature": null
+  "artifacts_verified": [],
+  "blocking_issues": [
+    "Phase 12 suite 'compliance' failed",
+    "Phase 12 suite 'compliance' has Critical finding: Evidence integrity violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"",
+    "Phase 12 suite 'compliance' has High finding: Retention enforcement violation: Evidence store path does not exist: \"/home/ransomeye/rebuild/var/lib/ransomeye/evidence\"",
+    "Phase 12 suite 'compliance' has High finding: Audit trail incomplete: Audit log not found in any expected location: [\"/home/ransomeye/rebuild/var/log/ransomeye/audit.json\", \"/home/ransomeye/rebuild/logs/audit.json\", \"/home/ransomeye/rebuild/ransomeye_reporting/audit.json\"]",
+    "Phase 10 evidence bundles directory not found",
+    "Phase 11: Install state not found",
+    "Phase 15: Posture output directory not found",
+    "MODULE_PHASE_MAP.yaml contains phantom module references",
+    "systemd service \"/home/ransomeye/rebuild/systemd/ransomeye-github-sync.service\" missing Restart=always"
+  ],
+  "signature": null,
+  "public_key": null
 }
