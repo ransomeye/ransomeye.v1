@@ -20,6 +20,7 @@ members = [
     "core/threat_feed",
     "core/trainer",
     "core/audit",
+    "core/guardrails",
     "edge/dpi",
     "edge/agent",
     "edge/sentinel",

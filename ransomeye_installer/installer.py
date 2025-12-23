@@ -21,6 +21,8 @@ from .retention.retention_writer import RetentionWriter
 from .retention.retention_validator import RetentionValidator
 from .crypto.identity_generator import IdentityGenerator
 from .services.systemd_writer import SystemdWriter
+from .module_resolver import ModuleResolver
+from .manifest_generator import ManifestGenerator
 
 
 class RansomEyeInstaller:
@@ -38,7 +40,23 @@ class RansomEyeInstaller:
         self.retention_writer = RetentionWriter()
         self.retention_validator = RetentionValidator()
         self.identity_generator = IdentityGenerator()
+        
+        # Initialize module resolver (validates modules exist on disk)
+        self.module_resolver = ModuleResolver()
+        
+        # Check for phantom modules (fail-closed)
+        if self.module_resolver.phantom_modules:
+            print("ERROR: Phantom modules detected:", file=sys.stderr)
+            for phantom in sorted(self.module_resolver.phantom_modules):
+                print(f"  ✗ {phantom}", file=sys.stderr)
+            print("Installation aborted (fail-closed).", file=sys.stderr)
+            sys.exit(1)
+        
+        # Initialize systemd writer (uses module resolver)
         self.systemd_writer = SystemdWriter()
+        
+        # Initialize manifest generator
+        self.manifest_generator = ManifestGenerator()
     
     def _validate_prerequisites(self) -> Tuple[bool, str]:
         """
@@ -237,12 +255,22 @@ class RansomEyeInstaller:
             return False
         
         # Step 5: Create systemd units
-        print("\n[5/7] Creating systemd units...")
+        print("\n[5/8] Creating systemd units...")
         if not self._create_systemd_units():
             return False
         
-        # Step 6: Save install state
-        print("\n[6/7] Saving installation state...")
+        # Step 6: Generate install manifest
+        print("\n[6/8] Generating install manifest...")
+        try:
+            manifest_path = self.manifest_generator.write_manifest()
+            print(f"✓ Install manifest generated: {manifest_path}")
+            print(f"  Modules installed: {len(self.manifest_generator.generate_manifest()['modules'])}")
+        except Exception as e:
+            print(f"✗ Error generating manifest: {e}", file=sys.stderr)
+            return False
+        
+        # Step 7: Save install state
+        print("\n[7/8] Saving installation state...")
         try:
             state = self.state_manager.create_state(
                 version=self.VERSION,
@@ -257,8 +285,8 @@ class RansomEyeInstaller:
             print(f"✗ Error saving state: {e}", file=sys.stderr)
             return False
         
-        # Step 7: Summary
-        print("\n[7/7] Installation complete!")
+        # Step 8: Summary
+        print("\n[8/8] Installation complete!")
         print("\n" + "="*80)
         print("INSTALLATION SUMMARY")
         print("="*80)
@@ -267,7 +295,23 @@ class RansomEyeInstaller:
         print("✓ Retention configured")
         print("✓ Cryptographic identity generated")
         print("✓ Systemd units created (disabled by default)")
+        print("✓ Install manifest generated")
         print("✓ Installation state saved")
+        
+        # Display installed modules
+        service_modules = self.module_resolver.get_service_modules()
+        standalone_modules = self.module_resolver.get_standalone_modules()
+        
+        print(f"\nInstalled modules:")
+        print(f"  Service modules: {len(service_modules)}")
+        for module in service_modules:
+            print(f"    ✓ {module}")
+        
+        if standalone_modules:
+            print(f"\n  Standalone agents (not installed by main installer): {len(standalone_modules)}")
+            for module in standalone_modules:
+                print(f"    ⚠ {module} (use dedicated installer)")
+        
         print("\nNext steps:")
         print("  1. Review systemd units in /home/ransomeye/rebuild/systemd/")
         print("  2. Install units: sudo cp systemd/*.service /etc/systemd/system/")

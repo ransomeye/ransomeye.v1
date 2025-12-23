@@ -2978,6 +2978,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "ransomeye_guardrails"
+version = "1.0.0"
+dependencies = [
+ "base64 0.21.7",
+ "chrono",
+ "clap 4.5.53",
+ "hex",
+ "once_cell",
+ "parking_lot",
+ "proptest",
+ "regex",
+ "ring",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+ "walkdir",
+]
+
+[[package]]
 name = "rawpointer"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

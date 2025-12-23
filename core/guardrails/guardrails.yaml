@@ -1,0 +1,318 @@
+version: 1.0.0
+spec_hash: bf0ef9941b72006030ea2d067a75566cb1808e09aa502c647a92a46068206b05
+signature: ''
+public_key: ''
+metadata:
+  created: '2025-01-27T00:00:00Z'
+  last_modified: '2025-01-27T00:00:00Z'
+  signer: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+allowed_phases:
+- id: 1
+  name: Core Engine & Installer
+  path: /home/ransomeye/rebuild/core_engine/
+- id: 2
+  name: AI Core & Model Registry
+  path: /home/ransomeye/rebuild/ransomeye_ai_core/
+- id: 3
+  name: Alert Engine & Policy Manager
+  path: /home/ransomeye/rebuild/ransomeye_alert_engine/
+- id: 4
+  name: KillChain & Forensic Dump
+  path: /home/ransomeye/rebuild/ransomeye_killchain_core/
+- id: 5
+  name: LLM Summarizer
+  path: /home/ransomeye/rebuild/ransomeye_llm/
+- id: 6
+  name: Incident Response & Playbooks
+  path: /home/ransomeye/rebuild/ransomeye_response/
+- id: 7
+  name: SOC Copilot
+  path: /home/ransomeye/rebuild/ransomeye_ai_assistant/
+- id: 8
+  name: Threat Correlation Engine
+  path: /home/ransomeye/rebuild/ransomeye_threat_correlation/
+- id: 9
+  name: Network Scanner
+  path: /home/ransomeye/rebuild/ransomeye_net_scanner/
+- id: 10
+  name: DB Core
+  path: /home/ransomeye/rebuild/ransomeye_db_core/
+- id: 11
+  name: UI & Dashboards
+  path: /home/ransomeye/rebuild/ransomeye_ui/
+- id: 12
+  name: Orchestrator (Master Flow)
+  path: /home/ransomeye/rebuild/ransomeye_master_core/
+- id: 13
+  name: Forensic Engine (Advanced)
+  path: /home/ransomeye/rebuild/ransomeye_forensic/
+- id: 14
+  name: LLM Behavior Summarizer (Expanded)
+  path: /home/ransomeye/rebuild/ransomeye_llm/
+- id: 15
+  name: SOC Copilot (Advanced)
+  path: /home/ransomeye/rebuild/ransomeye_ai_assistant/
+- id: 16
+  name: Deception Framework
+  path: /home/ransomeye/rebuild/ransomeye_deception/
+- id: 17
+  name: AI Assistant (Governor Mode)
+  path: /home/ransomeye/rebuild/ransomeye_ai_assistant/
+- id: 18
+  name: Threat Intelligence Feed Engine
+  path: /home/ransomeye/rebuild/ransomeye_threat_intel_engine/
+- id: 19
+  name: HNMP Engine
+  path: /home/ransomeye/rebuild/ransomeye_hnmp_engine/
+- id: 20
+  name: Global Validator
+  path: /home/ransomeye/rebuild/ransomeye_master_core/global_validator/
+- id: 21
+  name: Linux Agent (Standalone)
+  path: /home/ransomeye/rebuild/ransomeye_linux_agent/
+- id: 22
+  name: Windows Agent (Standalone)
+  path: /home/ransomeye/rebuild/ransomeye_windows_agent/
+- id: 23
+  name: DPI Probe (Standalone)
+  path: /home/ransomeye/rebuild/ransomeye_dpi_probe/
+allowed_modules:
+- ransomeye_ai_assistant
+- ransomeye_ai_core
+- ransomeye_alert_engine
+- ransomeye_db_core
+- ransomeye_deception
+- ransomeye_decryptor
+- ransomeye_dpi_probe
+- ransomeye_forensic
+- ransomeye_hnmp_engine
+- ransomeye_incident_summarizer
+- ransomeye_killchain_core
+- ransomeye_linux_agent
+- ransomeye_llm
+- ransomeye_master_core
+- ransomeye_net_scanner
+- ransomeye_response
+- ransomeye_threat_correlation
+- ransomeye_threat_intel_engine
+- ransomeye_ui
+- ransomeye_windows_agent
+- core_engine
+- core
+- ransomeye_governance
+- ransomeye_guardrails
+- ransomeye_installer
+- ransomeye_intelligence
+- ransomeye_posture_engine
+- ransomeye_retention
+- ransomeye_trust
+forbidden_modules:
+- ransomeye_test
+- ransomeye_dummy
+- ransomeye_mock
+- ransomeye_placeholder
+- ransomeye_example
+- ransomeye_sample
+- ransomeye_temp
+- ransomeye_old
+- ransomeye_backup
+env_only_rules:
+  required_env_vars:
+  - DB_HOST
+  - DB_PORT
+  - DB_NAME
+  - DB_USER
+  - DB_PASS
+  - MODEL_DIR
+  - PDF_ENGINE_PATH
+  - OUTPUT_DIR
+  - CORE_API_PORT
+  - CHAIN_OUTPUT_PATH
+  - SUMMARY_EXPORT_PATH
+  - FRONTEND_PORT
+  - BACKEND_API_PORT
+  - RETENTION_YEARS
+  - DB_ENCRYPTION_KEY_PATH
+  - CAPTURE_IFACE
+  - COMPLIANCE_CONFIG
+  - ASSISTANT_TOPK
+  - ASSISTANT_MAX_TOKENS
+  - ASSISTANT_DATA_DIR
+  - ENABLE_EBPF
+  - ENABLE_KERNEL_DRIVER
+  - UPDATE_BUNDLE_DIR
+  threat_intel_env_vars:
+  - MISP_URL
+  - MISP_KEY
+  - OTX_URL
+  - OTX_KEY
+  - TALOS_URL
+  - TALOS_KEY
+  - THREATFOX_URL
+  - THREATFOX_KEY
+  forbidden_patterns:
+  - pattern: \b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b
+    description: Hardcoded IPv4 address
+    exceptions:
+    - 127.0.0.1
+    - localhost
+    - 0.0.0.0
+  - pattern: (?:https?|ftp|ws|wss)://(?!localhost|127\.0\.0\.1)[^\s'"`]+
+    description: Hardcoded URL
+  - pattern: (?:api[_-]?key|apikey|token|secret|password|passwd|pwd)\s*[=:]\s*["']?[A-Za-z0-9_\-]{16,}["']?
+    description: Hardcoded API key or token
+  - pattern: (?:db[_-]?(?:user|pass|password|host|port)|database[_-]?(?:user|pass|password))\s*[=:]\s*["']?[^"']+["']?
+    description: Hardcoded database credential
+crypto_requirements:
+  signing_algorithms:
+  - Ed25519
+  - RSA-4096
+  hash_algorithms:
+  - SHA-256
+  - SHA-512
+  encryption_algorithms:
+  - AES-256-GCM
+  - ChaCha20-Poly1305
+  required_signing_for:
+  - policies
+  - models
+  - playbooks
+  - enforcement_decisions
+  - guardrails_spec
+fail_closed_requirements:
+- No service starts unless guardrails pass
+- No model loads unless guardrails pass
+- No policy loads unless guardrails pass
+- No installer step proceeds unless guardrails pass
+- Any violation triggers immediate exit (non-zero)
+- Audit record must be emitted before exit
+systemd_requirements:
+  unified_directory: /home/ransomeye/rebuild/systemd/
+  required_service_properties:
+  - Restart=always
+  - WantedBy=multi-user.target
+  - StandardOutput=journal
+  - StandardError=journal
+  standalone_exceptions:
+  - path: /home/ransomeye/rebuild/ransomeye_linux_agent/
+    allowed_systemd: true
+  - path: /home/ransomeye/rebuild/ransomeye_windows_agent/
+    allowed_systemd: true
+  - path: /home/ransomeye/rebuild/ransomeye_dpi_probe/
+    allowed_systemd: true
+standalone_agent_constraints:
+  linux_agent:
+    path: /home/ransomeye/rebuild/ransomeye_linux_agent/
+    allowed_requirements_txt: true
+    allowed_systemd: true
+    must_be_rootless: true
+  windows_agent:
+    path: /home/ransomeye/rebuild/ransomeye_windows_agent/
+    allowed_requirements_txt: true
+    allowed_systemd: false
+    must_be_rootless: true
+  dpi_probe:
+    path: /home/ransomeye/rebuild/ransomeye_dpi_probe/
+    allowed_requirements_txt: true
+    allowed_systemd: true
+    must_be_rootless: true
+requirements_policy:
+  unified_requirements: /home/ransomeye/rebuild/requirements.txt
+  standalone_exceptions:
+  - /home/ransomeye/rebuild/ransomeye_linux_agent/requirements.txt
+  - /home/ransomeye/rebuild/ransomeye_windows_agent/requirements.txt
+  - /home/ransomeye/rebuild/ransomeye_dpi_probe/requirements.txt
+  forbidden_locations:
+  - '**/ransomeye_*/requirements.txt'
+model_requirements:
+  allowed_formats:
+  - .pkl
+  - .gguf
+  - .onnx
+  - .pt
+  - .pth
+  required_metadata:
+  - hash
+  - trained_on
+  - version
+  required_shap: true
+  reject_if_missing_shap: true
+  reject_if_missing_metadata: true
+export_requirements:
+  required_formats:
+  - PDF
+  - HTML
+  - CSV
+  optional_formats:
+  - JSON
+  - Markdown
+  required_footer: '© RansomEye.Tech | Support: Gagan@RansomEye.Tech'
+  required_fields:
+  - timestamp
+  - build_hash
+  - model_version_hash
+header_requirements:
+  required_files:
+  - .py
+  - .yaml
+  - .yml
+  - .json
+  - .sh
+  - .service
+  - .tsx
+  - .ts
+  - .rs
+  header_format: '# Path and File Name : {file_path}
+
+    # Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+
+    # Details of functionality of this file: {description}
+
+    '
+  exceptions:
+  - '**/rules.yaml'
+  - '**/retention.txt'
+  - '**/*.md'
+  - '**/key_hierarchy.json'
+  - '**/__pycache__/**'
+  - '**/.git/**'
+  - '**/node_modules/**'
+  - '**/venv/**'
+  - '**/.env.example'
+  - '**/target/**'
+  - '**/Cargo.lock'
+database_policy:
+  allowed_database: PostgreSQL
+  forbidden_databases:
+  - SQLite
+  - MySQL
+  - MongoDB
+  - JSON-based storage
+  credentials:
+    db_user: gagan
+    db_pass: gagan
+  retention_max_years: 7
+  disk_cleanup_threshold_percent: 80
+offline_requirements:
+  must_operate_offline: true
+  threat_intel_must_cache: true
+  no_internet_calls_runtime: true
+  no_cdn_dependencies: true
+  api_dependencies_only_with_cache: true
+testing_requirements:
+  required_test_structure: /tests/
+  required_test_types:
+  - unit
+  - integration
+  - systemd_service_launch
+  validation_output: logs/test_results.log
+  no_placeholders: true
+  no_mockups: true
+  no_todos: true
+ci_requirements:
+  must_detect_phantom_modules: true
+  must_detect_forbidden_directories: true
+  must_detect_hardcoded_configs: true
+  must_detect_systemd_misplacement: true
+  must_detect_unsigned_artifacts: true
+  must_fail_on_violation: true

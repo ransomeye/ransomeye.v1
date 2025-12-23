@@ -12,6 +12,13 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 
+# Import module resolver for canonical module enumeration
+try:
+    from ..module_resolver import ModuleResolver
+except ImportError:
+    # Fallback if import fails
+    ModuleResolver = None
+
 
 class SystemdWriter:
     """Writes systemd unit files."""
@@ -19,36 +26,27 @@ class SystemdWriter:
     SYSTEMD_DIR = Path("/home/ransomeye/rebuild/systemd")
     INSTALL_STATE_FILE = Path("/home/ransomeye/rebuild/ransomeye_installer/config/install_state.json")
     
-    # Core modules that require systemd units
-    # CRITICAL: Only modules that EXIST on disk are listed here
-    # All phantom modules have been removed per MODULE_PHASE_MAP.yaml
-    # Module mappings:
-    #   - ransomeye_ai_core -> ransomeye_ai_advisory (Phase 8)
-    #   - ransomeye_alert_engine -> ransomeye_intelligence + ransomeye_policy
-    #   - ransomeye_killchain_core -> ransomeye_correlation (Phase 5)
-    #   - ransomeye_threat_correlation -> ransomeye_correlation (Phase 5)
-    #   - ransomeye_threat_intel_engine -> ransomeye_intelligence (Phase 3)
-    #   - ransomeye_forensic -> ransomeye_reporting (Phase 10)
-    #   - ransomeye_response -> ransomeye_enforcement (Phase 7)
-    #   - ransomeye_db_core -> library-based (no service)
-    #   - ransomeye_hnmp_engine -> NOT_FOUND (Phase 19, needs creation)
-    #   - ransomeye_incident_summarizer -> NOT_FOUND (Phase 5, needs creation)
-    #   - ransomeye_llm -> NOT_FOUND (Phase 5, needs creation)
-    #   - ransomeye_master_core -> ransomeye_operations (Phase 1, tool, no service)
-    #   - ransomeye_net_scanner -> NOT_FOUND (Phase 9, needs creation)
-    #   - ransomeye_ui -> NOT_FOUND (Phase 11, needs creation)
-    CORE_MODULES = [
-        'ransomeye_ai_advisory',      # Phase 8: AI Advisory (covers AI Core functionality)
-        'ransomeye_correlation',      # Phase 5: Correlation Engine (covers killchain + threat correlation)
-        'ransomeye_enforcement',      # Phase 7: Enforcement (covers response functionality)
-        'ransomeye_ingestion',        # Phase 4: Event Ingestion
-        'ransomeye_intelligence',     # Phase 3: Intelligence (covers alert engine + threat intel)
-        'ransomeye_policy',            # Phase 6: Policy Engine (covers alert engine functionality)
-        'ransomeye_reporting',        # Phase 10: Reporting (covers forensic functionality)
-    ]
-    
     def __init__(self):
         self.SYSTEMD_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Use module resolver to get canonical service modules
+        if ModuleResolver:
+            self.resolver = ModuleResolver()
+            # Get service modules that actually exist on disk
+            self.CORE_MODULES = self.resolver.get_service_modules()
+        else:
+            # Fallback: hardcoded list (will be validated)
+            self.CORE_MODULES = [
+                'ransomeye_ai_advisory',
+                'ransomeye_correlation',
+                'ransomeye_enforcement',
+                'ransomeye_ingestion',
+                'ransomeye_intelligence',
+                'ransomeye_policy',
+                'ransomeye_reporting',
+            ]
+            self.resolver = None
+        
         # CRITICAL: Validate all modules exist on disk before proceeding
         self._validate_modules_exist()
     
@@ -61,9 +59,15 @@ class SystemdWriter:
         missing_modules = []
         
         for module_name in self.CORE_MODULES:
-            module_dir = project_root / module_name
-            if not module_dir.exists() or not module_dir.is_dir():
-                missing_modules.append(module_name)
+            if self.resolver:
+                # Use resolver to validate
+                if not self.resolver.validate_module_exists(module_name):
+                    missing_modules.append(module_name)
+            else:
+                # Fallback validation
+                module_dir = project_root / module_name
+                if not module_dir.exists() or not module_dir.is_dir():
+                    missing_modules.append(module_name)
         
         if missing_modules:
             error_msg = (

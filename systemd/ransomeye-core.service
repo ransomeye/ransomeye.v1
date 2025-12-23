@@ -15,6 +15,7 @@ Group=ransomeye
 WorkingDirectory=/home/ransomeye/rebuild
 RuntimeDirectory=ransomeye/core
 StateDirectory=ransomeye/core
+ExecStartPre=/usr/bin/ransomeye-guardrails enforce --context service --data ransomeye-core
 ExecStart=/usr/bin/ransomeye_operations start ransomeye-core
 Restart=always
 RestartSec=10

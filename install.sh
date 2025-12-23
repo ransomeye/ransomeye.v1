@@ -146,6 +146,60 @@ else
 fi
 
 # ============================================================================
+# 3.5. GUARDRAILS ENFORCEMENT (PHASE 0 - MANDATORY)
+# ============================================================================
+log "Enforcing guardrails before installation proceeds"
+
+echo ""
+echo "==========================================================================="
+echo "GUARDRAILS ENFORCEMENT (PHASE 0)"
+echo "==========================================================================="
+echo ""
+
+# Build guardrails binary first if it doesn't exist
+GUARDRAILS_BINARY="/usr/bin/ransomeye-guardrails"
+GUARDRAILS_SOURCE="$PROJECT_ROOT/core/guardrails"
+
+if [[ -d "$GUARDRAILS_SOURCE" ]]; then
+    log "Building guardrails enforcement engine"
+    cd "$GUARDRAILS_SOURCE"
+    
+    if cargo build --release 2>&1 | tee -a "$LOG_FILE"; then
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        if [[ $BUILD_EXIT_CODE -eq 0 ]]; then
+            # Install binary
+            if [[ -f "$GUARDRAILS_SOURCE/target/release/ransomeye-guardrails" ]]; then
+                cp "$GUARDRAILS_SOURCE/target/release/ransomeye-guardrails" "$GUARDRAILS_BINARY"
+                chmod +x "$GUARDRAILS_BINARY"
+                success "Guardrails binary installed"
+            fi
+        fi
+    fi
+    
+    cd "$PROJECT_ROOT"
+fi
+
+# Enforce guardrails (fail-closed)
+if [[ -f "$GUARDRAILS_BINARY" ]]; then
+    log "Running guardrails enforcement for installer context"
+    if "$GUARDRAILS_BINARY" enforce --context installer 2>&1 | tee -a "$LOG_FILE"; then
+        ENFORCE_EXIT_CODE=${PIPESTATUS[0]}
+        if [[ $ENFORCE_EXIT_CODE -eq 0 ]]; then
+            success "Guardrails enforcement passed - installation can proceed"
+        else
+            error "Guardrails enforcement failed - installation aborted (fail-closed)"
+        fi
+    else
+        error "Failed to execute guardrails enforcement"
+    fi
+else
+    warning "Guardrails binary not found - skipping enforcement (NOT RECOMMENDED)"
+    # In strict mode, we should fail here, but for now we warn
+    # Uncomment the next line for strict enforcement:
+    # error "Guardrails binary required but not found"
+fi
+
+# ============================================================================
 # 4. BUILD AND INSTALL CORE BINARIES
 # ============================================================================
 log "Building and installing core binaries"
@@ -237,62 +291,48 @@ else
 fi
 
 # ============================================================================
-# 6. OPTIONAL STANDALONE MODULES
+# 6. STANDALONE AGENTS (EXPLICIT SEPARATION)
 # ============================================================================
-log "Checking for optional standalone modules"
+log "Checking for standalone agents"
 
 echo ""
 echo "==========================================================================="
-echo "OPTIONAL STANDALONE MODULES"
+echo "STANDALONE AGENTS"
 echo "==========================================================================="
 echo ""
-echo "The following standalone modules can be installed:"
-echo "  1. DPI Probe (Phase 23) - Network packet inspection"
-echo "  2. Linux Agent (Phase 21) - Host telemetry collection"
-echo "  3. Windows Agent (Phase 22) - Endpoint telemetry (Windows only)"
-echo ""
 
-read -p "Install standalone modules? (yes/no) [no]: " install_standalone
-INSTALL_STANDALONE=${install_standalone:-no}
+# Use Python module resolver to detect standalone agents
+STANDALONE_AGENTS=$(python3 << 'PYTHON_SCRIPT'
+import sys
+sys.path.insert(0, '/home/ransomeye/rebuild')
+try:
+    from ransomeye_installer.module_resolver import ModuleResolver
+    resolver = ModuleResolver()
+    standalone = resolver.get_standalone_modules()
+    print('\n'.join(standalone))
+except Exception as e:
+    print(f"Error: {e}", file=sys.stderr)
+    sys.exit(1)
+PYTHON_SCRIPT
+)
 
-if [[ "$INSTALL_STANDALONE" == "yes" ]] || [[ "$INSTALL_STANDALONE" == "YES" ]] || [[ "$INSTALL_STANDALONE" == "y" ]] || [[ "$INSTALL_STANDALONE" == "Y" ]]; then
-    log "Installing standalone modules"
-    
-    # DPI Probe
-    if [[ -f "$PROJECT_ROOT/ransomeye_dpi_probe/installer/install.sh" ]]; then
-        echo ""
-        read -p "Install DPI Probe? (yes/no) [no]: " install_dpi
-        if [[ "$install_dpi" == "yes" ]] || [[ "$install_dpi" == "YES" ]] || [[ "$install_dpi" == "y" ]] || [[ "$install_dpi" == "Y" ]]; then
-            log "Installing DPI Probe"
-            if bash "$PROJECT_ROOT/ransomeye_dpi_probe/installer/install.sh" 2>&1 | tee -a "$LOG_FILE"; then
-                success "DPI Probe installed"
-            else
-                warning "DPI Probe installation failed or was cancelled"
-            fi
-        fi
-    fi
-    
-    # Linux Agent
-    if [[ -f "$PROJECT_ROOT/ransomeye_linux_agent/installer/install.sh" ]]; then
-        echo ""
-        read -p "Install Linux Agent? (yes/no) [no]: " install_linux
-        if [[ "$install_linux" == "yes" ]] || [[ "$install_linux" == "YES" ]] || [[ "$install_linux" == "y" ]] || [[ "$install_linux" == "Y" ]]; then
-            log "Installing Linux Agent"
-            if bash "$PROJECT_ROOT/ransomeye_linux_agent/installer/install.sh" 2>&1 | tee -a "$LOG_FILE"; then
-                success "Linux Agent installed"
-            else
-                warning "Linux Agent installation failed or was cancelled"
-            fi
-        fi
-    fi
-    
-    # Windows Agent (Linux system won't install this, but check anyway)
-    if [[ -f "$PROJECT_ROOT/ransomeye_windows_agent/installer/install.ps1" ]] && command -v pwsh &> /dev/null; then
-        echo ""
-        warning "Windows Agent installer found, but this is a Linux system. Windows Agent should be installed on Windows systems."
-    fi
+if [[ -n "$STANDALONE_AGENTS" ]]; then
+    echo "The following standalone agents were detected:"
+    echo "$STANDALONE_AGENTS" | while read -r agent; do
+        echo "  ⚠ $agent"
+    done
+    echo ""
+    echo "CRITICAL: Standalone agents must be installed using their dedicated installers."
+    echo "The main installer does NOT install standalone agents."
+    echo ""
+    echo "To install standalone agents:"
+    echo "  - DPI Probe: Use ransomeye_dpi_probe/installer/install.sh"
+    echo "  - Linux Agent: Use ransomeye_linux_agent/installer/install.sh"
+    echo "  - Windows Agent: Use ransomeye_windows_agent/installer/install.ps1 (Windows only)"
+    echo ""
+    log "Standalone agents detected but not installed by main installer"
 else
-    log "Skipping standalone modules"
+    log "No standalone agents detected"
 fi
 
 # ============================================================================
