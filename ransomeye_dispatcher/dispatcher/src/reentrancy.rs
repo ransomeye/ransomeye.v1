@@ -53,6 +53,7 @@ impl ReentrancyGuard {
     }
 }
 
+#[derive(Debug)]
 pub struct ReentrancyGuardToken {
     directive_id: String,
     guard: Arc<RwLock<HashSet<String>>>,

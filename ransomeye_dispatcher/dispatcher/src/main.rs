@@ -3,8 +3,8 @@
 // Details of functionality of this file: Dispatcher main entry point
 
 use tracing::{info, error};
-use ransomeye_dispatcher::dispatcher::EnforcementDispatcher;
-use ransomeye_dispatcher::dispatcher::DispatcherError;
+use ransomeye_dispatcher::EnforcementDispatcher;
+use ransomeye_dispatcher::DispatcherError;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Err(e) => {
             error!("Failed to initialize dispatcher: {:?}", e);
-            return Err(Box::new(e));
+            return Err(Box::new(e) as Box<dyn std::error::Error>);
         }
     };
     

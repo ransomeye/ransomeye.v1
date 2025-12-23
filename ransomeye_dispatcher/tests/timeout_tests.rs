@@ -2,10 +2,9 @@
 // Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
 // Details of functionality of this file: Tests for acknowledgment timeout handling
 
-use ransomeye_dispatcher::dispatcher::timeout::TimeoutManager;
+use ransomeye_dispatcher::TimeoutManager;
 use ransomeye_dispatcher::acknowledgment_envelope::AcknowledgmentEnvelope;
 use ransomeye_dispatcher::DispatcherError;
-use tokio::time::{sleep, Duration};
 
 #[tokio::test]
 async fn test_acknowledgment_timeout() {
@@ -17,9 +16,10 @@ async fn test_acknowledgment_timeout() {
     let result = timeout_manager.wait_for_acknowledgment("test-directive-1", None, check_fn).await;
     
     assert!(result.is_err());
-    match result.unwrap_err() {
-        DispatcherError::AcknowledgmentTimeout(_) => {}
-        _ => panic!("Expected AcknowledgmentTimeout error"),
+    if let Err(DispatcherError::AcknowledgmentTimeout(_)) = result {
+        // Expected
+    } else {
+        panic!("Expected AcknowledgmentTimeout error");
     }
 }
 
@@ -27,26 +27,14 @@ async fn test_acknowledgment_timeout() {
 async fn test_acknowledgment_received_before_timeout() {
     let timeout_manager = TimeoutManager::new(5); // 5 second timeout
     
-    let mut ack_received = false;
-    let check_fn = || {
-        if !ack_received {
-            ack_received = true;
-            // Return acknowledgment after 100ms
-            tokio::spawn(async {
-                sleep(Duration::from_millis(100)).await;
-            });
-            Some(create_test_acknowledgment("test-directive-1"))
-        } else {
-            None
-        }
-    };
+    // Use a simple closure that returns the ack immediately
+    let ack = create_test_acknowledgment("test-directive-1");
+    let check_fn = move || Some(ack.clone());
     
-    // This test would need async channel or similar - simplified for now
-    // In real implementation, would use channels
     let result = timeout_manager.wait_for_acknowledgment("test-directive-1", None, check_fn).await;
     
     // Should succeed if ack received
-    assert!(result.is_ok() || result.is_err()); // Simplified - real test would verify timing
+    assert!(result.is_ok());
 }
 
 fn create_test_acknowledgment(directive_id: &str) -> AcknowledgmentEnvelope {

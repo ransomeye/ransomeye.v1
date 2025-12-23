@@ -3,8 +3,7 @@
 // Details of functionality of this file: Tests for dry-run audit output equivalence
 
 use ransomeye_dispatcher::directive_envelope::{DirectiveEnvelope, TargetScope, AuditReceipt};
-use ransomeye_dispatcher::dispatcher::audit::AuditLogger;
-use ransomeye_dispatcher::dispatcher::audit::AuditEventType;
+use ransomeye_dispatcher::{AuditLogger, AuditEventType};
 use tempfile::TempDir;
 use std::fs;
 

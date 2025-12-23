@@ -3,8 +3,8 @@
 // Details of functionality of this file: Tests for replay attack protection
 
 use ransomeye_dispatcher::directive_envelope::DirectiveEnvelope;
-use ransomeye_dispatcher::security::{NonceTracker, ReplayProtector};
-use ransomeye_dispatcher::dispatcher::replay::ReplayGuard;
+use ransomeye_dispatcher::{NonceTracker, ReplayProtector};
+use ransomeye_dispatcher::replay::ReplayGuard;
 use ransomeye_dispatcher::DispatcherError;
 
 #[test]

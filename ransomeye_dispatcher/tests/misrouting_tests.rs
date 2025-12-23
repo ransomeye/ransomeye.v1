@@ -3,13 +3,13 @@
 // Details of functionality of this file: Tests for misrouting rejection - wrong agent/platform
 
 use ransomeye_dispatcher::directive_envelope::{DirectiveEnvelope, TargetScope, AuditReceipt};
-use ransomeye_dispatcher::dispatcher::router::{TargetRouter, AgentInfo};
+use ransomeye_dispatcher::{TargetRouter, AgentInfo};
 use ransomeye_dispatcher::DispatcherError;
 use chrono::Utc;
 
 #[test]
 fn test_wrong_platform_rejected() {
-    let mut router = TargetRouter::new();
+    let router = TargetRouter::new();
     
     // Register Linux agent
     router.register_agent(AgentInfo {
@@ -34,7 +34,7 @@ fn test_wrong_platform_rejected() {
 
 #[test]
 fn test_wrong_capability_rejected() {
-    let mut router = TargetRouter::new();
+    let router = TargetRouter::new();
     
     // Register agent without "isolate" capability
     router.register_agent(AgentInfo {

@@ -3,8 +3,8 @@
 // Details of functionality of this file: Tests for directive validation - TTL, schema, signature
 
 use ransomeye_dispatcher::directive_envelope::{DirectiveEnvelope, TargetScope, AuditReceipt};
-use ransomeye_dispatcher::dispatcher::verifier::DirectiveVerifier;
-use ransomeye_dispatcher::security::{TrustChain, NonceTracker, ReplayProtector};
+use ransomeye_dispatcher::DirectiveVerifier;
+use ransomeye_dispatcher::{TrustChain, NonceTracker, ReplayProtector};
 use ransomeye_dispatcher::DispatcherError;
 use chrono::Utc;
 use std::fs;
