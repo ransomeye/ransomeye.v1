@@ -15,6 +15,7 @@ pub mod envelope;
 pub mod backpressure;
 pub mod rate_limit;
 pub mod health;
+pub mod hardening;
 
 #[path = "../security/mod.rs"]
 pub mod security;
@@ -28,6 +29,7 @@ use envelope::EnvelopeBuilder;
 use backpressure::BackpressureManager;
 use rate_limit::RateLimiter;
 use health::HealthMonitor;
+use hardening::RuntimeHardening;
 use security::{IdentityManager, EventSigner};
 #[path = "../../config/validation.rs"]
 mod config_validation;
@@ -39,6 +41,36 @@ fn main() -> Result<(), ProbeError> {
     tracing_subscriber::fmt::init();
     
     info!("RansomEye DPI Probe starting...");
+    
+    // Get binary path for integrity verification
+    let binary_path = std::env::current_exe()
+        .map_err(|e| ProbeError::ConfigurationError(format!("Failed to get binary path: {}", e)))?
+        .to_string_lossy()
+        .to_string();
+    
+    // Initialize runtime hardening (FAIL-CLOSED on integrity failure)
+    let config_path = std::env::var("DPI_CONFIG_PATH").ok();
+    let hardening = hardening::RuntimeHardening::new(
+        binary_path.clone(),
+        config_path.clone(),
+        30, // 30 second watchdog interval
+    ).map_err(|e| ProbeError::ConfigurationError(format!("Hardening initialization failed: {}", e)))?;
+    
+    // Verify binary integrity at startup (FAIL-CLOSED)
+    hardening.verify_binary_integrity()
+        .map_err(|e| ProbeError::ConfigurationError(format!("Binary integrity check failed: {}", e)))?;
+    
+    // Verify config integrity at startup (FAIL-CLOSED)
+    hardening.verify_config_integrity()
+        .map_err(|e| ProbeError::ConfigurationError(format!("Config integrity check failed: {}", e)))?;
+    
+    // Perform runtime tamper checks (FAIL-CLOSED)
+    hardening.perform_runtime_checks()
+        .map_err(|e| ProbeError::ConfigurationError(format!("Runtime check failed: {}", e)))?;
+    
+    // Start watchdog timer
+    hardening.start_watchdog()
+        .map_err(|e| ProbeError::ConfigurationError(format!("Watchdog start failed: {}", e)))?;
     
     // Load configuration (ENV-only, fail-closed)
     let config = ProbeConfig::from_env()
@@ -90,9 +122,29 @@ fn main() -> Result<(), ProbeError> {
     // Main processing loop
     let mut packet_count = 0u64;
     loop {
+        // Record watchdog heartbeat
+        hardening.heartbeat();
+        
+        // Perform periodic runtime checks (every 1000 packets)
+        if packet_count % 1000 == 0 {
+            if let Err(e) = hardening.perform_runtime_checks() {
+                error!("Runtime check failed: {}, stopping", e);
+                hardening.stop_watchdog();
+                return Err(ProbeError::ConfigurationError(format!("Runtime hardening violation: {}", e)));
+            }
+            
+            // Check for tamper detection
+            if hardening.is_tampered() {
+                error!("Tamper detected, stopping immediately");
+                hardening.stop_watchdog();
+                return Err(ProbeError::ConfigurationError("Tamper detected - fail-closed".to_string()));
+            }
+        }
+        
         // Check health
         if !health_monitor.check_health()? {
             error!("Health check failed, stopping");
+            hardening.stop_watchdog();
             break;
         }
         
@@ -195,6 +247,7 @@ fn main() -> Result<(), ProbeError> {
     }
     
     capture.stop();
+    hardening.stop_watchdog();
     info!("DPI Probe stopped");
     Ok(())
 }

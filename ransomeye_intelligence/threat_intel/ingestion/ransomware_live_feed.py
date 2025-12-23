@@ -1,10 +1,11 @@
 # Path and File Name : /home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/ingestion/ransomware_live_feed.py
 # Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
-# Details of functionality of this file: Ransomware.live threat intelligence feed collector for training data
+# Details of functionality of this file: Ransomware.live threat intelligence feed collector for training data (Phase 6 - Secure, Key-Safe)
 
 """
 Ransomware.live Feed Collector: Collects threat intelligence from Ransomware.live API.
 All data is cached locally for offline training use.
+Phase 6: Secure, key-safe implementation with fail-safe logic.
 """
 
 import os
@@ -12,34 +13,101 @@ import sys
 import json
 import requests
 import hashlib
+import socket
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
-# Ransomware.live API credentials
-RANSOMWARE_LIVE_API_KEY = os.getenv("RANSOMWARE_LIVE_API_KEY", "6c0cca08-3419-43e6-8014-0a4f87f353a3")
+# Ransomware.live API endpoint
 RANSOMWARE_LIVE_API_URL = "https://api.ransomware.live/v1"
+
+# Environment variable for API key (MANDATORY when online)
+ENV_API_KEY = "RANSOMEYE_FEED_RANSOMWARELIVE_API_KEY"
 
 FEEDS_DIR = Path("/home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/feeds")
 CACHE_DIR = Path("/home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/cache/ransomware_live")
 
 
+class FeedError(Exception):
+    """Feed-specific error that does not crash the system."""
+    pass
+
+
+def check_internet_connectivity(timeout: int = 5) -> bool:
+    """
+    Check if internet connectivity is available.
+    
+    Args:
+        timeout: Connection timeout in seconds
+    
+    Returns:
+        True if internet is available, False otherwise
+    """
+    test_hosts = [
+        ('8.8.8.8', 53),  # Google DNS
+        ('1.1.1.1', 53),  # Cloudflare DNS
+        ('api.ransomware.live', 443),  # Ransomware.live API
+    ]
+    
+    for host, port in test_hosts:
+        try:
+            sock = socket.create_connection((host, port), timeout=timeout)
+            sock.close()
+            return True
+        except (socket.error, OSError):
+            continue
+    
+    return False
+
+
 class RansomwareLiveFeedCollector:
-    """Collects threat intelligence from Ransomware.live API."""
+    """Collects threat intelligence from Ransomware.live API (Phase 6 - Secure, Key-Safe)."""
     
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or RANSOMWARE_LIVE_API_KEY
+        """
+        Initialize Ransomware.live feed collector.
+        
+        Args:
+            api_key: Optional API key (overrides environment variable)
+        
+        Raises:
+            FeedError: If internet is available but API key is missing
+        """
+        # Read API key from environment (MANDATORY when online)
+        self.api_key = api_key or os.getenv(ENV_API_KEY)
         self.api_url = RANSOMWARE_LIVE_API_URL
         FEEDS_DIR.mkdir(parents=True, exist_ok=True)
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Phase 6: Fail-safe logic - if internet available and key missing, fail feed (not system)
+        if check_internet_connectivity():
+            if not self.api_key:
+                raise FeedError(
+                    f"Internet is available but {ENV_API_KEY} is not set. "
+                    "Feed will fail, but system continues running."
+                )
     
-    def fetch_groups(self) -> List[Dict]:
+    def fetch_groups(self) -> Tuple[List[Dict], bool]:
         """
         Fetch ransomware groups from Ransomware.live API.
         
         Returns:
-            List of ransomware group data
+            Tuple of (groups list, success flag)
+        
+        Raises:
+            FeedError: If feed fetch fails (system continues)
         """
+        # Phase 6: Check internet and key before attempting fetch
+        if check_internet_connectivity():
+            if not self.api_key:
+                raise FeedError(
+                    f"Internet available but {ENV_API_KEY} missing. Feed fails, system continues."
+                )
+        else:
+            # Offline mode - return empty list, not an error
+            print("Info: Offline mode - returning cached groups only", file=sys.stderr)
+            return [], False
+        
         try:
             headers = {
                 'Authorization': f'Bearer {self.api_key}',
@@ -53,19 +121,18 @@ class RansomwareLiveFeedCollector:
             )
             
             if response.status_code == 200:
-                return response.json()
+                return response.json(), True
             else:
-                print(f"Warning: Failed to fetch groups: HTTP {response.status_code}", file=sys.stderr)
-                return []
+                raise FeedError(f"Failed to fetch groups: HTTP {response.status_code}")
         
         except requests.exceptions.Timeout:
-            print("Warning: Timeout fetching Ransomware.live groups", file=sys.stderr)
-            return []
+            raise FeedError("Timeout fetching Ransomware.live groups")
+        except FeedError:
+            raise
         except Exception as e:
-            print(f"Warning: Error fetching Ransomware.live groups: {e}", file=sys.stderr)
-            return []
+            raise FeedError(f"Error fetching Ransomware.live groups: {e}")
     
-    def fetch_recent_victims(self, limit: int = 100) -> List[Dict]:
+    def fetch_recent_victims(self, limit: int = 100) -> Tuple[List[Dict], bool]:
         """
         Fetch recent victim data from Ransomware.live API.
         
@@ -73,8 +140,22 @@ class RansomwareLiveFeedCollector:
             limit: Maximum number of victims to fetch
         
         Returns:
-            List of victim data
+            Tuple of (victims list, success flag)
+        
+        Raises:
+            FeedError: If feed fetch fails (system continues)
         """
+        # Phase 6: Check internet and key before attempting fetch
+        if check_internet_connectivity():
+            if not self.api_key:
+                raise FeedError(
+                    f"Internet available but {ENV_API_KEY} missing. Feed fails, system continues."
+                )
+        else:
+            # Offline mode - return empty list, not an error
+            print("Info: Offline mode - returning cached victims only", file=sys.stderr)
+            return [], False
+        
         try:
             headers = {
                 'Authorization': f'Bearer {self.api_key}',
@@ -89,21 +170,21 @@ class RansomwareLiveFeedCollector:
             )
             
             if response.status_code == 200:
-                return response.json()
+                return response.json(), True
             else:
-                print(f"Warning: Failed to fetch victims: HTTP {response.status_code}", file=sys.stderr)
-                return []
+                raise FeedError(f"Failed to fetch victims: HTTP {response.status_code}")
         
         except requests.exceptions.Timeout:
-            print("Warning: Timeout fetching Ransomware.live victims", file=sys.stderr)
-            return []
+            raise FeedError("Timeout fetching Ransomware.live victims")
+        except FeedError:
+            raise
         except Exception as e:
-            print(f"Warning: Error fetching Ransomware.live victims: {e}", file=sys.stderr)
-            return []
+            raise FeedError(f"Error fetching Ransomware.live victims: {e}")
     
     def cache_data(self, groups: List[Dict], victims: List[Dict], feed_id: str = None) -> Path:
         """
         Cache feed data to local file for offline training.
+        Verifies integrity and normalizes to feature vectors.
         
         Args:
             groups: List of ransomware group data
@@ -129,10 +210,14 @@ class RansomwareLiveFeedCollector:
             'feed_hash': None
         }
         
-        # Compute feed hash
+        # Phase 6: Compute feed hash for integrity verification
         feed_json = json.dumps(feed_data, sort_keys=True)
         feed_hash = hashlib.sha256(feed_json.encode()).hexdigest()
         feed_data['feed_hash'] = f"sha256:{feed_hash}"
+        
+        # Phase 6: Normalize to feature vectors (campaigns, families, timelines)
+        normalized_features = self._normalize_to_features(groups, victims)
+        feed_data['normalized_features'] = normalized_features
         
         # Save to cache
         with open(cache_path, 'w') as f:
@@ -140,6 +225,50 @@ class RansomwareLiveFeedCollector:
         
         print(f"  ✓ Cached {len(groups)} groups and {len(victims)} victims to {cache_path}")
         return cache_path
+    
+    def _normalize_to_features(self, groups: List[Dict], victims: List[Dict]) -> Dict:
+        """
+        Normalize groups and victims to feature vectors for training.
+        
+        Args:
+            groups: List of ransomware group data
+            victims: List of victim data
+        
+        Returns:
+            Normalized feature vectors
+        """
+        # Extract campaigns, families, timelines
+        campaigns = []
+        families = []
+        timelines = []
+        
+        for group in groups:
+            families.append({
+                'name': group.get('name', ''),
+                'description': group.get('description', ''),
+                'website': group.get('website', ''),
+                'locations': group.get('locations', []),
+            })
+        
+        for victim in victims:
+            campaigns.append({
+                'group': victim.get('group', ''),
+                'victim': victim.get('victim', ''),
+                'discovered': victim.get('discovered', ''),
+                'published': victim.get('published', ''),
+                'post_url': victim.get('post_url', ''),
+            })
+            timelines.append({
+                'timestamp': victim.get('discovered', ''),
+                'group': victim.get('group', ''),
+                'event': 'victim_published',
+            })
+        
+        return {
+            'campaigns': campaigns,
+            'families': families,
+            'timelines': timelines,
+        }
     
     def load_cached_data(self) -> Dict:
         """Load all cached data."""
@@ -165,31 +294,43 @@ def main():
     """CLI entry point."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Ransomware.live Feed Collector')
+    parser = argparse.ArgumentParser(description='Ransomware.live Feed Collector (Phase 6 - Secure)')
     parser.add_argument('--limit', type=int, default=100,
                        help='Maximum number of victims to fetch')
     parser.add_argument('--cache-only', action='store_true',
                        help='Only load from cache, do not fetch new data')
     parser.add_argument('--api-key', default=None,
-                       help='Ransomware.live API key (or use RANSOMWARE_LIVE_API_KEY env var)')
+                       help=f'Ransomware.live API key (or use {ENV_API_KEY} env var)')
     
     args = parser.parse_args()
     
-    collector = RansomwareLiveFeedCollector(api_key=args.api_key)
+    try:
+        collector = RansomwareLiveFeedCollector(api_key=args.api_key)
+    except FeedError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        print("Feed fails, but system continues running.", file=sys.stderr)
+        sys.exit(1)
     
     if args.cache_only:
         data = collector.load_cached_data()
         print(f"Loaded {len(data['groups'])} groups and {len(data['victims'])} victims from cache")
     else:
         print("Fetching data from Ransomware.live...")
-        groups = collector.fetch_groups()
-        victims = collector.fetch_recent_victims(limit=args.limit)
-        
-        print(f"Fetched {len(groups)} groups and {len(victims)} victims")
-        
-        if groups or victims:
-            cache_path = collector.cache_data(groups, victims)
-            print(f"Cached to: {cache_path}")
+        try:
+            groups, groups_success = collector.fetch_groups()
+            victims, victims_success = collector.fetch_recent_victims(limit=args.limit)
+            
+            if groups_success or victims_success:
+                print(f"Fetched {len(groups)} groups and {len(victims)} victims")
+                if groups or victims:
+                    cache_path = collector.cache_data(groups, victims)
+                    print(f"Cached to: {cache_path}")
+            else:
+                print("Offline mode - no new data fetched", file=sys.stderr)
+        except FeedError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            print("Feed fails, but system continues running.", file=sys.stderr)
+            sys.exit(1)
         
         data = {'groups': groups, 'victims': victims}
     

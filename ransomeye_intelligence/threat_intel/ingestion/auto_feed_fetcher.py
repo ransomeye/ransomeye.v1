@@ -36,10 +36,13 @@ logger = logging.getLogger('feed_fetcher')
 # Add current directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from malwarebazaar_feed import MalwareBazaarFeedCollector
-from wiz_feed import WizFeedCollector
-from ransomware_live_feed import RansomwareLiveFeedCollector
-from additional_sources import get_all_feed_collectors
+from malwarebazaar_feed import MalwareBazaarFeedCollector, FeedError as MBFeedError
+from wiz_feed import WizFeedCollector, FeedError as WizFeedError
+from ransomware_live_feed import RansomwareLiveFeedCollector, FeedError as RLFeedError
+try:
+    from additional_sources import get_all_feed_collectors
+except ImportError:
+    get_all_feed_collectors = None
 
 # State file to track last successful fetch
 STATE_FILE = Path("/var/lib/ransomeye/feed_fetcher_state.json")
@@ -185,8 +188,8 @@ def fetch_feeds_with_retry() -> Dict:
     try:
         logger.info("Fetching MalwareBazaar feed...")
         mb_collector = MalwareBazaarFeedCollector()
-        samples = mb_collector.fetch_recent_samples(limit=100)
-        if samples:
+        samples, success = mb_collector.fetch_recent_samples(limit=100)
+        if success and samples:
             mb_collector.cache_samples(samples)
             results['malwarebazaar']['success'] = True
             results['malwarebazaar']['samples'] = len(samples)
@@ -197,9 +200,20 @@ def fetch_feeds_with_retry() -> Dict:
             if samples:
                 results['malwarebazaar']['samples'] = len(samples)
                 logger.warning(f"⚠ MalwareBazaar fetch failed, using {len(samples)} cached samples")
+    except MBFeedError as e:
+        logger.error(f"MalwareBazaar feed error (system continues): {e}")
+        all_success = False
+        # Try loading from cache
+        try:
+            mb_collector = MalwareBazaarFeedCollector()
+            samples = mb_collector.load_cached_samples()
+            if samples:
+                results['malwarebazaar']['samples'] = len(samples)
+                logger.info(f"Using {len(samples)} cached MalwareBazaar samples")
             else:
-                all_success = False
-                logger.error("✗ MalwareBazaar: No samples available")
+                logger.warning("✗ MalwareBazaar: No cached samples available")
+        except Exception as cache_error:
+            logger.warning(f"Failed to load cached MalwareBazaar samples: {cache_error}")
     except Exception as e:
         logger.error(f"✗ MalwareBazaar error: {e}")
         all_success = False
@@ -208,8 +222,8 @@ def fetch_feeds_with_retry() -> Dict:
     try:
         logger.info("Fetching Wiz.io feed...")
         wiz_collector = WizFeedCollector()
-        stix_data = wiz_collector.fetch_stix_feed()
-        if stix_data:
+        stix_data, success = wiz_collector.fetch_stix_feed()
+        if success and stix_data:
             iocs = wiz_collector.parse_stix_objects(stix_data)
             wiz_collector.cache_feed(stix_data)
             results['wiz']['success'] = True
@@ -222,8 +236,19 @@ def fetch_feeds_with_retry() -> Dict:
                 results['wiz']['iocs'] = len(iocs)
                 logger.warning(f"⚠ Wiz.io fetch failed, using {len(iocs)} cached IOCs")
             else:
-                all_success = False
-                logger.error("✗ Wiz.io: No IOCs available")
+                logger.warning("✗ Wiz.io: No cached IOCs available")
+    except WizFeedError as e:
+        logger.error(f"Wiz.io feed error (system continues): {e}")
+        all_success = False
+        # Try loading from cache
+        try:
+            wiz_collector = WizFeedCollector()
+            iocs = wiz_collector.load_cached_feeds()
+            if iocs:
+                results['wiz']['iocs'] = len(iocs)
+                logger.info(f"Using {len(iocs)} cached Wiz.io IOCs")
+        except Exception:
+            pass
     except Exception as e:
         logger.error(f"✗ Wiz.io error: {e}")
         all_success = False
@@ -232,9 +257,10 @@ def fetch_feeds_with_retry() -> Dict:
     try:
         logger.info("Fetching Ransomware.live feed...")
         rl_collector = RansomwareLiveFeedCollector()
-        groups = rl_collector.fetch_groups()
-        victims = rl_collector.fetch_recent_victims(limit=100)
-        if groups or victims:
+        groups, groups_success = rl_collector.fetch_groups()
+        victims, victims_success = rl_collector.fetch_recent_victims(limit=100)
+        
+        if (groups_success or victims_success) and (groups or victims):
             rl_collector.cache_data(groups, victims)
             results['ransomware_live']['success'] = True
             results['ransomware_live']['groups'] = len(groups)
@@ -242,19 +268,31 @@ def fetch_feeds_with_retry() -> Dict:
             logger.info(f"✓ Ransomware.live: {len(groups)} groups, {len(victims)} victims cached")
         else:
             # Try loading from cache
-            data = rl_collector.load_cached_data()
-            if data.get('groups') or data.get('victims'):
-                results['ransomware_live']['groups'] = len(data.get('groups', []))
-                results['ransomware_live']['victims'] = len(data.get('victims', []))
+            cached_data = rl_collector.load_cached_data()
+            if cached_data['groups'] or cached_data['victims']:
+                results['ransomware_live']['groups'] = len(cached_data['groups'])
+                results['ransomware_live']['victims'] = len(cached_data['victims'])
                 logger.warning(f"⚠ Ransomware.live fetch failed, using cached data")
             else:
-                all_success = False
-                logger.error("✗ Ransomware.live: No data available")
+                logger.warning("✗ Ransomware.live: No cached data available")
+    except RLFeedError as e:
+        logger.error(f"Ransomware.live feed error (system continues): {e}")
+        all_success = False
+        # Try loading from cache
+        try:
+            rl_collector = RansomwareLiveFeedCollector()
+            cached_data = rl_collector.load_cached_data()
+            if cached_data['groups'] or cached_data['victims']:
+                results['ransomware_live']['groups'] = len(cached_data['groups'])
+                results['ransomware_live']['victims'] = len(cached_data['victims'])
+                logger.info(f"Using cached Ransomware.live data")
+        except Exception:
+            pass
     except Exception as e:
         logger.error(f"✗ Ransomware.live error: {e}")
         all_success = False
     
-    # 4. Additional feed sources
+    # 4. Additional feed sources (optional)
     try:
         logger.info("Fetching additional feed sources...")
         additional_collectors = get_all_feed_collectors()

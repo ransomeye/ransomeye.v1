@@ -14,4 +14,5 @@ pub mod buffer;
 pub mod health;
 pub mod config;
 pub mod identity;
+pub mod deception;
 

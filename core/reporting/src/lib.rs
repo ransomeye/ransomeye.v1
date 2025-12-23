@@ -12,6 +12,7 @@ pub mod verifier;
 pub mod retention;
 pub mod errors;
 pub mod formats;
+pub mod deception_report;
 
 pub use collector::EvidenceCollector;
 pub use evidence_store::EvidenceStore;

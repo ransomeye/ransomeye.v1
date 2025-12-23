@@ -22,6 +22,7 @@ pub mod envelope;
 pub mod backpressure;
 pub mod rate_limit;
 pub mod health;
+pub mod hardening;
 
 // Security module is in agent/security/
 
@@ -35,4 +36,5 @@ pub use envelope::EventEnvelope;
 pub use backpressure::BackpressureManager;
 pub use rate_limit::RateLimiter;
 pub use health::HealthMonitor;
+pub use hardening::RuntimeHardening;
 

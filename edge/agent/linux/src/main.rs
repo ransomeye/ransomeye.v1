@@ -27,6 +27,7 @@ mod buffer;
 mod health;
 mod config;
 mod identity;
+mod deception;
 
 use config::Config;
 

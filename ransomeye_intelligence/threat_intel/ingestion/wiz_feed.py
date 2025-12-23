@@ -1,10 +1,11 @@
 # Path and File Name : /home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/ingestion/wiz_feed.py
 # Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
-# Details of functionality of this file: Wiz.io Cloud Threat Landscape STIX feed collector for training data
+# Details of functionality of this file: Wiz.io Cloud Threat Landscape STIX feed collector for training data (Phase 6 - Secure, Key-Safe)
 
 """
 Wiz.io Feed Collector: Collects threat intelligence from Wiz.io Cloud Threat Landscape STIX feed.
 All data is cached locally for offline training use.
+Phase 6: Secure, key-safe implementation with fail-safe logic.
 """
 
 import os
@@ -12,32 +13,103 @@ import sys
 import json
 import subprocess
 import hashlib
+import socket
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
-# Wiz.io API endpoint
-WIZ_API_URL = "https://www.wiz.io/api/feed/cloud-threat-landscape/stix.json"
+# Environment variable for WIZ URL (MANDATORY when online)
+ENV_WIZ_URL = "RANSOMEYE_FEED_WIZ_URL"
+
+# Default Wiz.io API endpoint (fallback if env var not set)
+DEFAULT_WIZ_API_URL = "https://www.wiz.io/api/feed/cloud-threat-landscape/stix.json"
 
 FEEDS_DIR = Path("/home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/feeds")
 CACHE_DIR = Path("/home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/cache/wiz")
 
 
-class WizFeedCollector:
-    """Collects threat intelligence from Wiz.io STIX feed."""
+class FeedError(Exception):
+    """Feed-specific error that does not crash the system."""
+    pass
+
+
+def check_internet_connectivity(timeout: int = 5) -> bool:
+    """
+    Check if internet connectivity is available.
     
-    def __init__(self):
-        self.api_url = WIZ_API_URL
+    Args:
+        timeout: Connection timeout in seconds
+    
+    Returns:
+        True if internet is available, False otherwise
+    """
+    test_hosts = [
+        ('8.8.8.8', 53),  # Google DNS
+        ('1.1.1.1', 53),  # Cloudflare DNS
+        ('www.wiz.io', 443),  # Wiz.io API
+    ]
+    
+    for host, port in test_hosts:
+        try:
+            sock = socket.create_connection((host, port), timeout=timeout)
+            sock.close()
+            return True
+        except (socket.error, OSError):
+            continue
+    
+    return False
+
+
+class WizFeedCollector:
+    """Collects threat intelligence from Wiz.io STIX feed (Phase 6 - Secure, Key-Safe)."""
+    
+    def __init__(self, wiz_url: Optional[str] = None):
+        """
+        Initialize Wiz.io feed collector.
+        
+        Args:
+            wiz_url: Optional WIZ URL (overrides environment variable)
+        
+        Raises:
+            FeedError: If internet is available but WIZ URL is missing
+        """
+        # Read WIZ URL from environment (MANDATORY when online)
+        self.api_url = wiz_url or os.getenv(ENV_WIZ_URL) or DEFAULT_WIZ_API_URL
         FEEDS_DIR.mkdir(parents=True, exist_ok=True)
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Phase 6: Fail-safe logic - if internet available and URL missing, fail feed (not system)
+        if check_internet_connectivity():
+            if not os.getenv(ENV_WIZ_URL) and not wiz_url:
+                # Only fail if using default and internet is available
+                # If custom URL provided, allow it
+                if not wiz_url:
+                    raise FeedError(
+                        f"Internet is available but {ENV_WIZ_URL} is not set. "
+                        "Feed will fail, but system continues running."
+                    )
     
-    def fetch_stix_feed(self) -> Optional[Dict]:
+    def fetch_stix_feed(self) -> Tuple[Optional[Dict], bool]:
         """
         Fetch STIX feed from Wiz.io.
         
         Returns:
-            STIX feed data or None if fetch failed
+            Tuple of (STIX feed data or None, success flag)
+        
+        Raises:
+            FeedError: If feed fetch fails (system continues)
         """
+        # Phase 6: Check internet before attempting fetch
+        if check_internet_connectivity():
+            if not os.getenv(ENV_WIZ_URL) and self.api_url == DEFAULT_WIZ_API_URL:
+                raise FeedError(
+                    f"Internet available but {ENV_WIZ_URL} missing. Feed fails, system continues."
+                )
+        else:
+            # Offline mode - return None, not an error
+            print("Info: Offline mode - returning cached feed only", file=sys.stderr)
+            return None, False
+        
         try:
             # Use wget to fetch STIX feed
             cmd = [
@@ -56,22 +128,20 @@ class WizFeedCollector:
             )
             
             if result.returncode != 0:
-                print(f"Warning: Failed to fetch Wiz.io feed: {result.stderr}", file=sys.stderr)
-                return None
+                raise FeedError(f"Failed to fetch Wiz.io feed: {result.stderr}")
             
             try:
                 data = json.loads(result.stdout)
-                return data
+                return data, True
             except json.JSONDecodeError:
-                print("Warning: Invalid JSON response from Wiz.io", file=sys.stderr)
-                return None
+                raise FeedError("Invalid JSON response from Wiz.io")
         
         except subprocess.TimeoutExpired:
-            print("Warning: Timeout fetching Wiz.io feed", file=sys.stderr)
-            return None
+            raise FeedError("Timeout fetching Wiz.io feed")
+        except FeedError:
+            raise
         except Exception as e:
-            print(f"Warning: Error fetching Wiz.io feed: {e}", file=sys.stderr)
-            return None
+            raise FeedError(f"Error fetching Wiz.io feed: {e}")
     
     def parse_stix_objects(self, stix_data: Dict) -> List[Dict]:
         """
@@ -136,9 +206,35 @@ class WizFeedCollector:
         
         return iocs
     
+    def _normalize_to_features(self, iocs: List[Dict]) -> List[Dict]:
+        """
+        Normalize STIX IOCs to feature vectors for training.
+        
+        Args:
+            iocs: List of parsed IOCs
+        
+        Returns:
+            List of normalized feature vectors
+        """
+        features = []
+        for ioc in iocs:
+            feature_vector = {
+                'type': ioc.get('type', ''),
+                'pattern': ioc.get('pattern', ''),
+                'labels': ioc.get('labels', []),
+                'confidence': ioc.get('confidence', 0.5),
+                'created': ioc.get('created', ''),
+                'modified': ioc.get('modified', ''),
+                'description': ioc.get('description', ''),
+                'source': ioc.get('source', 'wiz.io'),
+            }
+            features.append(feature_vector)
+        return features
+    
     def cache_feed(self, stix_data: Dict, feed_id: str = None) -> Path:
         """
         Cache STIX feed to local file for offline training.
+        Verifies integrity and normalizes to feature vectors.
         
         Args:
             stix_data: STIX feed data
@@ -166,10 +262,14 @@ class WizFeedCollector:
             'feed_hash': None
         }
         
-        # Compute feed hash
+        # Phase 6: Compute feed hash for integrity verification
         feed_json = json.dumps(feed_data, sort_keys=True)
         feed_hash = hashlib.sha256(feed_json.encode()).hexdigest()
         feed_data['feed_hash'] = f"sha256:{feed_hash}"
+        
+        # Phase 6: Normalize to feature vectors
+        normalized_features = self._normalize_to_features(iocs)
+        feed_data['normalized_features'] = normalized_features
         
         # Save to cache
         with open(cache_path, 'w') as f:
@@ -198,30 +298,42 @@ def main():
     """CLI entry point."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Wiz.io Feed Collector')
+    parser = argparse.ArgumentParser(description='Wiz.io Feed Collector (Phase 6 - Secure)')
     parser.add_argument('--cache-only', action='store_true',
                        help='Only load from cache, do not fetch new data')
+    parser.add_argument('--wiz-url', default=None,
+                       help=f'Wiz.io STIX feed URL (or use {ENV_WIZ_URL} env var)')
     
     args = parser.parse_args()
     
-    collector = WizFeedCollector()
+    try:
+        collector = WizFeedCollector(wiz_url=args.wiz_url)
+    except FeedError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        print("Feed fails, but system continues running.", file=sys.stderr)
+        sys.exit(1)
     
     if args.cache_only:
         iocs = collector.load_cached_feeds()
         print(f"Loaded {len(iocs)} IOCs from cache")
     else:
         print("Fetching STIX feed from Wiz.io...")
-        stix_data = collector.fetch_stix_feed()
-        
-        if stix_data:
-            iocs = collector.parse_stix_objects(stix_data)
-            print(f"Parsed {len(iocs)} IOCs from STIX feed")
+        try:
+            stix_data, success = collector.fetch_stix_feed()
             
-            cache_path = collector.cache_feed(stix_data)
-            print(f"Cached to: {cache_path}")
-        else:
-            print("Failed to fetch feed")
-            iocs = []
+            if success and stix_data:
+                iocs = collector.parse_stix_objects(stix_data)
+                print(f"Parsed {len(iocs)} IOCs from STIX feed")
+                
+                cache_path = collector.cache_feed(stix_data)
+                print(f"Cached to: {cache_path}")
+            else:
+                print("Offline mode or failed to fetch feed", file=sys.stderr)
+                iocs = []
+        except FeedError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            print("Feed fails, but system continues running.", file=sys.stderr)
+            sys.exit(1)
     
     return iocs
 

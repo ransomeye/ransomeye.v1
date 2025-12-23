@@ -101,8 +101,10 @@ dependencies = [
  "ai_inference",
  "ai_rag",
  "base64 0.21.7",
+ "ed25519-dalek",
  "hex",
  "parking_lot",
+ "rand 0.8.5",
  "ring",
  "serde",
  "serde_json",
@@ -3245,6 +3247,15 @@ checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
 [[package]]
 name = "sentinel"
 version = "1.0.0"
+dependencies = [
+ "hex",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "serde"
