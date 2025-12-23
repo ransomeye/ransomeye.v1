@@ -255,6 +255,92 @@ else
     error "ransomeye_operations module not found. Expected: $PROJECT_ROOT/ransomeye_operations/"
 fi
 
+# Build and install Phase 6: Incident Response Playbook Engine
+if [[ -d "$PROJECT_ROOT/core/response_playbooks" ]]; then
+    log "Building Phase 6: Incident Response Playbook Engine"
+    cd "$PROJECT_ROOT/core/response_playbooks"
+    
+    # Check if cargo is available
+    if ! command -v cargo &> /dev/null; then
+        error "Rust/Cargo is required but not found. Please install Rust toolchain."
+    fi
+    
+    # Build release binary
+    if cargo build --release 2>&1 | tee -a "$LOG_FILE"; then
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        if [[ $BUILD_EXIT_CODE -eq 0 ]]; then
+            # Install binary to /usr/local/bin
+            BINARY_SOURCE="$PROJECT_ROOT/core/response_playbooks/target/release/ransomeye-playbook-engine"
+            BINARY_TARGET="/usr/local/bin/ransomeye-playbook-engine"
+            
+            if [[ -f "$BINARY_SOURCE" ]]; then
+                cp "$BINARY_SOURCE" "$BINARY_TARGET"
+                chmod +x "$BINARY_TARGET"
+                
+                # Verify installation
+                if [[ -f "$BINARY_TARGET" && -x "$BINARY_TARGET" ]]; then
+                    success "Phase 6 playbook engine binary installed to $BINARY_TARGET"
+                else
+                    error "Failed to verify binary installation: $BINARY_TARGET"
+                fi
+            else
+                error "Built binary not found at expected path: $BINARY_SOURCE"
+            fi
+        else
+            error "Phase 6 binary build failed with exit code: $BUILD_EXIT_CODE"
+        fi
+    else
+        error "Failed to execute cargo build for Phase 6"
+    fi
+    
+    cd "$PROJECT_ROOT"
+else
+    warning "Phase 6 playbook engine not found. Expected: $PROJECT_ROOT/core/response_playbooks/"
+fi
+
+# Build and install Phase 9: Network Scanner
+if [[ -d "$PROJECT_ROOT/core/network_scanner" ]]; then
+    log "Building Phase 9: Network Scanner"
+    cd "$PROJECT_ROOT/core/network_scanner"
+    
+    # Check if cargo is available
+    if ! command -v cargo &> /dev/null; then
+        error "Rust/Cargo is required but not found. Please install Rust toolchain."
+    fi
+    
+    # Build release binary
+    if cargo build --release 2>&1 | tee -a "$LOG_FILE"; then
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        if [[ $BUILD_EXIT_CODE -eq 0 ]]; then
+            # Install binary to /usr/local/bin
+            BINARY_SOURCE="$PROJECT_ROOT/core/network_scanner/target/release/ransomeye-network-scanner"
+            BINARY_TARGET="/usr/local/bin/ransomeye-network-scanner"
+            
+            if [[ -f "$BINARY_SOURCE" ]]; then
+                cp "$BINARY_SOURCE" "$BINARY_TARGET"
+                chmod +x "$BINARY_TARGET"
+                
+                # Verify installation
+                if [[ -f "$BINARY_TARGET" && -x "$BINARY_TARGET" ]]; then
+                    success "Phase 9 network scanner binary installed to $BINARY_TARGET"
+                else
+                    error "Failed to verify binary installation: $BINARY_TARGET"
+                fi
+            else
+                error "Built binary not found at expected path: $BINARY_SOURCE"
+            fi
+        else
+            error "Phase 9 binary build failed with exit code: $BUILD_EXIT_CODE"
+        fi
+    else
+        error "Failed to execute cargo build for Phase 9"
+    fi
+    
+    cd "$PROJECT_ROOT"
+else
+    warning "Phase 9 network scanner not found. Expected: $PROJECT_ROOT/core/network_scanner/"
+fi
+
 # ============================================================================
 # 5. CORE STACK INSTALLATION
 # ============================================================================

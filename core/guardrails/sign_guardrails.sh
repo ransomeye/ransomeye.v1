@@ -102,9 +102,12 @@ fi
 
 echo "  Computed hash: $SPEC_HASH"
 
-# Sign the hash
+# Sign the hash (convert hex to binary first, use temp file for openssl)
 echo "Signing specification hash..."
-SIGNATURE_B64=$(echo -n "$SPEC_HASH" | openssl pkeyutl -sign -inkey "$PRIVATE_KEY_FILE" -rawin 2>/dev/null | base64 -w 0)
+HASH_BIN=$(mktemp)
+echo -n "$SPEC_HASH" | xxd -r -p > "$HASH_BIN"
+SIGNATURE_B64=$(openssl pkeyutl -sign -inkey "$PRIVATE_KEY_FILE" -rawin -in "$HASH_BIN" 2>/dev/null | base64 -w 0)
+rm -f "$HASH_BIN"
 
 # Fail-closed: Check if signing succeeded
 if [[ -z "$SIGNATURE_B64" ]]; then
@@ -239,9 +242,12 @@ try:
     # Decode signature
     signature_bytes = base64.b64decode(signature_b64)
     
+    # Convert hash to binary
+    hash_bytes = bytes.fromhex(computed_hash)
+    
     # Create temp files for message and signature
     with tempfile.NamedTemporaryFile(delete=False, mode='wb') as msg_file:
-        msg_file.write(computed_hash.encode('utf-8'))
+        msg_file.write(hash_bytes)
         msg_path = msg_file.name
     
     with tempfile.NamedTemporaryFile(delete=False, mode='wb') as sig_file:
@@ -250,12 +256,7 @@ try:
     
     try:
         # Verify signature using openssl pkeyutl
-        # -verify: verify mode
-        # -pubin: input is a public key
-        # -inkey: public key file
-        # -rawin: input is raw data (not DER/PEM)
-        # -in: message file
-        # -sigfile: signature file
+        # Use the public key PEM file directly
         result = subprocess.run(
             ['openssl', 'pkeyutl', '-verify', '-pubin', '-inkey', public_key_file, '-rawin', '-in', msg_path, '-sigfile', sig_path],
             capture_output=True,
