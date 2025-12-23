@@ -1,62 +1,125 @@
-// Path and File Name : /home/ransomeye/rebuild/ransomeye_dpi_probe/security/identity.rs
+// Path and File Name : /home/ransomeye/rebuild/ransomeye_windows_agent/security/identity.rs
 // Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
-// Details of functionality of this file: Security identity module - X.509 certificate handling and identity verification for mTLS
+// Details of functionality of this file: Component identity management
 
+use std::path::PathBuf;
 use std::fs;
-use std::path::Path;
-use ring::signature::RsaKeyPair;
-use sha2::{Sha256, Digest};
-use hex;
-use thiserror::Error;
+use uuid::Uuid;
+use serde::{Serialize, Deserialize};
+use tracing::{error, info};
 
-#[derive(Debug, Error)]
-pub enum IdentityError {
-    #[error("Failed to load certificate: {0}")]
-    CertLoadFailed(String),
-    #[error("Failed to verify certificate: {0}")]
-    CertVerificationFailed(String),
-    #[error("Identity mismatch: {0}")]
-    IdentityMismatch(String),
+#[path = "../agent/src/errors.rs"]
+mod errors;
+use errors::AgentError;
+
+/// Component identity
+/// 
+/// Unique identity for this Windows Agent instance.
+/// Enforced at startup - fail-closed on identity failure.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ComponentIdentity {
+    component_id: String,
+    created_at: u64,
+    key_id: String,
 }
 
-/// Security identity manager for Windows Agent
-/// Handles X.509 certificate validation and identity verification
-pub struct SecurityIdentity {
-    agent_id: String,
-    cert_path: String,
-}
-
-impl SecurityIdentity {
-    pub fn new(agent_id: String, cert_path: String) -> Self {
-        Self {
-            agent_id,
-            cert_path,
+impl ComponentIdentity {
+    /// Load or create component identity
+    pub fn load_or_create() -> Result<Self, AgentError> {
+        let identity_path = Self::identity_path()?;
+        
+        if identity_path.exists() {
+            // Load existing identity
+            let identity_data = fs::read_to_string(&identity_path)
+                .map_err(|e| AgentError::ComponentIdentityFailure(
+                    format!("Failed to read identity file: {}", e)
+                ))?;
+            
+            let identity: ComponentIdentity = serde_json::from_str(&identity_data)
+                .map_err(|e| AgentError::ComponentIdentityFailure(
+                    format!("Failed to parse identity file: {}", e)
+                ))?;
+            
+            info!("Component identity loaded: {}", identity.component_id);
+            Ok(identity)
+        } else {
+            // Create new identity
+            let identity = Self::create_new()?;
+            
+            // Save identity
+            let identity_data = serde_json::to_string_pretty(&identity)
+                .map_err(|e| AgentError::ComponentIdentityFailure(
+                    format!("Failed to serialize identity: {}", e)
+                ))?;
+            
+            fs::create_dir_all(identity_path.parent().unwrap())
+                .map_err(|e| AgentError::ComponentIdentityFailure(
+                    format!("Failed to create identity directory: {}", e)
+                ))?;
+            
+            fs::write(&identity_path, identity_data)
+                .map_err(|e| AgentError::ComponentIdentityFailure(
+                    format!("Failed to write identity file: {}", e)
+                ))?;
+            
+            info!("Component identity created: {}", identity.component_id);
+            Ok(identity)
         }
     }
     
-    /// Verify that the certificate belongs to this Windows Agent instance
-    pub fn verify_identity(&self) -> Result<bool, IdentityError> {
-        // Read certificate
-        let cert_data = fs::read(&self.cert_path)
-            .map_err(|e| IdentityError::CertLoadFailed(format!("Failed to read certificate: {}", e)))?;
+    /// Create new component identity
+    fn create_new() -> Result<Self, AgentError> {
+        let component_id = format!("windows-agent-{}", Uuid::new_v4());
+        let key_id = format!("key-{}", Uuid::new_v4());
         
-        // Extract certificate subject (simplified - in production use proper X.509 parsing)
-        // This is a placeholder for actual certificate validation
-        // In production, use rustls or openssl to parse and verify X.509 certificates
+        let created_at = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|e| AgentError::ComponentIdentityFailure(
+                format!("Failed to get timestamp: {}", e)
+            ))?
+            .as_secs();
         
-        Ok(true)
+        Ok(Self {
+            component_id,
+            created_at,
+            key_id,
+        })
     }
     
-    /// Generate identity hash from certificate
-    pub fn identity_hash(&self) -> Result<String, IdentityError> {
-        let cert_data = fs::read(&self.cert_path)
-            .map_err(|e| IdentityError::CertLoadFailed(format!("Failed to read certificate: {}", e)))?;
+    /// Get identity file path
+    fn identity_path() -> Result<PathBuf, AgentError> {
+        let mut path = PathBuf::from(std::env::var("PROGRAMDATA")
+            .unwrap_or_else(|_| "C:\\ProgramData".to_string()));
+        path.push("RansomEye");
+        path.push("agent");
+        path.push("identity.json");
+        Ok(path)
+    }
+    
+    /// Get component ID
+    pub fn component_id(&self) -> &str {
+        &self.component_id
+    }
+    
+    /// Get key ID
+    pub fn key_id(&self) -> &str {
+        &self.key_id
+    }
+    
+    /// Validate identity
+    pub fn validate(&self) -> Result<(), AgentError> {
+        if self.component_id.is_empty() {
+            return Err(AgentError::ComponentIdentityFailure(
+                "Component ID is empty".to_string()
+            ));
+        }
         
-        let mut hasher = Sha256::new();
-        hasher.update(&cert_data);
-        hasher.update(self.agent_id.as_bytes());
-        let hash = hasher.finalize();
+        if self.key_id.is_empty() {
+            return Err(AgentError::ComponentIdentityFailure(
+                "Key ID is empty".to_string()
+            ));
+        }
         
-        Ok(hex::encode(&hash[..16]))
+        Ok(())
     }
 }

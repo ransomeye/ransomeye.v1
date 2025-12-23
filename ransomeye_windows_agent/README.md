@@ -1,208 +1,106 @@
-# RansomEye Windows Agent
+# RansomEye Windows Agent (Phase 9C)
 
-**Path and File Name:** `/home/ransomeye/rebuild/ransomeye_windows_agent/README.md`  
+**Path and File Name:** /home/ransomeye/rebuild/ransomeye_windows_agent/README.md  
 **Author:** nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU  
-**Details:** Stand-alone Windows Agent sensor for endpoint telemetry collection
+**Details:** Windows Agent - Standalone host-based telemetry sensor
 
 ## Overview
 
-The Windows Agent is a **stand-alone, untrusted sensor** that collects endpoint telemetry. It never enforces policy, never runs AI, and never stores long-term state.
+The RansomEye Windows Agent is a **stand-alone** telemetry sensor for Windows endpoints. It collects process, filesystem, registry, and network telemetry via ETW (Event Tracing for Windows) and emits signed events to the Phase 4 ingestion pipeline.
 
-## Responsibilities
+## Key Characteristics
 
-- Process creation telemetry
-- Registry telemetry
-- File activity telemetry
-- Controlled response hooks (NOT enforcement)
+- **NO enforcement** - Observation only
+- **NO policy decisions** - Telemetry emission only
+- **NO remediation actions** - Sensor only
+- **ETW primary** - High-performance kernel-level events
+- **WMI fallback** - When ETW unavailable
+- **Ed25519 signing** - Every event cryptographically signed
+- **Phase-4 compliant** - Envelopes compatible with ingestion pipeline
+- **Bounded memory** - Hard limits on all tracking structures
+- **Fail-closed** - On identity or signing failure
 
-## Hard Rules
+## Directory Structure
 
-- No kernel drivers (user-mode only)
-- No policy enforcement
-- No AI
-- Signed telemetry only
+```
+ransomeye_windows_agent/
+├── agent/
+│   └── src/
+│       ├── main.rs          # Main entry point
+│       ├── lib.rs           # Library exports
+│       ├── errors.rs        # Error types
+│       ├── process.rs       # Process monitoring
+│       ├── filesystem.rs    # Filesystem monitoring
+│       ├── registry.rs      # Registry monitoring
+│       ├── network.rs        # Network monitoring
+│       ├── etw.rs           # ETW abstraction
+│       ├── features.rs      # Feature extraction
+│       ├── envelope.rs      # Phase-4 envelopes
+│       ├── backpressure.rs   # Backpressure handling
+│       ├── rate_limit.rs    # Rate limiting
+│       └── health.rs        # Health monitoring
+├── security/
+│   ├── mod.rs              # Security module exports
+│   ├── identity.rs          # Component identity
+│   ├── signing.rs          # Ed25519 signing
+│   └── attestation.rs      # Component attestation
+├── config/
+│   └── validation.rs       # Configuration validation
+├── docs/
+│   ├── etw_coverage.md     # ETW provider coverage
+│   ├── performance_model.md # Performance characteristics
+│   ├── privacy_guarantees.md # Privacy guarantees
+│   ├── failure_modes.md    # Failure modes
+│   └── hardening.md        # Security hardening
+└── tests/
+    ├── etw_tests.rs        # ETW tests
+    ├── process_tests.rs    # Process monitoring tests
+    ├── fs_behavior_tests.rs # Filesystem tests
+    ├── registry_tests.rs   # Registry tests
+    ├── signing_tests.rs    # Signing tests
+    └── determinism_tests.rs # Determinism tests
+```
 
-## Components
+## Building
 
-- **Telemetry Collector**: Collects process, registry, and file events (user-mode)
-- **Event Signer**: Signs all telemetry with RSA-4096-PSS-SHA256
-- **Transport Client**: mTLS client for sending signed events to Core
-- **Backpressure Handler**: Manages bounded buffers and backpressure signals
-- **Health Reporter**: Reports sensor health status
-
-## Configuration
-
-All configuration via environment variables:
-
-- `CORE_API_URL`: Core API endpoint (default: `https://localhost:8443`)
-- `BUFFER_DIR`: Buffer directory (default: `C:\ProgramData\RansomEye\WindowsAgent\buffer`)
-- `AGENT_CERT_PATH`: Client certificate path
-- `AGENT_KEY_PATH`: Client private key path
-- `CA_CERT_PATH`: CA certificate path
-- `MAX_BUFFER_SIZE_MB`: Maximum buffer size in MB (default: 512)
-- `BACKPRESSURE_THRESHOLD`: Backpressure threshold (default: 4096)
-- `TELEMETRY_INTERVAL_SECONDS`: Telemetry collection interval (default: 1)
-
-## Communication
-
-- mTLS authentication with per-instance certificates
-- Event signing with RSA-4096-PSS-SHA256
-- Replay protection via nonce
-- Backpressure handling
+```bash
+cd /home/ransomeye/rebuild/ransomeye_windows_agent
+cargo build --release
+```
 
 ## Testing
 
-Run integration tests:
-
 ```bash
-cd ransomeye_windows_agent
 cargo test
 ```
 
-Tests cover:
-- Identity spoofing prevention
-- Event signing verification
-- Backpressure handling
-- Core unavailability tolerance
-- Resource exhaustion handling
+## Configuration
 
-## Installation
+Configuration is loaded from environment variables or default values:
+- `max_buffer_size_mb`: Maximum buffer size (default: 100MB)
+- `backpressure_threshold`: Backpressure threshold (default: 0.8)
+- `max_events_per_second`: Rate limit (default: 10,000)
 
-### Prerequisites
+## Security
 
-- Windows 10 (Build 1809+) or Windows Server 2019+
-- Administrator privileges
-- WiX Toolset v3.11+ (for building MSI installer)
-- Windows SDK (for code signing)
+- Ed25519 signing for all events
+- Component identity enforced at startup
+- Replay protection via sequence numbers
+- Fail-closed on identity or signing failure
 
-### Build MSI Installer
+## Documentation
 
-1. Build the binary:
-```bash
-cd ransomeye_windows_agent
-cargo build --release
-```
+See `docs/` directory for detailed documentation:
+- ETW coverage and providers
+- Performance model and resource bounds
+- Privacy guarantees
+- Failure modes and recovery
+- Security hardening guide
 
-2. Build the MSI installer:
-```powershell
-.\installer\build-msi.ps1
-```
+## Compliance
 
-This requires WiX Toolset installed. Download from: https://wixtoolset.org/
-
-3. Sign the MSI (recommended):
-```powershell
-signtool sign /f certificate.pfx /p password .\installer\RansomEyeWindowsAgent.msi
-```
-
-### Install
-
-**Option 1: PowerShell wrapper (recommended)**
-```powershell
-.\installer\install.ps1 -MsiPath .\installer\RansomEyeWindowsAgent.msi -AcceptEULA
-```
-
-**Option 2: Direct MSI installation**
-```powershell
-msiexec.exe /i .\installer\RansomEyeWindowsAgent.msi /quiet ACCEPTEULA=1
-```
-
-**Option 3: Via Control Panel**
-1. Double-click `RansomEyeWindowsAgent.msi`
-2. Follow the installation wizard
-3. Accept EULA when prompted
-
-The installer will:
-- Enforce EULA acceptance (mandatory, no bypass)
-- Verify Authenticode signatures (if signed)
-- Install binary to `C:\Program Files\RansomEye\WindowsAgent\`
-- Install data/config to `C:\ProgramData\RansomEye\WindowsAgent\`
-- Install and start Windows Service
-- Create install receipt
-
-### Service Management
-
-**Start service:**
-```powershell
-Start-Service -Name "RansomEyeWindowsAgent"
-```
-
-**Stop service:**
-```powershell
-Stop-Service -Name "RansomEyeWindowsAgent"
-```
-
-**Restart service:**
-```powershell
-Restart-Service -Name "RansomEyeWindowsAgent"
-```
-
-**View service status:**
-```powershell
-Get-Service -Name "RansomEyeWindowsAgent"
-```
-
-**View logs:**
-```powershell
-# Event Viewer
-eventvwr.msc
-
-# Application logs
-Get-Content "C:\ProgramData\RansomEye\WindowsAgent\logs\*.log" -Tail 50
-```
-
-See `installer/lifecycle.md` for complete lifecycle management documentation.
-
-### Uninstallation
-
-**Option 1: PowerShell wrapper**
-```powershell
-.\installer\uninstall.ps1 [-PreserveLogs]
-```
-
-**Option 2: Control Panel**
-1. Open "Add or Remove Programs" (Settings → Apps)
-2. Find "RansomEye Windows Agent"
-3. Click "Uninstall"
-
-**Option 3: MSI command line**
-```powershell
-msiexec.exe /x {ProductCode} /quiet
-```
-
-The uninstaller will:
-- Stop and remove the Windows Service
-- Remove binaries and configuration
-- Optionally preserve logs (configurable)
-- Clean registry entries
-
-### Verify Installation
-
-```powershell
-.\installer\verify.ps1
-```
-
-## Requirements
-
-See `installer/requirements.md` for detailed system requirements, including:
-- OS and architecture requirements
-- Memory and disk requirements
-- Privilege requirements
-- Build and signing requirements
-
-## Build
-
-```bash
-cargo build --release
-```
-
-## Run (Manual)
-
-For manual execution (not recommended for production):
-
-```powershell
-.\target\release\ransomeye_windows_agent.exe
-```
-
-**Note:** Production deployments should use the Windows Service installed via the MSI installer.
-
+- Stand-alone module (no unified installer dependency)
+- No kernel driver required
+- ETW primary, WMI fallback
+- Bounded memory usage
+- Deterministic behavior
