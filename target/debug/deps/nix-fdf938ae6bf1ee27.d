@@ -1,0 +1,13 @@
+/home/ransomeye/rebuild/target/debug/deps/libnix-fdf938ae6bf1ee27.rmeta: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/lib.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/macros.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/errno.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/fcntl.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/mod.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/signal.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/sysinfo.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/time.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/unistd.rs
+
+/home/ransomeye/rebuild/target/debug/deps/nix-fdf938ae6bf1ee27.d: /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/lib.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/macros.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/errno.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/fcntl.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/mod.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/signal.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/sysinfo.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/time.rs /home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/unistd.rs
+
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/lib.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/macros.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/errno.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/fcntl.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/mod.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/signal.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/sysinfo.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/time.rs:
+/home/ransomeye/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/unistd.rs:

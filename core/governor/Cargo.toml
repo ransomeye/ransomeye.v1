@@ -6,3 +6,7 @@ edition = "2021"
 [lib]
 name = "governor"
 path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+tracing = "0.1"

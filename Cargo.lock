@@ -506,6 +506,23 @@ checksum = "5dd9dc738b7a8311c7ade152424974d8115f2cdad61e8dab8dac9f2362298510"
 [[package]]
 name = "bus"
 version = "1.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "chrono",
+ "dashmap",
+ "ed25519-dalek",
+ "parking_lot",
+ "rustls",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+ "tokio",
+ "tokio-rustls",
+ "tracing",
+ "uuid",
+]
 
 [[package]]
 name = "bytecount"
@@ -1371,6 +1388,10 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 [[package]]
 name = "governor"
 version = "1.0.0"
+dependencies = [
+ "thiserror",
+ "tracing",
+]
 
 [[package]]
 name = "h2"
@@ -1837,6 +1858,10 @@ dependencies = [
 [[package]]
 name = "kernel"
 version = "1.0.0"
+dependencies = [
+ "thiserror",
+ "tracing",
+]
 
 [[package]]
 name = "lazy_static"
@@ -3742,6 +3767,10 @@ dependencies = [
 [[package]]
 name = "tools"
 version = "1.0.0"
+dependencies = [
+ "serde_json",
+ "walkdir",
+]
 
 [[package]]
 name = "tower-service"
