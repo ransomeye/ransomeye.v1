@@ -1,0 +1,86 @@
+🛠️ PROMPT 12: OPS CLI & SRE TOOLING
+Goal: Build ops. This is a strict CLI tool used by System Administrators to maintain the RansomEye cluster. It replaces manual shell scripts with type-safe Rust logic. Key Functions:
+
+Key Rotation: Generating and distributing new signing keys without downtime.
+
+Log Hygiene: Compressing, encrypting, and archiving audit logs to cold storage.
+
+Disaster Recovery: Creating encrypted backups of the Core DB.
+
+Target Path: /home/ransomeye/rebuild/ops/
+
+Dependencies: tokio, clap (CLI parser), ring (crypto), zstd (compression), sqlx.
+
+1. SETUP
+Initialize ops as a Rust Binary crate. Add dependencies: core/kernel (config/crypto), core/intel (for graph backup).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+ops/
+├── Cargo.toml
+└── src/
+    ├── main.rs             # CLI Dispatcher
+    ├── commands/
+    │   ├── mod.rs
+    │   ├── rotate_keys.rs  # Trust Root Rollover
+    │   ├── archive.rs      # Log Retention Policy
+    │   ├── backup.rs       # DB Dump & Encrypt
+    │   └── health.rs       # Deep Diagnostics
+    └── utils.rs
+3. IMPLEMENTATION TASKS
+A. Key Rotation (commands/rotate_keys.rs)
+Context: If a private key is compromised, we must rotate it.
+
+Logic:
+
+Generate New_KeyPair.
+
+Create a TrustUpdate message signed by the Old_PrivateKey.
+
+Publish to broadcast.updates topic.
+
+Wait for ACKs from Agents.
+
+Update core/kernel config to use new key.
+
+Safety: Must verify that at least 80% of agents have acknowledged the new key before committing.
+
+B. Secure Log Archival (commands/archive.rs)
+Policy: Logs > 30 days must be moved to cold storage.
+
+Logic:
+
+Query DB for old AuditLogs.
+
+Stream to a JSON file.
+
+Compress with zstd.
+
+Encrypt with AES-GCM (using a specific Archive Key).
+
+Move to /mnt/cold_storage/.
+
+DELETE from DB (vacuum).
+
+C. Database Backup (commands/backup.rs)
+Logic: Wrapper around pg_dump.
+
+Process:
+
+Lock DB writes (briefly).
+
+Run pg_dump -Fc.
+
+Pipe output to encryption stream.
+
+Save to /var/backups/ransomeye_<timestamp>.enc.
+
+4. ACCEPTANCE CRITERIA
+Rotation Test: Running ops rotate-keys generates a valid TrustUpdate message signed by the old key.
+
+Archive Test: ops archive --days 30 successfully removes old logs from DB and creates an encrypted .zst.enc file.
+
+CLI Test: ops --help displays clear usage instructions for all subcommands.
+
+Security: The tool refuses to run if the user is not root or part of the ransomeye-admin group.

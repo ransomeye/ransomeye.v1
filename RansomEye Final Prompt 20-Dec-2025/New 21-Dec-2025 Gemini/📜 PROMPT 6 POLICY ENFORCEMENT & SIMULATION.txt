@@ -1,0 +1,77 @@
+PROMPT 6: POLICY ENFORCEMENT & SIMULATION
+Goal: Build core/policy. This module takes the alerts from the Engine (Phase 5) and decides the response. It supports two modes:
+
+Enforcement Mode: Real automated defense (e.g., "Isolate Host").
+
+Simulation Mode: "Fire Drill" logic that calculates what would happen, logs it, but takes no action.
+
+Target Path: /home/ransomeye/rebuild/core/policy/
+
+Dependencies: tokio, serde, serde_json, async-trait, thiserror.
+
+1. SETUP
+Initialize core/policy as a Rust Library crate. Add dependencies: core/bus (for sending commands), core/intel, core/engine.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/policy/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── definition.rs       # Policy Structs (YAML/JSON)
+    ├── enforcement.rs      # Real Execution Logic
+    ├── simulation.rs       # "Dry Run" Logic
+    └── playbook_runner.rs  # Action Orchestrator
+3. IMPLEMENTATION TASKS
+A. Policy Definitions (src/definition.rs)
+Define the Policy Schema.
+
+Rust
+
+pub struct Policy {
+    pub id: String,
+    pub condition: String, // e.g., "severity == CRITICAL"
+    pub actions: Vec<Action>, // [Isolate, Snapshot, AlertAdmin]
+    pub mode: PolicyMode, // Enforce | Simulate | Disabled
+}
+Loader: Implement load_policies() to read from a signed configuration file or DB.
+
+B. Simulation Mode (src/simulation.rs)
+Logic:
+
+Receive AlertEvent.
+
+Match against Policies.
+
+If mode == Simulate:
+
+Generate a SimulationResult event.
+
+Log: "Would have isolated Host X due to Ransomware."
+
+CRITICAL: Do NOT emit any CommandRequest to the Bus.
+
+Use Case: Allows analysts to test "Aggressive Blocking" rules safely.
+
+C. Playbook Runner (src/playbook_runner.rs)
+Logic:
+
+Receive AlertEvent.
+
+Match against Policies.
+
+If mode == Enforce:
+
+Convert Action into CommandRequest.
+
+Sign the command (via Kernel Trust).
+
+Publish to command.dispatch topic.
+
+4. ACCEPTANCE CRITERIA
+Simulation Test: Trigger a "Critical Alert" with Policy set to Simulate. Assert that Zero commands are sent to the Bus, but a SimulationResult is logged.
+
+Enforcement Test: Trigger the same alert with Policy set to Enforce. Assert that a CommandRequest (e.g., Isolate Host) is published.
+
+Safety: Verify that the Simulation logic path physically cannot call the bus.publish(Command) function.

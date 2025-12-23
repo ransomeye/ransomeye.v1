@@ -1,0 +1,93 @@
+🔎 PROMPT 10: FORENSICS ENGINE & REPORTING
+Goal: Build core/reporting. This module handles the "Aftermath". It is responsible for:
+
+Evidence Storage: Securely storing artifacts (memory dumps, PCAPs) with Chain of Custody (Hashing).
+
+Advanced Analysis: Automated diffing of snapshots to find persistence mechanisms.
+
+Rehydration: Exporting an entire incident (Timeline + Artifacts) into a portable, encrypted bundle for offline analysis.
+
+Target Path: /home/ransomeye/rebuild/core/reporting/
+
+Dependencies: tokio, serde, serde_json, zip (for bundling), ring (encryption), sha2 (hashing), sqlx.
+
+1. SETUP
+Initialize core/reporting as a Rust Library crate. Add dependencies: core/intel (for graph queries), core/kernel.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/reporting/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── models.rs               # Incident & Artifact Structs
+    ├── custody.rs              # Hashing & Signing of Evidence
+    ├── analysis/
+    │   ├── mod.rs
+    │   ├── diffing.rs          # Registry/File Snapshot Diff
+    │   └── memory.rs           # Basic Volatility Logic
+    └── bundle/
+        ├── mod.rs
+        ├── export.rs           # Create .zip.enc
+        └── import.rs           # Rehydrate from .zip.enc
+3. IMPLEMENTATION TASKS
+A. Chain of Custody (src/custody.rs)
+Logic:
+
+Receive binary artifact (e.g., malware.exe).
+
+Compute SHA-256 Hash immediately.
+
+Sign the Hash with Core Private Key.
+
+Store metadata: { artifact_id, hash, signature, timestamp, source_agent }.
+
+Goal: Prove in court that the evidence was not tampered with.
+
+B. Forensic Analysis (src/analysis/diffing.rs)
+Gap Fix: Automated persistence detection.
+
+Logic:
+
+Input: Snapshot_T0 (Clean) vs Snapshot_T1 (Infected).
+
+Algorithm:
+
+Find new Registry Keys in Run, Services, Startup.
+
+Find new unsigned binaries in System32.
+
+Output: ForensicReport highlighting the differences.
+
+C. Incident Rehydration (src/bundle/)
+Gap Fix: Portability.
+
+Export Logic (export.rs):
+
+Select Incident ID.
+
+Fetch all related Events, Alerts, and Artifacts.
+
+Generate manifest.json.
+
+Create a ZIP file containing everything.
+
+Encrypt ZIP with a symmetric key (ChaCha20).
+
+Import Logic (import.rs):
+
+Decrypt bundle.
+
+Verify Manifest signature.
+
+Insert events into a temporary "Investigation" table in DB (do not mix with live production data).
+
+4. ACCEPTANCE CRITERIA
+Custody Test: Modifying a stored artifact file by 1 byte causes custody::verify() to return Tampered.
+
+Diffing Test: Comparing two mock registry snapshots correctly identifies a newly added "EvilService".
+
+Rehydration Test: Exporting an incident to a ZIP and re-importing it results in an identical dataset in the DB.
+
+Security: The Export function strictly requires an authenticated Administrator session.

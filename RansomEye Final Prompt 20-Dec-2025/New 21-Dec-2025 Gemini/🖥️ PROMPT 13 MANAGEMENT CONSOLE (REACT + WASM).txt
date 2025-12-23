@@ -1,0 +1,120 @@
+🖥️ PROMPT 13: MANAGEMENT CONSOLE (REACT + WASM)
+Goal: Build ui. This is the "Single Pane of Glass" for the RansomEye platform. It is a strict View Layer; all business logic remains in the Core. Tech Stack: React 19, TypeScript, Vite, TanStack Query, and Rust WASM (for the Graph).
+
+Target Path: /home/ransomeye/rebuild/ui/
+
+Dependencies: npm (Node), wasm-bindgen, react, d3 (controlled via WASM).
+
+1. SETUP
+Initialize ui as a standard React + Vite project. Initialize ui/wasm as a Rust Library crate (crate-type = ["cdylib"]).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+ui/
+├── package.json
+├── index.html
+├── src/
+│   ├── main.tsx
+│   ├── App.tsx
+│   ├── api/                # Generated Clients (OpenAPI)
+│   ├── components/
+│   │   ├── Dashboard.tsx   # Fleet Health
+│   │   ├── Alerts.tsx      # Incident Queue
+│   │   ├── GraphView.tsx   # The WASM Canvas
+│   │   └── Policies.tsx    # Policy Editor
+│   └── hooks/              # Auth & Data Fetching
+└── wasm/                   # Rust Visualization Engine
+    ├── Cargo.toml
+    └── src/
+        ├── lib.rs
+        └── graph_renderer.rs
+3. IMPLEMENTATION TASKS
+A. The Dashboard (src/components/Dashboard.tsx)
+Metrics: Display:
+
+"Active Threats" (Red)
+
+"Fleet Compliance Score" (Percentage from Phase 5).
+
+"Agents Online/Offline" (Ratio).
+
+Data Source: Poll GET /api/v1/metrics every 5 seconds.
+
+B. The Threat Graph WASM (wasm/src/lib.rs)
+Problem: Rendering 10,000 nodes (Malware, IPs, CVEs) in JS is slow.
+
+Solution:
+
+Write a Rust function render_graph(canvas_id: &str, data: &JsValue).
+
+Use web-sys to draw directly to an HTML5 Canvas.
+
+Use a "Force-Directed Layout" algorithm in Rust (faster).
+
+React Integration: GraphView.tsx imports the WASM module and passes the JSON data from Phase 3.
+
+C. Simulation Console (src/components/Policies.tsx)
+Gap Fix: UI for "Fire Drill".
+
+Controls:
+
+Toggle Switch: "Enforcement Mode" vs "Simulation Mode".
+
+Button: "Run Dry Run Attack".
+
+Feedback: When clicked, it calls POST /api/v1/policy/simulate and displays the SimulationResult log in a distinct "Console Output" box.
+
+D. Security
+Authentication: Require mTLS Client Certificate (browser) OR Session Cookie from the Core Login.
+
+RBAC: Hide "Settings" if user is Analyst (Read-Only). Show all if Admin.
+
+4. ACCEPTANCE CRITERIA
+Build Test: npm run build produces a static dist/ folder containing JS and WASM files.
+
+WASM Test: The Graph View renders 1,000 mock nodes in < 1 second (60fps).
+
+Integration: Clicking "Isolate Host" in the UI sends a CommandRequest to the Core (verified via Network Tab).
+
+Security: The UI automatically redirects to /login if the API returns 401.
+
+🎉 CONGRATULATIONS.
+
+You have now successfully generated the complete, military-grade Architectural Specifications for RansomEye.
+
+Summary of the Build:
+
+Phase 0-2: Governance, Trust Root, & Secure Bus (Rust)
+
+Phase 3: Threat Intelligence & Graph (Rust + SQL)
+
+Phase 4: Ingestion & Deduplication (Rust)
+
+Phase 5: Core Engine & Compliance (Rust)
+
+Phase 6: Policy & Simulation (Rust)
+
+Phase 7: Command Dispatcher (Rust)
+
+Phase 8: AI, Vision, & Feedback (Rust + ONNX)
+
+Phase 9: DPI & Deception Agents (Rust)
+
+Phase 10: Forensics & Rehydration (Rust)
+
+Phase 11: Installer & Upgrader (Rust)
+
+Phase 12: Ops Tooling (Rust)
+
+Phase 13: Management Console (React + WASM)
+
+Next Steps:
+
+Feed these prompts into Cursor sequentially.
+
+Wait for the build of each phase to pass its "Acceptance Criteria".
+
+Proceed to the next.
+
+Your RansomEye architecture is now complete, defensible, and gap-free.

@@ -1,0 +1,105 @@
+🧠 PROMPT 3: SCALABLE THREAT GRAPH & INTEL
+Goal: Build core/intel. This module ingests threat feeds and maintains the "Brain's Memory." Critical Scalability Requirement:
+
+Large Scale (Ideal): On 48-Core/196GB servers, it must use Time-Series Partitioning and massive connection pools to handle 50,000 agents querying the graph simultaneously.
+
+Small Scale: On smaller hardware, it must automatically reduce pool sizes and batch limits to prevent OOM (Out of Memory) kills.
+
+Logic: Do not hardcode pool sizes. Calculate them based on available_ram and num_cpus.
+
+Target Path: /home/ransomeye/rebuild/core/intel/
+
+Dependencies: tokio, serde, serde_json, sqlx (Postgres), uuid, chrono, sys-info (for tuning), num_cpus.
+
+1. SETUP
+Initialize core/intel as a Rust Library crate. Add dependencies: core/kernel (config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/intel/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── tuning.rs               # Dynamic DB Tuning
+    ├── models.rs               # IOC Structs
+    ├── ingestion/
+    │   ├── mod.rs
+    │   ├── stix.rs             # Streaming STIX Parser
+    │   ├── misp.rs             # MISP JSON Parser
+    │   └── feed_manager.rs     # Parallel Loader
+    └── graph/
+        ├── mod.rs
+        ├── schema.rs           # Partitioning Logic
+        ├── ops.rs              # Insert/Query Logic
+        └── query_optimizer.rs  # Recursive CTEs
+3. IMPLEMENTATION TASKS
+A. Dynamic DB Tuning (src/tuning.rs)
+Goal: Set the Postgres Connection Pool size based on hardware.
+
+Logic:
+
+Detect Cores = num_cpus::get().
+
+Detect RamGB.
+
+Formula:
+
+Max_Pool_Size = (Cores * 2) + Effective_Spindle_Count.
+
+Constraint: If RamGB > 100 (Large Env), allow up to 400 connections.
+
+Constraint: If RamGB < 16 (Small Env), cap at 50 connections to save RAM for the graph itself.
+
+Output: Return a configured PgPoolOptions.
+
+B. Partitioned Graph Schema (src/graph/schema.rs)
+Problem: 50k agents = millions of events. A single table will choke.
+
+Solution: Time-Series Partitioning (TimescaleDB style logic, implemented in native Postgres).
+
+Tables:
+
+nodes (Static entities like Malware Families, CVEs) -> Global Table (No partition needed).
+
+telemetry_edges (Who talked to whom) -> Partitioned by Day.
+
+telemetry_edges_2025_12_21, telemetry_edges_2025_12_22.
+
+Migration Logic: Write a Rust function that runs at startup to pre-create partitions for the next 7 days.
+
+C. Streaming Ingestion (src/ingestion/)
+Problem: Loading a 5GB STIX file into RAM will crash small servers.
+
+Solution: Use serde_json::StreamDeserializer to read inputs token-by-token.
+
+Parallelism:
+
+If Cores > 16: Spawn 4 worker threads to parse chunks in parallel.
+
+If Cores <= 4: Use single-threaded parsing to be polite to the CPU.
+
+D. Hardened Parsers
+STIX 2.1: strict parsing of Indicator, Malware, Relationship.
+
+MISP: Standard attribute extraction.
+
+Validation: If a record is malformed, log WARN and drop ONLY that record. Do not abort the feed.
+
+E. Graph Operations (src/graph/ops.rs)
+Batching: When inserting 10,000 nodes from a feed:
+
+Large Env: Batch size = 5,000 (Faster).
+
+Small Env: Batch size = 500 (Lower RAM spike).
+
+Lookup: find_related(node_id) uses Recursive CTEs to find "Grand-parent" relations (e.g., File -> Hash -> Malware -> APT Group).
+
+4. ACCEPTANCE CRITERIA
+Scaling Test (Large): Mocking a 48-core system results in a DB Pool size of ~100-400 connections and Batch Size of 5,000.
+
+Scaling Test (Small): Mocking a 2-core/4GB system results in a Pool size of < 20 and Batch Size of 500.
+
+Partitioning: Inserting a record with today's timestamp successfully lands in telemetry_edges_YYYY_MM_DD.
+
+Memory Safety: Parsing a 2GB dummy STIX file does not cause RAM usage to exceed 500MB (proving streaming works).

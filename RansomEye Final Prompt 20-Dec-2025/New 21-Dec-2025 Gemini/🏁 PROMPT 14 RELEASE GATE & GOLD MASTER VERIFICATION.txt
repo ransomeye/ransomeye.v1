@@ -1,0 +1,99 @@
+🏁 PROMPT 14: RELEASE GATE & GOLD MASTER VERIFICATION
+Goal: Build qa/auditor. This is the final barrier before deployment. It aggregates checks from all previous phases into a single "Pass/Fail" pipeline. Strict Rule: This pipeline runs with deny(warnings). A single compiler warning, unused variable, or insecure dependency FAILS the release.
+
+Target Path: /home/ransomeye/rebuild/qa/
+
+Dependencies: tokio, cargo_metadata (to scan workspace), serde_json, ring (to sign the release manifest), reqwest.
+
+1. SETUP
+Initialize qa as a Rust Workspace Member (add to root Cargo.toml). Inside qa, create a binary crate auditor.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+qa/
+├── Cargo.toml
+└── auditor/
+    ├── Cargo.toml
+    └── src/
+        ├── main.rs
+        ├── checks/
+        │   ├── mod.rs
+        │   ├── static_analysis.rs  # Clippy & Fmt
+        │   ├── security.rs         # Cargo Audit & License Check
+        │   ├── performance.rs      # WASM Size & Binary Stripping
+        │   └── integration.rs      # "Fire Drill" Simulation
+        └── report.rs               # Generate release_manifest.json
+3. IMPLEMENTATION TASKS
+A. Static Analysis & Hygiene (checks/static_analysis.rs)
+Logic:
+
+Run cargo fmt -- --check. Fail if formatting is sloppy.
+
+Run cargo clippy -- -D warnings. Fail on ANY warning.
+
+Header Check: Call the tool from Phase 0 (governance/tools/header_check). Verify every file has the copyright header.
+
+B. Security Audit (checks/security.rs)
+Logic:
+
+License Check: Call the tool from Phase 0 (governance/tools/license_check). FATAL if GPL found.
+
+Vulnerability Scan: Run cargo audit (using cargo-audit crate or binary). Fail if any CVEs are found in dependencies.
+
+Hardcoded Secrets: simple grep scan for "BEGIN PRIVATE KEY" or "password =" in source code (excluding tests/).
+
+C. Build & Performance (checks/performance.rs)
+Logic:
+
+Run cargo build --release.
+
+Binary Size: Check target/release/ransomeye-core. If > 50MB, Warn (bloat detection).
+
+WASM Optimization: Check ui/dist/assets/*.wasm. Ensure it is compressed (Run wasm-opt if available).
+
+D. The "Fire Drill" Integration Test (checks/integration.rs)
+Logic:
+
+Spin up a Docker container with edge/agent.
+
+Spin up core.
+
+Scenario: Send a mock "Ransomware Detected" signal.
+
+Verification:
+
+Did Core receive it?
+
+Did Policy trigger?
+
+Did DB record the alert?
+
+Tear Down.
+
+E. The Golden Manifest (src/report.rs)
+Goal: If all checks pass, mint the release.
+
+Output: release_manifest.json.sig
+
+JSON
+
+{
+  "version": "1.0.0",
+  "timestamp": "2025-12-20T12:00:00Z",
+  "auditor_verdict": "PASS",
+  "git_hash": "a1b2c3d...",
+  "binary_hashes": {
+    "core": "sha256:...",
+    "agent_linux": "sha256:...",
+    "ui_wasm": "sha256:..."
+  }
+}
+Sign: Sign this JSON with the Release_Private_Key.
+
+4. ACCEPTANCE CRITERIA
+Fail-Closed: Introduce a TODO or unwrap() in the Core code. Run auditor. Assert it FAILS.
+
+Security: Add a dependency with a known CVE (e.g., old openssl). Run auditor. Assert it FAILS.
+
+Success: On a clean repo, auditor runs to completion and generates a signed release_manifest.json.

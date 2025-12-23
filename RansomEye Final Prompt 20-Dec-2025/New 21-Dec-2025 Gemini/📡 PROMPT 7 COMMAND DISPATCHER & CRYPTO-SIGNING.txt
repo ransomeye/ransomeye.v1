@@ -1,0 +1,75 @@
+📡 PROMPT 7: COMMAND DISPATCHER & CRYPTO-SIGNING
+Goal: Build core/dispatch. This module is the only authority capable of sending instructions (e.g., "Isolate Host", "Kill Process") to Agents. Strict Requirement: Every command must be Signed by the Core's Private Key before transmission. Agents will reject unsigned commands.
+
+Target Path: /home/ransomeye/rebuild/core/dispatch/
+
+Dependencies: tokio, dashmap (concurrent state), ring (crypto), prost (protobuf).
+
+1. SETUP
+Initialize core/dispatch as a Rust Library crate. Add dependencies: core/bus, core/kernel.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/dispatch/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── signer.rs           # Ed25519 Signing Logic
+    ├── router.rs           # Connection Tracking (Who is online?)
+    ├── handler.rs          # Main Message Loop
+    └── error.rs
+3. IMPLEMENTATION TASKS
+A. Connection Tracking (src/router.rs)
+Goal: Know exactly which Agents are online to route commands efficiently.
+
+State: Use DashMap<String, AgentSession> where String is the AgentID.
+
+AgentSession: { ip: String, last_heartbeat: i64, version: String, public_key: Vec<u8> }.
+
+Logic:
+
+Listen to heartbeat.* on the Bus.
+
+Update the DashMap on every heartbeat.
+
+If last_heartbeat > 60s, mark as Offline.
+
+B. Cryptographic Signing (src/signer.rs)
+Constraint: NO DUMMY KEYS.
+
+Input: CommandRequest struct.
+
+Action:
+
+Load RE_CORE_PRIVATE_KEY (Ed25519) from Environment (via core/kernel). Panic if missing.
+
+Serialize the command payload to bytes.
+
+Sign the bytes using ring::signature::KeyPair.
+
+Attach the signature to the Envelope.
+
+Output: A signed Envelope ready for the Bus.
+
+C. The Dispatch Loop (src/handler.rs)
+Input: Receives CommandRequest from Phase 6 (Policy).
+
+Process:
+
+Check if Target Agent is Online (via Router).
+
+If Offline: Queue for retry (or fail based on priority).
+
+If Online: Call signer::sign().
+
+Publish to topic: agent.<agent_id>.command.
+
+4. ACCEPTANCE CRITERIA
+Crypto Test: Verify that signer produces a valid Ed25519 signature verified by the public key.
+
+Routing Test: Sending a command to an "Offline" agent returns a DeliveryError::AgentOffline.
+
+Security: The system PANICS at startup if the Core Private Key is malformed or missing.
+
+Concurrency: The router handles 10,000 concurrent heartbeat updates without locking issues.

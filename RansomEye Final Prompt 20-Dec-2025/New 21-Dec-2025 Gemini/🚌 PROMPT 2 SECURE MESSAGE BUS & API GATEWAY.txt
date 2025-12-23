@@ -1,0 +1,82 @@
+🚌 PROMPT 2: SECURE MESSAGE BUS & API GATEWAY
+Goal: Build the secure, internal communication bus (core/bus) that connects all modules. It enforces mTLS authentication (Zero Trust) and Type Safety (Protobuf/Cap'n Proto) for every message.
+
+Target Path: /home/ransomeye/rebuild/core/bus/
+
+Dependencies: tokio, rustls (native-certs banned, must use local root), prost (Protobuf), lapin (AMQP) or async-nats (NATS). Recommendation: Use NATS for simplicity and performance in Rust.
+
+1. SETUP
+Initialize core/bus as a Rust Library crate. Define the proto/ folder for schema definitions.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/bus/
+├── Cargo.toml
+├── build.rs            # Compiles Protobufs
+├── proto/
+│   └── ransomeye.v1.proto
+└── src/
+    ├── lib.rs
+    ├── client.rs       # Standard Pub/Sub Client
+    ├── mtls.rs         # Certificate Loading & Validation
+    ├── acl.rs          # Access Control Lists
+    └── protocol.rs     # Generated Structs (Re-export)
+3. IMPLEMENTATION TASKS
+A. The Protocol Definition (proto/ransomeye.v1.proto)
+Define the strictly typed messages.
+
+Protocol Buffers
+
+syntax = "proto3";
+package ransomeye.v1;
+
+message Envelope {
+  string message_id = 1;
+  string source_component = 2; // e.g., "agent-linux-01"
+  int64 timestamp_utc = 3;
+  oneof payload {
+    TelemetryEvent telemetry = 10;
+    AlertEvent alert = 11;
+    CommandRequest command = 12;
+    Heartbeat heartbeat = 13;
+  }
+}
+
+message TelemetryEvent { ... } // CPU, RAM, Process List
+message AlertEvent { ... }     // "Ransomware Detected"
+message CommandRequest { ... } // "Kill Process PID 123"
+B. mTLS Enforcement (src/mtls.rs)
+Requirement: The Bus Client must NOT connect without a valid Client Certificate signed by the Trust Root (from Phase 1).
+
+Logic:
+
+Load RE_TLS_CLIENT_CERT and RE_TLS_CLIENT_KEY from Env.
+
+Load RE_TRUST_ROOT_CA from Env.
+
+Configure rustls::ClientConfig to require server verification.
+
+Fail-Closed: If certs are missing or expired, the application startup() must panic.
+
+C. Access Control List (src/acl.rs)
+Implement a check: can_publish(component_type: &str, message_type: &str) -> bool.
+
+Rules:
+
+Agent CAN publish Telemetry, Heartbeat, Alert.
+
+Agent CANNOT publish CommandRequest (Prevents a compromised agent from controlling the fleet).
+
+Core CAN publish CommandRequest.
+
+Action: If a client violates ACL, drop the message and log a SecurityAudit event.
+
+4. ACCEPTANCE CRITERIA
+cargo build successfully compiles the .proto files into Rust structs.
+
+Unit test: An Envelope can be serialized to bytes and deserialized back.
+
+Unit test: acl::can_publish("agent", "CommandRequest") returns false.
+
+Integration test: The Bus Client refuses to initialize without valid Certificates.

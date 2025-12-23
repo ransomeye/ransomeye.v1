@@ -1,0 +1,104 @@
+PROMPT 8: RESOURCE-AWARE AI CORE (VISION & FEEDBACK)
+Goal: Build core/ai. This module hosts the local inference engine. Critical Scalability Logic:
+
+Thread Capping: The AI engine must NEVER use all available CPU cores. It is a lower-priority task compared to Packet Capture or DB Writes.
+
+Memory Safety: Lazy Loading. Do not load large models (e.g., 4GB LLMs) into RAM if the machine only has 8GB total. Check AvailableRAM before initialization.
+
+Load Shedding (Vision): OCR is expensive. If the system CPU load is high (>80%), SKIP the OCR step to prevent system lockup.
+
+Target Path: /home/ransomeye/rebuild/core/ai/
+
+Dependencies: tokio, ort (ONNX Runtime), image (processing), ring (signing), serde, sys-info (RAM/Load detection), num_cpus. Note: For OCR, assume a lightweight binding like tesseract-sys or a pure Rust ONNX implementation.
+
+1. SETUP
+Initialize core/ai as a Rust Library crate. Add dependencies: core/bus, core/kernel (config), core/ingest.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/ai/
+├── Cargo.toml
+├── models/             # Directory for .onnx / .gguf files
+└── src/
+    ├── lib.rs
+    ├── tuning.rs       # Dynamic Resource Limits
+    ├── inference/
+    │   ├── mod.rs
+    │   ├── tabular.rs  # Random Forest / XGBoost (ONNX)
+    │   └── llm.rs      # Quantized LLM (Optional)
+    ├── vision/
+    │   ├── mod.rs
+    │   ├── ocr.rs      # Text Extraction (Throttled)
+    │   └── screenshot.rs
+    └── feedback/
+        ├── mod.rs
+        ├── collector.rs # Analyst Verdicts
+        └── packer.rs    # Signed Training Bundles
+3. IMPLEMENTATION TASKS
+A. Dynamic Resource Tuning (src/tuning.rs)
+Logic:
+
+Cores = num_cpus::get().
+
+RamGB = sys_info::mem_info().
+
+Determine Thread Cap:
+
+Small Profile (Single Box): AI Threads = 1. (Background priority only).
+
+Massive Profile (Dedicated): AI Threads = max(1, Cores / 4). (Leave 75% for Core/DPI).
+
+Helper: can_load_model(size_mb: u64) -> bool. Returns false if AvailableRAM < size_mb * 2.
+
+B. Resource-Aware Inference (inference/tabular.rs)
+Input: StandardEvent features (flattened vector).
+
+Initialization:
+
+Configure ort::SessionBuilder with with_intra_threads(tuning::get_thread_cap()).
+
+Check RAM: If can_load_model(200) is false, log "Insufficient RAM for ML" and return a "Model Not Loaded" state (heuristic fallback).
+
+Optimization: Keep the session open. Do not reload per event.
+
+C. Throttled Computer Vision (vision/ocr.rs)
+Gap Fix: OCR for ransomware notes (e.g., "YOUR FILES ARE ENCRYPTED").
+
+Guardrail:
+
+Check sys_info::loadavg().
+
+Rule: If Load > (Cores * 0.8), ABORT processing immediately. Return AnalysisSkipped.
+
+Why: OCR is heavy. Never crash the detection loop just to read a screenshot.
+
+Logic:
+
+Pre-process image (Grayscale, Contrast).
+
+Run OCR.
+
+Scan for keywords: "Bitcoin", "Tor Browser", "Encrypted".
+
+D. Secure Feedback Loop (feedback/collector.rs)
+Input: FeedbackEvent (AlertID, Verdict: True/False Positive).
+
+Process:
+
+Fetch original raw data for AlertID.
+
+Create JSON bundle: { features: [...], label: "FalsePositive", analyst: "ID", timestamp: ... }.
+
+Sign: Sign the bundle with Core Private Key (integrity proof).
+
+Queue: Save to /var/ransomeye/training_data/queue/ for offline retraining.
+
+4. ACCEPTANCE CRITERIA
+Single Box Test: On a 4-core machine, the ONNX Runtime initializes with exactly 1 thread.
+
+OOM Protection: Attempting to load a large model on a low-RAM mock triggers a warning log and graceful fallback, not a crash.
+
+Vision Throttling: OCR is skipped (returning AnalysisSkipped) if the system reports >80% CPU load during the test.
+
+Feedback Integrity: A generated feedback file contains a valid cryptographic signature verifiable by the public key.

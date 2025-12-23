@@ -1,0 +1,146 @@
+📦 PROMPT 11: DYNAMIC INSTALLER, OS TUNING & RESOURCE GOVERNOR
+Goal: Build core/installer. This module transforms the Linux host into a purpose-built security appliance. Critical Logic:
+
+Dynamic Hardware Profiling: Detect CPU/RAM and apply the correct tuning (Small vs. Massive). DO NOT hardcode values.
+
+Single-Box Isolation: If DPI Probe and Core Engine run on the same server, use cgroups to isolate their CPU cores so high network traffic doesn't starve the Database.
+
+Atomic Updates: Manage the secure "Blue/Green" update lifecycle.
+
+Target Path: /home/ransomeye/rebuild/core/installer/
+
+Dependencies: tokio, sys-info, num_cpus, cgroups-rs (for resource isolation), fs2 (disk check), tar, flate2, ring (crypto), semver.
+
+1. SETUP
+Initialize core/installer as a Rust Binary crate. Add dependencies: core/kernel (trust root).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/installer/
+├── Cargo.toml
+└── src/
+    ├── main.rs             # CLI Entrypoint
+    ├── lib.rs
+    ├── tuning/
+    │   ├── mod.rs
+    │   ├── hardware.rs     # Detect CPU/RAM/Disk/Topology
+    │   ├── profile.rs      # Decide: Small, Medium, or Massive?
+    │   ├── swap.rs         # Dynamic Swap Enforcement
+    │   ├── sysctl.rs       # Kernel Parameter Tuning
+    │   └── isolation.rs    # CPU Pinning (Core vs DPI)
+    ├── install_logic.rs    # Systemd & DB Setup
+    ├── update/
+    │   ├── mod.rs
+    │   ├── verify.rs       # Signature Check
+    │   ├── apply.rs        # Atomic Symlink Swap
+    │   └── rollback.rs     # Disaster Recovery
+    └── package.rs          # .reup File Format
+3. IMPLEMENTATION TASKS
+A. Dynamic Hardware Profiling (tuning/profile.rs)
+Logic:
+
+Detect RamGB and CpuCores.
+
+Determine Profile:
+
+Profile::Small: RAM < 16GB (Target: 100 Agents).
+
+Profile::Medium: RAM 16-64GB (Target: 5k Agents).
+
+Profile::Massive: RAM > 64GB (Target: 50k Agents).
+
+Output: Returns a config struct with target values (Swap size, Buffer sizes, DB Connections).
+
+B. Single-Box Resource Isolation (tuning/isolation.rs)
+Problem: On a single machine, 40Gbps DPI traffic interrupts the CPU so often that the Database slows down.
+
+Solution: CPU Pinning (Affinity).
+
+Logic:
+
+Check if ransomeye-dpi and ransomeye-core are both enabled.
+
+If YES (Single Box):
+
+DPI Group: Assign to CPU Cores 0 to (Cores/2 - 1) (The first half).
+
+Core/DB Group: Assign to CPU Cores (Cores/2) to (Cores - 1) (The second half).
+
+If NO (Dedicated Box):
+
+Allow process to use all cores.
+
+Implementation: Use cgroups-rs to create /sys/fs/cgroup/cpu/ransomeye_dpi and set cpuset.cpus.
+
+C. Dynamic Swap Enforcement (tuning/swap.rs)
+Goal: Prevent OOM kills during massive burst loads.
+
+Rules (Based on Profile):
+
+Small Profile: Create 8GB Swap (Critical for stability).
+
+Medium Profile: Create 16GB Swap.
+
+Massive Profile: Create 32GB Swap (Safety net for 50k concurrent TLS handshakes).
+
+Safety:
+
+Check get_disk_free_gb().
+
+If Free < TargetSwap + 5GB, Log WARNING and reduce Swap allocation to Free / 2 to avoid disk full errors.
+
+Action: fallocate, chmod 600, mkswap, swapon.
+
+D. Kernel Parameter Tuning (tuning/sysctl.rs)
+Action: Write /etc/sysctl.d/99-ransomeye.conf based on Profile.
+
+Tuning Table:
+
+Small:
+
+fs.file-max = 100,000
+
+net.core.rmem_max = 4,194,304 (4MB)
+
+Massive (The 40Gbps Target):
+
+fs.file-max = 1,000,000 (For 50k sockets + files).
+
+net.core.somaxconn = 65,535 (Burst login backlog).
+
+net.core.rmem_max = 33,554,432 (32MB Read Buffer for zero-loss capture).
+
+net.core.wmem_max = 33,554,432.
+
+vm.swappiness = 10 (Prefer RAM).
+
+Apply: Execute sysctl -p.
+
+E. Secure Atomic Updates (src/update/)
+Package: .reup (Signed, Encrypted ChaCha20, Versioned).
+
+Apply Logic:
+
+Verify Signature (Ed25519) against Core Trust Root.
+
+Unpack to /opt/ransomeye/next/.
+
+Stop Services (systemctl stop ransomeye-*).
+
+Symlink Swap: ln -sfn /opt/ransomeye/next /opt/ransomeye/current.
+
+Start Services.
+
+Health Check: Poll localhost:4000/health.
+
+Auto-Rollback: If Health Check fails or times out (60s), revert symlink and restart old version.
+
+4. ACCEPTANCE CRITERIA
+Profiling Test: On a 4GB RAM VM, the installer detects Profile::Small, sets 4MB network buffers, and creates 8GB Swap.
+
+Massive Scale Test: On a 196GB RAM server, it detects Profile::Massive, sets 32MB network buffers, creates 32GB Swap, and configures 1M file descriptors.
+
+Isolation Test: On a machine running both Core and DPI, cat /proc/<dpi_pid>/status shows Cpus_allowed_list matches the first half of available cores (e.g., 0-23 on a 48-core system).
+
+Rollback Test: Installing a broken binary (that exits immediately) triggers an automatic rollback to the previous version within 60 seconds.

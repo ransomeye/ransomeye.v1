@@ -1,0 +1,1648 @@
+GLOBAL CONTEXT (PASTE THIS FIRST)
+ROLE: You are the Lead Architect & Security Officer for RansomEye, a military-grade, air-gapped, zero-trust ransomware defense platform.
+
+PROJECT PARAMETERS:
+
+Root Directory: /home/ransomeye/rebuild/
+
+Language: Rust (Stable, 2021 Edition) for Backend; React + TypeScript for Frontend.
+
+Architecture: Monorepo Workspace.
+
+⛔ LICENSING HARD BAN (FATAL ERROR):
+
+You are STRICTLY FORBIDDEN from using any library/crate/snippet licensed under: GPL (v2/v3), AGPL, SSPL, Commons Clause.
+
+ALLOWED: MIT, Apache 2.0, BSD, ISC, MPL 2.0, CC0.
+
+Enforcement: You must verify the license of every crate added to Cargo.toml.
+
+🛡️ CODING STANDARDS:
+
+No "Magic": No implicit imports. Explicitly define everything.
+
+Fail-Closed: If a security check fails, the process MUST panic or exit.
+
+Zero-Trust: Every internal component must authenticate every request.
+
+Headers: Every file must start with the RansomEye copyright header.
+
+PROMPT 0: GOVERNANCE, STRUCTURE & LEGAL (The Skeleton)
+Instructions: Copy this entire block into Cursor.
+
+# 🧱 PHASE 0: PROJECT SKELETON & LEGAL GOVERNANCE
+
+**Goal:** Establish the immutable directory structure, configure the Rust Workspace, and build the "Legal Governor" tools that prevent GPL contamination.
+
+**Target Path:** `/home/ransomeye/rebuild/`
+
+## 1. DIRECTORY STRUCTURE (MANDATORY)
+Create exactly this structure. Do not deviate. This structure supports the new Architecture (UI, Ops, Agents).
+
+```text
+/home/ransomeye/rebuild/
+├── .gitignore                  # Standard Rust/Node gitignore
+├── Cargo.toml                  # The Workspace Root Manifest
+├── README.md                   # Architecture Overview
+├── governance/                 # Legal & Policy Enforcers
+│   ├── licenses/               # Allowed license text files
+│   └── tools/                  # Rust scripts for enforcement
+│       ├── src/bin/
+│       │   ├── license_check.rs
+│       │   └── header_check.rs
+│       └── Cargo.toml
+├── core/                       # The Brain (Backend)
+│   ├── kernel/                 # Phase 1: Config, Logs, Crypto
+│   ├── bus/                    # Phase 2: mTLS Message Bus
+│   ├── intel/                  # Phase 3: Threat Graph & Parsers
+│   ├── ingest/                 # Phase 4: Dedupe & Normalization
+│   ├── engine/                 # Phase 5: Correlation & Compliance
+│   ├── policy/                 # Phase 6: Simulation & Enforcement
+│   ├── dispatch/               # Phase 7: Command Router
+│   ├── ai/                     # Phase 8: Inference, Vision, Feedback
+│   └── reporting/              # Phase 10: Forensics & Rehydration
+├── edge/                       # The Probes
+│   ├── dpi/                    # Phase 9A: Network Probe (Active/Passive)
+│   └── agent/                  # Phase 9B: Endpoint Agent (Deception)
+├── ui/                         # The Management Plane
+│   ├── frontend/               # Phase 13: React + TypeScript
+│   └── wasm/                   # Phase 13: Rust Graph Visualization
+└── ops/                        # Phase 12B: SRE Tooling
+    └── src/bin/                # CLI Tools (Key rotate, Archive)
+
+2. WORKSPACE MANIFEST (Cargo.toml)
+Create the root Cargo.toml. It must define the workspace members to include all the paths created above.
+
+Ini, TOML
+
+[workspace]
+members = [
+    "governance/tools",
+    "core/kernel",
+    "core/bus",
+    "core/intel",
+    "core/ingest",
+    "core/engine",
+    "core/policy",
+    "core/dispatch",
+    "core/ai",
+    "core/reporting",
+    "edge/dpi",
+    "edge/agent",
+    "ui/wasm",
+    "ops",
+]
+resolver = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+3. IMPLEMENTATION: THE LEGAL GOVERNOR (governance/tools)
+Initialize governance/tools as a Rust binary crate.
+
+Task A: license_check.rs Write a script that:
+
+Scans Cargo.lock (if exists) or Cargo.toml files.
+
+Checks dependencies against an ALLOWLIST (MIT, Apache-2.0, BSD, ISC).
+
+Checks against a BLOCKLIST (GPL, AGPL, SSPL).
+
+Action: If a banned license is found, print a RED error and exit(1).
+
+Output: "✅ Legal Governance Passed" if clean.
+
+Task B: header_check.rs Write a script that:
+
+Recursively scans all source files (.rs, .ts, .tsx, .py).
+
+Ensures the first line contains: // Copyright (c) RansomEye. Proprietary & Confidential.
+
+Action: Fail if missing.
+
+4. ACCEPTANCE CRITERIA
+Full directory tree exists.
+
+cargo build in governance/tools succeeds.
+
+Running cargo run --bin license_check passes on the clean repo.
+
+
+---
+
+### 🔐 PROMPT 1: THE KERNEL (The Root of Trust)
+
+**Instructions:** Run this *after* Phase 0 is complete.
+
+```markdown
+# 🔐 PHASE 1: CORE KERNEL & TRUST ROOT
+
+**Goal:** Build `ransomeye-kernel`, the foundational library used by ALL backend components. It handles secure configuration, structured logging, and the Cryptographic Root of Trust.
+
+**Target Path:** `/home/ransomeye/rebuild/core/kernel/`
+
+## 1. SETUP
+Initialize `core/kernel` as a Rust **Library** crate.
+Add dependencies: `serde`, `serde_json`, `tracing`, `tracing-subscriber`, `thiserror`, `ring` (or `sodiumoxide`), `config` (or `dotenvy` but enforce Env vars).
+
+## 2. MODULES
+
+### A. Zero-Trust Configuration (`src/config.rs`)
+* **Strict Rule:** Configuration MUST be loaded from **Environment Variables** only. No local config files in production.
+* **Variables:** `RE_TRUST_ROOT_KEY`, `RE_LOG_LEVEL`, `RE_DB_URL`.
+* **Logic:** Create a `load()` function. If a required variable is missing, **PANIC** immediately with a clear security error.
+
+### B. Structured Logging (`src/logging.rs`)
+* Implement a `init()` function using `tracing_subscriber`.
+* **Format:** Output must be **JSON** to stdout.
+* **Fields:** Automatically inject `timestamp`, `pid`, and `module_name` into every log entry.
+
+### C. Cryptographic Root (`src/trust.rs`)
+* **Goal:** Verify digital signatures of configuration and commands.
+* **Algo:** Ed25519 (via `ring`).
+* **Function:** `verify_signature(data: &[u8], signature: &[u8], public_key: &[u8]) -> Result<(), AuthError>`.
+* **Fail-Closed:** Return a distinct `AuthError::InvalidSignature` on failure.
+
+### D. Unified Errors (`src/error.rs`)
+* Define a `KernelError` enum using `thiserror`.
+* Variants: `ConfigMissing`, `CryptoFailure`, `AuthFailed`.
+
+## 3. IMPLEMENTATION STEPS
+1.  Create `src/lib.rs` exporting these modules.
+2.  Implement `config.rs` to read `RE_TRUST_ROOT_KEY`.
+3.  Implement `trust.rs` to verify a dummy signature.
+4.  Write a unit test in `lib.rs` that sets Env Vars and asserts `config::load()` succeeds.
+5.  Write a unit test that asserts `config::load()` **panics** when Env Vars are missing.
+
+## 4. ACCEPTANCE CRITERIA
+1.  `cargo test -p ransomeye-kernel` passes.
+2.  The library compiles without warnings.
+3.  Attempting to load config without `RE_TRUST_ROOT_KEY` causes a panic (verified by test).
+
+------------------
+
+
+🚌 PROMPT 2: SECURE MESSAGE BUS & API GATEWAY
+Goal: Build the secure, internal communication bus (core/bus) that connects all modules. It enforces mTLS authentication (Zero Trust) and Type Safety (Protobuf/Cap'n Proto) for every message.
+
+Target Path: /home/ransomeye/rebuild/core/bus/
+
+Dependencies: tokio, rustls (native-certs banned, must use local root), prost (Protobuf), lapin (AMQP) or async-nats (NATS). Recommendation: Use NATS for simplicity and performance in Rust.
+
+1. SETUP
+Initialize core/bus as a Rust Library crate. Define the proto/ folder for schema definitions.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/bus/
+├── Cargo.toml
+├── build.rs            # Compiles Protobufs
+├── proto/
+│   └── ransomeye.v1.proto
+└── src/
+    ├── lib.rs
+    ├── client.rs       # Standard Pub/Sub Client
+    ├── mtls.rs         # Certificate Loading & Validation
+    ├── acl.rs          # Access Control Lists
+    └── protocol.rs     # Generated Structs (Re-export)
+3. IMPLEMENTATION TASKS
+A. The Protocol Definition (proto/ransomeye.v1.proto)
+Define the strictly typed messages.
+
+Protocol Buffers
+
+syntax = "proto3";
+package ransomeye.v1;
+
+message Envelope {
+  string message_id = 1;
+  string source_component = 2; // e.g., "agent-linux-01"
+  int64 timestamp_utc = 3;
+  oneof payload {
+    TelemetryEvent telemetry = 10;
+    AlertEvent alert = 11;
+    CommandRequest command = 12;
+    Heartbeat heartbeat = 13;
+  }
+}
+
+message TelemetryEvent { ... } // CPU, RAM, Process List
+message AlertEvent { ... }     // "Ransomware Detected"
+message CommandRequest { ... } // "Kill Process PID 123"
+B. mTLS Enforcement (src/mtls.rs)
+Requirement: The Bus Client must NOT connect without a valid Client Certificate signed by the Trust Root (from Phase 1).
+
+Logic:
+
+Load RE_TLS_CLIENT_CERT and RE_TLS_CLIENT_KEY from Env.
+
+Load RE_TRUST_ROOT_CA from Env.
+
+Configure rustls::ClientConfig to require server verification.
+
+Fail-Closed: If certs are missing or expired, the application startup() must panic.
+
+C. Access Control List (src/acl.rs)
+Implement a check: can_publish(component_type: &str, message_type: &str) -> bool.
+
+Rules:
+
+Agent CAN publish Telemetry, Heartbeat, Alert.
+
+Agent CANNOT publish CommandRequest (Prevents a compromised agent from controlling the fleet).
+
+Core CAN publish CommandRequest.
+
+Action: If a client violates ACL, drop the message and log a SecurityAudit event.
+
+4. ACCEPTANCE CRITERIA
+cargo build successfully compiles the .proto files into Rust structs.
+
+Unit test: An Envelope can be serialized to bytes and deserialized back.
+
+Unit test: acl::can_publish("agent", "CommandRequest") returns false.
+
+Integration test: The Bus Client refuses to initialize without valid Certificates.
+
+
+-----------------------------
+
+
+
+🧠 PROMPT 3: SCALABLE THREAT GRAPH & INTEL
+Goal: Build core/intel. This module ingests threat feeds and maintains the "Brain's Memory." Critical Scalability Requirement:
+
+Large Scale (Ideal): On 48-Core/196GB servers, it must use Time-Series Partitioning and massive connection pools to handle 50,000 agents querying the graph simultaneously.
+
+Small Scale: On smaller hardware, it must automatically reduce pool sizes and batch limits to prevent OOM (Out of Memory) kills.
+
+Logic: Do not hardcode pool sizes. Calculate them based on available_ram and num_cpus.
+
+Target Path: /home/ransomeye/rebuild/core/intel/
+
+Dependencies: tokio, serde, serde_json, sqlx (Postgres), uuid, chrono, sys-info (for tuning), num_cpus.
+
+1. SETUP
+Initialize core/intel as a Rust Library crate. Add dependencies: core/kernel (config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/intel/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── tuning.rs               # Dynamic DB Tuning
+    ├── models.rs               # IOC Structs
+    ├── ingestion/
+    │   ├── mod.rs
+    │   ├── stix.rs             # Streaming STIX Parser
+    │   ├── misp.rs             # MISP JSON Parser
+    │   └── feed_manager.rs     # Parallel Loader
+    └── graph/
+        ├── mod.rs
+        ├── schema.rs           # Partitioning Logic
+        ├── ops.rs              # Insert/Query Logic
+        └── query_optimizer.rs  # Recursive CTEs
+3. IMPLEMENTATION TASKS
+A. Dynamic DB Tuning (src/tuning.rs)
+Goal: Set the Postgres Connection Pool size based on hardware.
+
+Logic:
+
+Detect Cores = num_cpus::get().
+
+Detect RamGB.
+
+Formula:
+
+Max_Pool_Size = (Cores * 2) + Effective_Spindle_Count.
+
+Constraint: If RamGB > 100 (Large Env), allow up to 400 connections.
+
+Constraint: If RamGB < 16 (Small Env), cap at 50 connections to save RAM for the graph itself.
+
+Output: Return a configured PgPoolOptions.
+
+B. Partitioned Graph Schema (src/graph/schema.rs)
+Problem: 50k agents = millions of events. A single table will choke.
+
+Solution: Time-Series Partitioning (TimescaleDB style logic, implemented in native Postgres).
+
+Tables:
+
+nodes (Static entities like Malware Families, CVEs) -> Global Table (No partition needed).
+
+telemetry_edges (Who talked to whom) -> Partitioned by Day.
+
+telemetry_edges_2025_12_21, telemetry_edges_2025_12_22.
+
+Migration Logic: Write a Rust function that runs at startup to pre-create partitions for the next 7 days.
+
+C. Streaming Ingestion (src/ingestion/)
+Problem: Loading a 5GB STIX file into RAM will crash small servers.
+
+Solution: Use serde_json::StreamDeserializer to read inputs token-by-token.
+
+Parallelism:
+
+If Cores > 16: Spawn 4 worker threads to parse chunks in parallel.
+
+If Cores <= 4: Use single-threaded parsing to be polite to the CPU.
+
+D. Hardened Parsers
+STIX 2.1: strict parsing of Indicator, Malware, Relationship.
+
+MISP: Standard attribute extraction.
+
+Validation: If a record is malformed, log WARN and drop ONLY that record. Do not abort the feed.
+
+E. Graph Operations (src/graph/ops.rs)
+Batching: When inserting 10,000 nodes from a feed:
+
+Large Env: Batch size = 5,000 (Faster).
+
+Small Env: Batch size = 500 (Lower RAM spike).
+
+Lookup: find_related(node_id) uses Recursive CTEs to find "Grand-parent" relations (e.g., File -> Hash -> Malware -> APT Group).
+
+4. ACCEPTANCE CRITERIA
+Scaling Test (Large): Mocking a 48-core system results in a DB Pool size of ~100-400 connections and Batch Size of 5,000.
+
+Scaling Test (Small): Mocking a 2-core/4GB system results in a Pool size of < 20 and Batch Size of 500.
+
+Partitioning: Inserting a record with today's timestamp successfully lands in telemetry_edges_YYYY_MM_DD.
+
+Memory Safety: Parsing a 2GB dummy STIX file does not cause RAM usage to exceed 500MB (proving streaming works).
+
+-------------------------
+
+
+PROMPT 4: SCALABLE INGESTION, DEDUPLICATION & NORMALIZATION
+Goal: Build core/ingest. This module acts as the "Front Door" for all telemetry. It receives raw events from the Bus, Deduplicates them (preventing alert fatigue), Normalizes them into a standard schema, and forwards clean data to the Core Engine. Critical Scalability Logic:
+
+Dynamic Cache Sizing: The Deduplication LRU Cache size must scale with available RAM. (Don't waste RAM on small boxes, don't thrash on big ones).
+
+Adaptive Backpressure: If the Core is overloaded, the Ingest layer must drop low-priority logs (Info/Debug) to preserve high-priority alerts (Critical).
+
+Target Path: /home/ransomeye/rebuild/core/ingest/
+
+Dependencies: tokio, serde, serde_json, lru (for in-memory dedupe), sys-info (RAM detection), sha2 (hashing), tracing, quick-xml (fast Windows parsing).
+
+1. SETUP
+Initialize core/ingest as a Rust Library crate. Add dependencies: core/bus and core/kernel (config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/ingest/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── pipeline.rs         # Main Event Loop (Async)
+    ├── tuning.rs           # Dynamic Cache Sizing
+    ├── dedupe.rs           # The Noise Filter (LRU)
+    ├── normalization.rs    # Schema Mappers (Windows/Linux)
+    └── rate_limit.rs       # Backpressure & Load Shedding
+3. IMPLEMENTATION TASKS
+A. Dynamic Tuning (src/tuning.rs)
+Logic:
+
+Get TotalRAM via sys_info.
+
+Calculate Dedupe Capacity:
+
+Small Profile (<8GB RAM): Cap at 50,000 items. (Keep footprint tiny).
+
+Massive Profile (>64GB RAM): Cap at 2,000,000 items. (Absorb massive event storms from 50k agents).
+
+Output: Return CacheConfig struct.
+
+B. The Pipeline (src/pipeline.rs)
+Logic:
+
+Subscribe to telemetry.* and logs.* on the Bus.
+
+Step 1: Rate Limit: Pass through rate_limit::check(). If it returns Drop, discard immediately.
+
+Step 2: Dedupe: Pass through dedupe::should_process(). If false, discard.
+
+Step 3: Normalize: Pass through normalization::normalize().
+
+Step 4: Publish: Send result to core.normalized_events topic.
+
+C. The Deduplication Engine (src/dedupe.rs)
+Goal: Stop "Flapping" alerts (e.g., a service restarting 100 times/min).
+
+Structure: Use lru::LruCache wrapped in a RwLock.
+
+Initialization: LruCache::new(tuning::get_capacity()).
+
+Algorithm (Exact Dedupe):
+
+Extract (source_ip, event_type, target_process).
+
+Compute Hash = SHA256(concat(fields)).
+
+Check Cache:
+
+If Hash exists and last_seen < 60s: DROP and increment a suppressed_count metric.
+
+If new or expired: UPDATE cache and PASS.
+
+Output: Returns bool (process or drop).
+
+D. Adaptive Rate Limiting (src/rate_limit.rs)
+Goal: Protect the DB/Core from 50k agents sending logs simultaneously.
+
+Logic:
+
+Monitor ChannelCapacity (Queue depth to Core).
+
+Normal Mode: Pass all events.
+
+Panic Mode (Queue > 80% full):
+
+DROP all Info and Debug logs immediately.
+
+PASS only Warning and Critical alerts.
+
+Log a LoadSheddingActive meta-event once per minute.
+
+E. Normalization (src/normalization.rs)
+Input: RawTelemetry (JSON/Protobuf with arbitrary fields).
+
+Output: StandardEvent struct.
+
+Rust
+
+pub struct StandardEvent {
+    pub timestamp: i64,
+    pub host_id: String,
+    pub event_type: EventType, // Enum: ProcessStart, NetConnect, FileWrite
+    pub subject: String,       // e.g., "powershell.exe"
+    pub object: String,        // e.g., "C:\Users\Admin\passwords.txt"
+    pub raw_source: String,    // Original log for evidence
+}
+Mappers:
+
+from_windows_xml(): Parse EventID 4688 (Process Creation).
+
+from_linux_audit(): Parse type=EXECVE or type=SYSCALL.
+
+4. ACCEPTANCE CRITERIA
+Scaling Test: On a 196GB RAM mock, the LRU Cache initializes with capacity > 1 Million items.
+
+Dedupe Test: Sending 100 identical events results in exactly 1 event passed to normalization.
+
+Load Shedding: When the output channel is flooded (mocked to 80%), "Info" logs are dropped, but "Ransomware Detected" alerts still pass through.
+
+Normalization Test: A raw Windows XML log for cmd.exe is correctly converted into a StandardEvent with event_type: ProcessStart.
+
+-----------------
+
+
+⚙️ PROMPT 5: SCALABLE CORE ENGINE (CORRELATION & COMPLIANCE)
+Goal: Build core/engine. This is the "Brain" of RansomEye. It runs two parallel logic streams:
+
+Real-Time Detection: Correlation logic (State Machine) to catch active attacks.
+
+Compliance (HNMP): Posture assessment (CIS/NIST Benchmarks).
+
+Critical Scalability Logic:
+
+Sharded Actor Model: Events for a specific HostID must always be processed by the same Worker Thread. This eliminates database locking and maximizes L1/L2 cache hits.
+
+Hybrid Threading: Use tokio for IO-bound tasks (DB writes) and rayon for CPU-bound tasks (Rule evaluation, JSON parsing).
+
+Dynamic Tuning: Do not hardcode thread counts. Detect num_cpus and available_ram to size the worker pools dynamically.
+
+Target Path: /home/ransomeye/rebuild/core/engine/
+
+Dependencies: tokio, rayon (parallel compute), serde, serde_json, sqlx (Postgres), num_cpus, dashmap (concurrent cache), sys-info.
+
+1. SETUP
+Initialize core/engine as a Rust Library crate. Add dependencies: core/bus (events), core/intel (graph), core/ingest (types).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/engine/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── tuning.rs               # Dynamic Worker Sizing
+    ├── sharding.rs             # HostID -> Worker Router
+    ├── runner.rs               # Main Event Loop
+    ├── correlation/
+    │   ├── mod.rs
+    │   ├── state_machine.rs    # Host Security State (Clean -> Infected)
+    │   ├── rules.rs            # CPU-Heavy Detection Logic
+    │   └── cache.rs            # In-Memory State (LRU)
+    └── compliance/
+        ├── mod.rs
+        ├── benchmarks.rs       # CIS/NIST Checks
+        └── scoring.rs          # Health Score Calc
+3. IMPLEMENTATION TASKS
+A. Dynamic Tuning & Threading (src/tuning.rs)
+Logic:
+
+Cores = num_cpus::get().
+
+RamGB = sys_info::mem_info().
+
+Determine Profile:
+
+Small (Single Box): Worker Threads = 2. Cache Size = 10,000 Hosts.
+
+Massive (48-Core): Worker Threads = Cores - 4 (Leave room for DB/OS). Cache Size = 1,000,000 Hosts.
+
+Threading Model:
+
+Detection: Run inside the Sharded Worker (Cpu-bound).
+
+Compliance: Run on a separate tokio::spawn task (Low priority IO-bound) so it never blocks an active attack alert.
+
+B. Sharded Event Router (src/sharding.rs)
+Problem: Mutex contention on the DB slows down processing at 50k agents.
+
+Solution:
+
+Create N Channels (where N = Tuned Worker Count).
+
+Router Logic: Target_Worker = Hash(HostID) % Worker_Count.
+
+Send event to that specific channel.
+
+Benefit: Events for "Laptop-A" always hit Thread #5. Thread #5 owns the State Cache for "Laptop-A". Zero Locks required.
+
+C. Correlation Engine (correlation/)
+State Machine (state_machine.rs):
+
+Transitions: Clean -> Suspicious (1 event) -> Probable (3 events) -> Confirmed (Ransomware).
+
+Optimization: Only write to DB if State changes. Otherwise, update in-memory DashMap.
+
+Rules (rules.rs):
+
+Lateral Movement: if LogonType == 3 (Network) AND User != Admin.
+
+Encryption: if FileWrite > 50/sec AND Entropy > 7.5.
+
+D. Compliance & Posture (compliance/)
+Logic:
+
+Receive HostInventory snapshot.
+
+Evaluate: Compare installed packages/config against benchmarks.rs (Embedded CIS Rules).
+
+Score: Calculate % compliance.
+
+Output: Emit ComplianceReport to Bus.
+
+Load Shedding: If Process CPU > 90%, skip Compliance checks (drop the event) to prioritize active threat detection.
+
+4. ACCEPTANCE CRITERIA
+Sharding Test: Send 100 events for "Host-A". Verify via logs that ALL 100 events were processed by the same Worker Thread ID.
+
+Scalability Test (Large): On a 48-Core system, the engine spawns ~44 workers and processes 100k events/sec without DB lock errors.
+
+Stability Test (Small): On a 2-Core system, the engine spawns 2 workers and drops "Compliance" tasks when CPU hits 95%, ensuring Detection stays live.
+
+State Persistence: A "Suspicious" state in memory is flushed to the DB within 1 second or on shutdown.
+
+----------------------------
+
+
+
+PROMPT 6: POLICY ENFORCEMENT & SIMULATION
+Goal: Build core/policy. This module takes the alerts from the Engine (Phase 5) and decides the response. It supports two modes:
+
+Enforcement Mode: Real automated defense (e.g., "Isolate Host").
+
+Simulation Mode: "Fire Drill" logic that calculates what would happen, logs it, but takes no action.
+
+Target Path: /home/ransomeye/rebuild/core/policy/
+
+Dependencies: tokio, serde, serde_json, async-trait, thiserror.
+
+1. SETUP
+Initialize core/policy as a Rust Library crate. Add dependencies: core/bus (for sending commands), core/intel, core/engine.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/policy/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── definition.rs       # Policy Structs (YAML/JSON)
+    ├── enforcement.rs      # Real Execution Logic
+    ├── simulation.rs       # "Dry Run" Logic
+    └── playbook_runner.rs  # Action Orchestrator
+3. IMPLEMENTATION TASKS
+A. Policy Definitions (src/definition.rs)
+Define the Policy Schema.
+
+Rust
+
+pub struct Policy {
+    pub id: String,
+    pub condition: String, // e.g., "severity == CRITICAL"
+    pub actions: Vec<Action>, // [Isolate, Snapshot, AlertAdmin]
+    pub mode: PolicyMode, // Enforce | Simulate | Disabled
+}
+Loader: Implement load_policies() to read from a signed configuration file or DB.
+
+B. Simulation Mode (src/simulation.rs)
+Logic:
+
+Receive AlertEvent.
+
+Match against Policies.
+
+If mode == Simulate:
+
+Generate a SimulationResult event.
+
+Log: "Would have isolated Host X due to Ransomware."
+
+CRITICAL: Do NOT emit any CommandRequest to the Bus.
+
+Use Case: Allows analysts to test "Aggressive Blocking" rules safely.
+
+C. Playbook Runner (src/playbook_runner.rs)
+Logic:
+
+Receive AlertEvent.
+
+Match against Policies.
+
+If mode == Enforce:
+
+Convert Action into CommandRequest.
+
+Sign the command (via Kernel Trust).
+
+Publish to command.dispatch topic.
+
+4. ACCEPTANCE CRITERIA
+Simulation Test: Trigger a "Critical Alert" with Policy set to Simulate. Assert that Zero commands are sent to the Bus, but a SimulationResult is logged.
+
+Enforcement Test: Trigger the same alert with Policy set to Enforce. Assert that a CommandRequest (e.g., Isolate Host) is published.
+
+Safety: Verify that the Simulation logic path physically cannot call the bus.publish(Command) function.
+
+
+----------------
+
+
+
+📡 PROMPT 7: COMMAND DISPATCHER & CRYPTO-SIGNING
+Goal: Build core/dispatch. This module is the only authority capable of sending instructions (e.g., "Isolate Host", "Kill Process") to Agents. Strict Requirement: Every command must be Signed by the Core's Private Key before transmission. Agents will reject unsigned commands.
+
+Target Path: /home/ransomeye/rebuild/core/dispatch/
+
+Dependencies: tokio, dashmap (concurrent state), ring (crypto), prost (protobuf).
+
+1. SETUP
+Initialize core/dispatch as a Rust Library crate. Add dependencies: core/bus, core/kernel.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/dispatch/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── signer.rs           # Ed25519 Signing Logic
+    ├── router.rs           # Connection Tracking (Who is online?)
+    ├── handler.rs          # Main Message Loop
+    └── error.rs
+3. IMPLEMENTATION TASKS
+A. Connection Tracking (src/router.rs)
+Goal: Know exactly which Agents are online to route commands efficiently.
+
+State: Use DashMap<String, AgentSession> where String is the AgentID.
+
+AgentSession: { ip: String, last_heartbeat: i64, version: String, public_key: Vec<u8> }.
+
+Logic:
+
+Listen to heartbeat.* on the Bus.
+
+Update the DashMap on every heartbeat.
+
+If last_heartbeat > 60s, mark as Offline.
+
+B. Cryptographic Signing (src/signer.rs)
+Constraint: NO DUMMY KEYS.
+
+Input: CommandRequest struct.
+
+Action:
+
+Load RE_CORE_PRIVATE_KEY (Ed25519) from Environment (via core/kernel). Panic if missing.
+
+Serialize the command payload to bytes.
+
+Sign the bytes using ring::signature::KeyPair.
+
+Attach the signature to the Envelope.
+
+Output: A signed Envelope ready for the Bus.
+
+C. The Dispatch Loop (src/handler.rs)
+Input: Receives CommandRequest from Phase 6 (Policy).
+
+Process:
+
+Check if Target Agent is Online (via Router).
+
+If Offline: Queue for retry (or fail based on priority).
+
+If Online: Call signer::sign().
+
+Publish to topic: agent.<agent_id>.command.
+
+4. ACCEPTANCE CRITERIA
+Crypto Test: Verify that signer produces a valid Ed25519 signature verified by the public key.
+
+Routing Test: Sending a command to an "Offline" agent returns a DeliveryError::AgentOffline.
+
+Security: The system PANICS at startup if the Core Private Key is malformed or missing.
+
+Concurrency: The router handles 10,000 concurrent heartbeat updates without locking issues.
+
+
+
+-------------------------
+
+
+PROMPT 8: RESOURCE-AWARE AI CORE (VISION & FEEDBACK)
+Goal: Build core/ai. This module hosts the local inference engine. Critical Scalability Logic:
+
+Thread Capping: The AI engine must NEVER use all available CPU cores. It is a lower-priority task compared to Packet Capture or DB Writes.
+
+Memory Safety: Lazy Loading. Do not load large models (e.g., 4GB LLMs) into RAM if the machine only has 8GB total. Check AvailableRAM before initialization.
+
+Load Shedding (Vision): OCR is expensive. If the system CPU load is high (>80%), SKIP the OCR step to prevent system lockup.
+
+Target Path: /home/ransomeye/rebuild/core/ai/
+
+Dependencies: tokio, ort (ONNX Runtime), image (processing), ring (signing), serde, sys-info (RAM/Load detection), num_cpus. Note: For OCR, assume a lightweight binding like tesseract-sys or a pure Rust ONNX implementation.
+
+1. SETUP
+Initialize core/ai as a Rust Library crate. Add dependencies: core/bus, core/kernel (config), core/ingest.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/ai/
+├── Cargo.toml
+├── models/             # Directory for .onnx / .gguf files
+└── src/
+    ├── lib.rs
+    ├── tuning.rs       # Dynamic Resource Limits
+    ├── inference/
+    │   ├── mod.rs
+    │   ├── tabular.rs  # Random Forest / XGBoost (ONNX)
+    │   └── llm.rs      # Quantized LLM (Optional)
+    ├── vision/
+    │   ├── mod.rs
+    │   ├── ocr.rs      # Text Extraction (Throttled)
+    │   └── screenshot.rs
+    └── feedback/
+        ├── mod.rs
+        ├── collector.rs # Analyst Verdicts
+        └── packer.rs    # Signed Training Bundles
+3. IMPLEMENTATION TASKS
+A. Dynamic Resource Tuning (src/tuning.rs)
+Logic:
+
+Cores = num_cpus::get().
+
+RamGB = sys_info::mem_info().
+
+Determine Thread Cap:
+
+Small Profile (Single Box): AI Threads = 1. (Background priority only).
+
+Massive Profile (Dedicated): AI Threads = max(1, Cores / 4). (Leave 75% for Core/DPI).
+
+Helper: can_load_model(size_mb: u64) -> bool. Returns false if AvailableRAM < size_mb * 2.
+
+B. Resource-Aware Inference (inference/tabular.rs)
+Input: StandardEvent features (flattened vector).
+
+Initialization:
+
+Configure ort::SessionBuilder with with_intra_threads(tuning::get_thread_cap()).
+
+Check RAM: If can_load_model(200) is false, log "Insufficient RAM for ML" and return a "Model Not Loaded" state (heuristic fallback).
+
+Optimization: Keep the session open. Do not reload per event.
+
+C. Throttled Computer Vision (vision/ocr.rs)
+Gap Fix: OCR for ransomware notes (e.g., "YOUR FILES ARE ENCRYPTED").
+
+Guardrail:
+
+Check sys_info::loadavg().
+
+Rule: If Load > (Cores * 0.8), ABORT processing immediately. Return AnalysisSkipped.
+
+Why: OCR is heavy. Never crash the detection loop just to read a screenshot.
+
+Logic:
+
+Pre-process image (Grayscale, Contrast).
+
+Run OCR.
+
+Scan for keywords: "Bitcoin", "Tor Browser", "Encrypted".
+
+D. Secure Feedback Loop (feedback/collector.rs)
+Input: FeedbackEvent (AlertID, Verdict: True/False Positive).
+
+Process:
+
+Fetch original raw data for AlertID.
+
+Create JSON bundle: { features: [...], label: "FalsePositive", analyst: "ID", timestamp: ... }.
+
+Sign: Sign the bundle with Core Private Key (integrity proof).
+
+Queue: Save to /var/ransomeye/training_data/queue/ for offline retraining.
+
+4. ACCEPTANCE CRITERIA
+Single Box Test: On a 4-core machine, the ONNX Runtime initializes with exactly 1 thread.
+
+OOM Protection: Attempting to load a large model on a low-RAM mock triggers a warning log and graceful fallback, not a crash.
+
+Vision Throttling: OCR is skipped (returning AnalysisSkipped) if the system reports >80% CPU load during the test.
+
+Feedback Integrity: A generated feedback file contains a valid cryptographic signature verifiable by the public key.
+
+
+-----------------
+
+
+🕵️ PROMPT 9A: HYBRID DPI PROBE (ADAPTIVE XDP & ACTIVE)
+Goal: Build edge/dpi. This is a high-performance network sensor. Critical Scalability Logic:
+
+Adaptive Driver: Automatically choose between AF_PACKET (Standard/Compatibility) for low-traffic (<1Gbps) and AF_XDP (Zero-Copy) for high-traffic (>1Gbps).
+
+Dynamic Sizing: Do not hardcode thread counts or buffer sizes. Calculate RingBufferSize based on available RAM (196GB vs 4GB).
+
+Active Defense: Include active scanning (ARP/SYN) but gated by strict safety rails.
+
+Target Path: /home/ransomeye/rebuild/edge/dpi/
+
+Dependencies: tokio, aya (eBPF), pnet (packet injection), num_cpus (detection), socket2, sys-info, core_affinity (for pinning threads).
+
+1. SETUP
+Initialize edge/dpi as a Rust Binary crate. Add dependencies: core/bus (reporting), core/kernel (config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+edge/dpi/
+├── Cargo.toml
+├── build.rs                # Compiles eBPF C code
+├── ebpf/
+│   └── xdp_filter.c        # Kernel-side noise filter
+└── src/
+    ├── main.rs
+    ├── lib.rs
+    ├── tuning.rs           # Hardware Detection & Scaling
+    ├── passive/
+    │   ├── mod.rs
+    │   ├── driver_xdp.rs   # High Perf (Zero Copy)
+    │   ├── driver_std.rs   # Low Perf (Compatibility)
+    │   └── stream.rs       # Unified Packet Stream
+    ├── active/
+    │   ├── mod.rs
+    │   ├── scanner.rs      # ARP/SYN Logic
+    │   └── safety.rs       # OT/ICS Guardrails
+    └── parsing/
+        └── protocol.rs     # Zero-Copy Parser
+3. IMPLEMENTATION TASKS
+A. Dynamic Hardware Scaling (src/tuning.rs)
+Logic:
+
+RamGB = sys_info::mem_info().
+
+Cores = num_cpus::get().
+
+Determine Profile:
+
+Small (500Mbps): Use Standard Driver. Ring Buffer = 4MB. Threads = 2.
+
+Massive (40Gbps): Use XDP Driver. Ring Buffer = 256MB. Threads = Cores.
+
+CPU Affinity (Critical for Single-Box):
+
+If running on a shared machine (detected via config or cgroup limits), strictly bind worker threads to the assigned CPU cores to prevent L3 cache thrashing against the DB.
+
+B. The Passive Engine (passive/)
+Kernel Side (ebpf/xdp_filter.c):
+
+Action: Drop "Noise" (Netflix, Youtube, Backup Streams) inside the NIC.
+
+Pass: Only forward DNS, HTTP, TLS, SMB, Kerberos to userspace.
+
+Userspace Side:
+
+XDP Mode: Use aya to map UMEM (Zero-Copy) rings.
+
+Standard Mode: Use pnet::datalink (copies packets, safer for compatibility).
+
+Output: Stream normalized byte slices to parsing/.
+
+C. Zero-Copy Parsing (parsing/protocol.rs)
+Constraint: Do not allocate String unless necessary. Work with &[u8].
+
+Extract:
+
+TLS: ClientHello SNI, JA3 Hash.
+
+DNS: Query Name, RCODE.
+
+HTTP: Method, Host, User-Agent.
+
+D. Active Scanner (active/scanner.rs)
+Modes:
+
+ArpSweep: Rapidly map local subnet.
+
+SynScan: Stealthy port check (Top 100 ports).
+
+Safety Rail (active/safety.rs):
+
+Input: Target IP.
+
+Check: Compare against RE_SAFE_RANGES list.
+
+Rule: If Target is in EXCLUDE_IPS (e.g., Critical PLC) -> DROP & LOG VIOLATION.
+
+Rate Limit: Dynamic based on Profile (Small = 100pps, Massive = 10kpps).
+
+4. ACCEPTANCE CRITERIA
+Small Scale Test: On a 2-Core VM, the probe defaults to Standard Driver and uses < 200MB RAM.
+
+Large Scale Test: On a 48-Core server, the probe activates XDP, binds to 48 RSS queues, and processes packets with < 1% drop rate at high load.
+
+Safety: Attempting to active-scan a blacklisted IP returns SafetyViolation and sends zero packets.
+
+Single-Box Coexistence: When running alongside a CPU stress test (simulating the DB), the Probe stays pinned to its assigned cores and does not crash the system.
+-------------------
+
+🛡️ PROMPT 9B: ENDPOINT AGENT (TELEMETRY & DECEPTION)
+Goal: Build edge/agent. This is the unified Rust agent that runs on Linux and Windows endpoints. It has three main jobs:
+
+Telemetry: Monitor Process execution and File modifications.
+
+Execution: Receive and execute signed commands from the Core (e.g., "Kill PID").
+
+Deception: Deploy and monitor "Traps" (Honeyfiles/Honeyports) to detect lateral movement.
+
+Target Path: /home/ransomeye/rebuild/edge/agent/
+
+Dependencies: tokio, sysinfo (cross-platform metrics), notify (file watching), socket2, whoami. Note: For deep kernel monitoring, we assume aya (eBPF) or krabs (ETW) will be added later, but the architecture starts here.
+
+1. SETUP
+Initialize edge/agent as a Rust Binary crate. Add dependencies: core/bus, core/kernel (for crypto/config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+edge/agent/
+├── Cargo.toml
+└── src/
+    ├── main.rs
+    ├── config.rs
+    ├── telemetry/
+    │   ├── mod.rs
+    │   ├── process.rs      # Monitor new processes
+    │   └── file_mon.rs     # Monitor file system
+    ├── command_exec.rs     # Handle "Kill/Isolate"
+    └── deception/
+        ├── mod.rs
+        ├── honeyfile.rs    # Create & Watch fake files
+        └── honeyport.rs    # Fake service listener
+3. IMPLEMENTATION TASKS
+A. Telemetry Monitoring (telemetry/)
+Process Monitor: Use sysinfo to poll for new processes (fallback) or OS-specific hooks.
+
+File Monitor: Use notify (Debian/Windows) to watch sensitive paths (e.g., /etc/passwd, C:\Users\*\Documents).
+
+Output: Publish TelemetryEvent to the Bus.
+
+B. The Deception Module (deception/)
+Honeyfile Logic:
+
+Action: Create a file (e.g., /root/passwords.txt or C:\Finance\salary_list.xlsx) with random junk content.
+
+Trigger: If any process (except the Agent itself) reads/writes/opens this file -> IMMEDIATE CRITICAL ALERT.
+
+Honeyport Logic:
+
+Action: Open a TCP Listener on a high port (e.g., 8080, 2222).
+
+Trigger: If any IP connects to it -> IMMEDIATE ALERT.
+
+Safety: The agent must allow configuring where these traps are placed via the Policy from Core.
+
+C. Secure Command Execution (command_exec.rs)
+Input: CommandRequest from Bus.
+
+Security Check:
+
+Verify Signature: Must match Core Public Key.
+
+Verify Target: target_agent_id must match MY_AGENT_ID.
+
+Verify Replay: timestamp must be within 30 seconds of now.
+
+Actions:
+
+KillProcess(pid)
+
+IsolateNetwork() (Use iptables or Windows Firewall to block all non-Bus traffic).
+
+4. ACCEPTANCE CRITERIA
+Deception Test: Touching the generated honeyfile triggers a DeceptionAlert sent to the Bus.
+
+Security Test: Sending an Unsigned command results in a logged security violation and ZERO action.
+
+Isolation Test: The IsolateNetwork command successfully applies a firewall rule blocking outbound traffic (mocked in test).
+
+Resilience: The agent automatically reconnects to the Bus if the connection drops.
+
+
+-------------------
+
+
+🔎 PROMPT 10: FORENSICS ENGINE & REPORTING
+Goal: Build core/reporting. This module handles the "Aftermath". It is responsible for:
+
+Evidence Storage: Securely storing artifacts (memory dumps, PCAPs) with Chain of Custody (Hashing).
+
+Advanced Analysis: Automated diffing of snapshots to find persistence mechanisms.
+
+Rehydration: Exporting an entire incident (Timeline + Artifacts) into a portable, encrypted bundle for offline analysis.
+
+Target Path: /home/ransomeye/rebuild/core/reporting/
+
+Dependencies: tokio, serde, serde_json, zip (for bundling), ring (encryption), sha2 (hashing), sqlx.
+
+1. SETUP
+Initialize core/reporting as a Rust Library crate. Add dependencies: core/intel (for graph queries), core/kernel.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/reporting/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── models.rs               # Incident & Artifact Structs
+    ├── custody.rs              # Hashing & Signing of Evidence
+    ├── analysis/
+    │   ├── mod.rs
+    │   ├── diffing.rs          # Registry/File Snapshot Diff
+    │   └── memory.rs           # Basic Volatility Logic
+    └── bundle/
+        ├── mod.rs
+        ├── export.rs           # Create .zip.enc
+        └── import.rs           # Rehydrate from .zip.enc
+3. IMPLEMENTATION TASKS
+A. Chain of Custody (src/custody.rs)
+Logic:
+
+Receive binary artifact (e.g., malware.exe).
+
+Compute SHA-256 Hash immediately.
+
+Sign the Hash with Core Private Key.
+
+Store metadata: { artifact_id, hash, signature, timestamp, source_agent }.
+
+Goal: Prove in court that the evidence was not tampered with.
+
+B. Forensic Analysis (src/analysis/diffing.rs)
+Gap Fix: Automated persistence detection.
+
+Logic:
+
+Input: Snapshot_T0 (Clean) vs Snapshot_T1 (Infected).
+
+Algorithm:
+
+Find new Registry Keys in Run, Services, Startup.
+
+Find new unsigned binaries in System32.
+
+Output: ForensicReport highlighting the differences.
+
+C. Incident Rehydration (src/bundle/)
+Gap Fix: Portability.
+
+Export Logic (export.rs):
+
+Select Incident ID.
+
+Fetch all related Events, Alerts, and Artifacts.
+
+Generate manifest.json.
+
+Create a ZIP file containing everything.
+
+Encrypt ZIP with a symmetric key (ChaCha20).
+
+Import Logic (import.rs):
+
+Decrypt bundle.
+
+Verify Manifest signature.
+
+Insert events into a temporary "Investigation" table in DB (do not mix with live production data).
+
+4. ACCEPTANCE CRITERIA
+Custody Test: Modifying a stored artifact file by 1 byte causes custody::verify() to return Tampered.
+
+Diffing Test: Comparing two mock registry snapshots correctly identifies a newly added "EvilService".
+
+Rehydration Test: Exporting an incident to a ZIP and re-importing it results in an identical dataset in the DB.
+
+Security: The Export function strictly requires an authenticated Administrator session.
+
+
+-----------------
+
+📦 PROMPT 11: DYNAMIC INSTALLER, OS TUNING & RESOURCE GOVERNOR
+Goal: Build core/installer. This module transforms the Linux host into a purpose-built security appliance. Critical Logic:
+
+Dynamic Hardware Profiling: Detect CPU/RAM and apply the correct tuning (Small vs. Massive). DO NOT hardcode values.
+
+Single-Box Isolation: If DPI Probe and Core Engine run on the same server, use cgroups to isolate their CPU cores so high network traffic doesn't starve the Database.
+
+Atomic Updates: Manage the secure "Blue/Green" update lifecycle.
+
+Target Path: /home/ransomeye/rebuild/core/installer/
+
+Dependencies: tokio, sys-info, num_cpus, cgroups-rs (for resource isolation), fs2 (disk check), tar, flate2, ring (crypto), semver.
+
+1. SETUP
+Initialize core/installer as a Rust Binary crate. Add dependencies: core/kernel (trust root).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/installer/
+├── Cargo.toml
+└── src/
+    ├── main.rs             # CLI Entrypoint
+    ├── lib.rs
+    ├── tuning/
+    │   ├── mod.rs
+    │   ├── hardware.rs     # Detect CPU/RAM/Disk/Topology
+    │   ├── profile.rs      # Decide: Small, Medium, or Massive?
+    │   ├── swap.rs         # Dynamic Swap Enforcement
+    │   ├── sysctl.rs       # Kernel Parameter Tuning
+    │   └── isolation.rs    # CPU Pinning (Core vs DPI)
+    ├── install_logic.rs    # Systemd & DB Setup
+    ├── update/
+    │   ├── mod.rs
+    │   ├── verify.rs       # Signature Check
+    │   ├── apply.rs        # Atomic Symlink Swap
+    │   └── rollback.rs     # Disaster Recovery
+    └── package.rs          # .reup File Format
+3. IMPLEMENTATION TASKS
+A. Dynamic Hardware Profiling (tuning/profile.rs)
+Logic:
+
+Detect RamGB and CpuCores.
+
+Determine Profile:
+
+Profile::Small: RAM < 16GB (Target: 100 Agents).
+
+Profile::Medium: RAM 16-64GB (Target: 5k Agents).
+
+Profile::Massive: RAM > 64GB (Target: 50k Agents).
+
+Output: Returns a config struct with target values (Swap size, Buffer sizes, DB Connections).
+
+B. Single-Box Resource Isolation (tuning/isolation.rs)
+Problem: On a single machine, 40Gbps DPI traffic interrupts the CPU so often that the Database slows down.
+
+Solution: CPU Pinning (Affinity).
+
+Logic:
+
+Check if ransomeye-dpi and ransomeye-core are both enabled.
+
+If YES (Single Box):
+
+DPI Group: Assign to CPU Cores 0 to (Cores/2 - 1) (The first half).
+
+Core/DB Group: Assign to CPU Cores (Cores/2) to (Cores - 1) (The second half).
+
+If NO (Dedicated Box):
+
+Allow process to use all cores.
+
+Implementation: Use cgroups-rs to create /sys/fs/cgroup/cpu/ransomeye_dpi and set cpuset.cpus.
+
+C. Dynamic Swap Enforcement (tuning/swap.rs)
+Goal: Prevent OOM kills during massive burst loads.
+
+Rules (Based on Profile):
+
+Small Profile: Create 8GB Swap (Critical for stability).
+
+Medium Profile: Create 16GB Swap.
+
+Massive Profile: Create 32GB Swap (Safety net for 50k concurrent TLS handshakes).
+
+Safety:
+
+Check get_disk_free_gb().
+
+If Free < TargetSwap + 5GB, Log WARNING and reduce Swap allocation to Free / 2 to avoid disk full errors.
+
+Action: fallocate, chmod 600, mkswap, swapon.
+
+D. Kernel Parameter Tuning (tuning/sysctl.rs)
+Action: Write /etc/sysctl.d/99-ransomeye.conf based on Profile.
+
+Tuning Table:
+
+Small:
+
+fs.file-max = 100,000
+
+net.core.rmem_max = 4,194,304 (4MB)
+
+Massive (The 40Gbps Target):
+
+fs.file-max = 1,000,000 (For 50k sockets + files).
+
+net.core.somaxconn = 65,535 (Burst login backlog).
+
+net.core.rmem_max = 33,554,432 (32MB Read Buffer for zero-loss capture).
+
+net.core.wmem_max = 33,554,432.
+
+vm.swappiness = 10 (Prefer RAM).
+
+Apply: Execute sysctl -p.
+
+E. Secure Atomic Updates (src/update/)
+Package: .reup (Signed, Encrypted ChaCha20, Versioned).
+
+Apply Logic:
+
+Verify Signature (Ed25519) against Core Trust Root.
+
+Unpack to /opt/ransomeye/next/.
+
+Stop Services (systemctl stop ransomeye-*).
+
+Symlink Swap: ln -sfn /opt/ransomeye/next /opt/ransomeye/current.
+
+Start Services.
+
+Health Check: Poll localhost:4000/health.
+
+Auto-Rollback: If Health Check fails or times out (60s), revert symlink and restart old version.
+
+4. ACCEPTANCE CRITERIA
+Profiling Test: On a 4GB RAM VM, the installer detects Profile::Small, sets 4MB network buffers, and creates 8GB Swap.
+
+Massive Scale Test: On a 196GB RAM server, it detects Profile::Massive, sets 32MB network buffers, creates 32GB Swap, and configures 1M file descriptors.
+
+Isolation Test: On a machine running both Core and DPI, cat /proc/<dpi_pid>/status shows Cpus_allowed_list matches the first half of available cores (e.g., 0-23 on a 48-core system).
+
+Rollback Test: Installing a broken binary (that exits immediately) triggers an automatic rollback to the previous version within 60 seconds.
+
+----------------------
+
+🛠️ PROMPT 12: OPS CLI & SRE TOOLING
+Goal: Build ops. This is a strict CLI tool used by System Administrators to maintain the RansomEye cluster. It replaces manual shell scripts with type-safe Rust logic. Key Functions:
+
+Key Rotation: Generating and distributing new signing keys without downtime.
+
+Log Hygiene: Compressing, encrypting, and archiving audit logs to cold storage.
+
+Disaster Recovery: Creating encrypted backups of the Core DB.
+
+Target Path: /home/ransomeye/rebuild/ops/
+
+Dependencies: tokio, clap (CLI parser), ring (crypto), zstd (compression), sqlx.
+
+1. SETUP
+Initialize ops as a Rust Binary crate. Add dependencies: core/kernel (config/crypto), core/intel (for graph backup).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+ops/
+├── Cargo.toml
+└── src/
+    ├── main.rs             # CLI Dispatcher
+    ├── commands/
+    │   ├── mod.rs
+    │   ├── rotate_keys.rs  # Trust Root Rollover
+    │   ├── archive.rs      # Log Retention Policy
+    │   ├── backup.rs       # DB Dump & Encrypt
+    │   └── health.rs       # Deep Diagnostics
+    └── utils.rs
+3. IMPLEMENTATION TASKS
+A. Key Rotation (commands/rotate_keys.rs)
+Context: If a private key is compromised, we must rotate it.
+
+Logic:
+
+Generate New_KeyPair.
+
+Create a TrustUpdate message signed by the Old_PrivateKey.
+
+Publish to broadcast.updates topic.
+
+Wait for ACKs from Agents.
+
+Update core/kernel config to use new key.
+
+Safety: Must verify that at least 80% of agents have acknowledged the new key before committing.
+
+B. Secure Log Archival (commands/archive.rs)
+Policy: Logs > 30 days must be moved to cold storage.
+
+Logic:
+
+Query DB for old AuditLogs.
+
+Stream to a JSON file.
+
+Compress with zstd.
+
+Encrypt with AES-GCM (using a specific Archive Key).
+
+Move to /mnt/cold_storage/.
+
+DELETE from DB (vacuum).
+
+C. Database Backup (commands/backup.rs)
+Logic: Wrapper around pg_dump.
+
+Process:
+
+Lock DB writes (briefly).
+
+Run pg_dump -Fc.
+
+Pipe output to encryption stream.
+
+Save to /var/backups/ransomeye_<timestamp>.enc.
+
+4. ACCEPTANCE CRITERIA
+Rotation Test: Running ops rotate-keys generates a valid TrustUpdate message signed by the old key.
+
+Archive Test: ops archive --days 30 successfully removes old logs from DB and creates an encrypted .zst.enc file.
+
+CLI Test: ops --help displays clear usage instructions for all subcommands.
+
+Security: The tool refuses to run if the user is not root or part of the ransomeye-admin group.
+
+
+--------------------
+
+🖥️ PROMPT 13: MANAGEMENT CONSOLE (REACT + WASM)
+Goal: Build ui. This is the "Single Pane of Glass" for the RansomEye platform. It is a strict View Layer; all business logic remains in the Core. Tech Stack: React 19, TypeScript, Vite, TanStack Query, and Rust WASM (for the Graph).
+
+Target Path: /home/ransomeye/rebuild/ui/
+
+Dependencies: npm (Node), wasm-bindgen, react, d3 (controlled via WASM).
+
+1. SETUP
+Initialize ui as a standard React + Vite project. Initialize ui/wasm as a Rust Library crate (crate-type = ["cdylib"]).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+ui/
+├── package.json
+├── index.html
+├── src/
+│   ├── main.tsx
+│   ├── App.tsx
+│   ├── api/                # Generated Clients (OpenAPI)
+│   ├── components/
+│   │   ├── Dashboard.tsx   # Fleet Health
+│   │   ├── Alerts.tsx      # Incident Queue
+│   │   ├── GraphView.tsx   # The WASM Canvas
+│   │   └── Policies.tsx    # Policy Editor
+│   └── hooks/              # Auth & Data Fetching
+└── wasm/                   # Rust Visualization Engine
+    ├── Cargo.toml
+    └── src/
+        ├── lib.rs
+        └── graph_renderer.rs
+3. IMPLEMENTATION TASKS
+A. The Dashboard (src/components/Dashboard.tsx)
+Metrics: Display:
+
+"Active Threats" (Red)
+
+"Fleet Compliance Score" (Percentage from Phase 5).
+
+"Agents Online/Offline" (Ratio).
+
+Data Source: Poll GET /api/v1/metrics every 5 seconds.
+
+B. The Threat Graph WASM (wasm/src/lib.rs)
+Problem: Rendering 10,000 nodes (Malware, IPs, CVEs) in JS is slow.
+
+Solution:
+
+Write a Rust function render_graph(canvas_id: &str, data: &JsValue).
+
+Use web-sys to draw directly to an HTML5 Canvas.
+
+Use a "Force-Directed Layout" algorithm in Rust (faster).
+
+React Integration: GraphView.tsx imports the WASM module and passes the JSON data from Phase 3.
+
+C. Simulation Console (src/components/Policies.tsx)
+Gap Fix: UI for "Fire Drill".
+
+Controls:
+
+Toggle Switch: "Enforcement Mode" vs "Simulation Mode".
+
+Button: "Run Dry Run Attack".
+
+Feedback: When clicked, it calls POST /api/v1/policy/simulate and displays the SimulationResult log in a distinct "Console Output" box.
+
+D. Security
+Authentication: Require mTLS Client Certificate (browser) OR Session Cookie from the Core Login.
+
+RBAC: Hide "Settings" if user is Analyst (Read-Only). Show all if Admin.
+
+4. ACCEPTANCE CRITERIA
+Build Test: npm run build produces a static dist/ folder containing JS and WASM files.
+
+WASM Test: The Graph View renders 1,000 mock nodes in < 1 second (60fps).
+
+Integration: Clicking "Isolate Host" in the UI sends a CommandRequest to the Core (verified via Network Tab).
+
+Security: The UI automatically redirects to /login if the API returns 401.
+
+🎉 CONGRATULATIONS.
+
+You have now successfully generated the complete, military-grade Architectural Specifications for RansomEye.
+
+Summary of the Build:
+
+Phase 0-2: Governance, Trust Root, & Secure Bus (Rust)
+
+Phase 3: Threat Intelligence & Graph (Rust + SQL)
+
+Phase 4: Ingestion & Deduplication (Rust)
+
+Phase 5: Core Engine & Compliance (Rust)
+
+Phase 6: Policy & Simulation (Rust)
+
+Phase 7: Command Dispatcher (Rust)
+
+Phase 8: AI, Vision, & Feedback (Rust + ONNX)
+
+Phase 9: DPI & Deception Agents (Rust)
+
+Phase 10: Forensics & Rehydration (Rust)
+
+Phase 11: Installer & Upgrader (Rust)
+
+Phase 12: Ops Tooling (Rust)
+
+Phase 13: Management Console (React + WASM)
+
+Next Steps:
+
+Feed these prompts into Cursor sequentially.
+
+Wait for the build of each phase to pass its "Acceptance Criteria".
+
+Proceed to the next.
+
+Your RansomEye architecture is now complete, defensible, and gap-free.
+
+
+-------------------
+
+🏁 PROMPT 14: RELEASE GATE & GOLD MASTER VERIFICATION
+Goal: Build qa/auditor. This is the final barrier before deployment. It aggregates checks from all previous phases into a single "Pass/Fail" pipeline. Strict Rule: This pipeline runs with deny(warnings). A single compiler warning, unused variable, or insecure dependency FAILS the release.
+
+Target Path: /home/ransomeye/rebuild/qa/
+
+Dependencies: tokio, cargo_metadata (to scan workspace), serde_json, ring (to sign the release manifest), reqwest.
+
+1. SETUP
+Initialize qa as a Rust Workspace Member (add to root Cargo.toml). Inside qa, create a binary crate auditor.
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+qa/
+├── Cargo.toml
+└── auditor/
+    ├── Cargo.toml
+    └── src/
+        ├── main.rs
+        ├── checks/
+        │   ├── mod.rs
+        │   ├── static_analysis.rs  # Clippy & Fmt
+        │   ├── security.rs         # Cargo Audit & License Check
+        │   ├── performance.rs      # WASM Size & Binary Stripping
+        │   └── integration.rs      # "Fire Drill" Simulation
+        └── report.rs               # Generate release_manifest.json
+3. IMPLEMENTATION TASKS
+A. Static Analysis & Hygiene (checks/static_analysis.rs)
+Logic:
+
+Run cargo fmt -- --check. Fail if formatting is sloppy.
+
+Run cargo clippy -- -D warnings. Fail on ANY warning.
+
+Header Check: Call the tool from Phase 0 (governance/tools/header_check). Verify every file has the copyright header.
+
+B. Security Audit (checks/security.rs)
+Logic:
+
+License Check: Call the tool from Phase 0 (governance/tools/license_check). FATAL if GPL found.
+
+Vulnerability Scan: Run cargo audit (using cargo-audit crate or binary). Fail if any CVEs are found in dependencies.
+
+Hardcoded Secrets: simple grep scan for "BEGIN PRIVATE KEY" or "password =" in source code (excluding tests/).
+
+C. Build & Performance (checks/performance.rs)
+Logic:
+
+Run cargo build --release.
+
+Binary Size: Check target/release/ransomeye-core. If > 50MB, Warn (bloat detection).
+
+WASM Optimization: Check ui/dist/assets/*.wasm. Ensure it is compressed (Run wasm-opt if available).
+
+D. The "Fire Drill" Integration Test (checks/integration.rs)
+Logic:
+
+Spin up a Docker container with edge/agent.
+
+Spin up core.
+
+Scenario: Send a mock "Ransomware Detected" signal.
+
+Verification:
+
+Did Core receive it?
+
+Did Policy trigger?
+
+Did DB record the alert?
+
+Tear Down.
+
+E. The Golden Manifest (src/report.rs)
+Goal: If all checks pass, mint the release.
+
+Output: release_manifest.json.sig
+
+JSON
+
+{
+  "version": "1.0.0",
+  "timestamp": "2025-12-20T12:00:00Z",
+  "auditor_verdict": "PASS",
+  "git_hash": "a1b2c3d...",
+  "binary_hashes": {
+    "core": "sha256:...",
+    "agent_linux": "sha256:...",
+    "ui_wasm": "sha256:..."
+  }
+}
+Sign: Sign this JSON with the Release_Private_Key.
+
+4. ACCEPTANCE CRITERIA
+Fail-Closed: Introduce a TODO or unwrap() in the Core code. Run auditor. Assert it FAILS.
+
+Security: Add a dependency with a known CVE (e.g., old openssl). Run auditor. Assert it FAILS.
+
+Success: On a clean repo, auditor runs to completion and generates a signed release_manifest.json.

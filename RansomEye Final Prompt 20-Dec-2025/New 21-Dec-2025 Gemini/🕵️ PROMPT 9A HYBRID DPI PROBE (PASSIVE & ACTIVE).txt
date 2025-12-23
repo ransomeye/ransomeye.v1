@@ -1,0 +1,108 @@
+🕵️ PROMPT 9A: HYBRID DPI PROBE (ADAPTIVE XDP & ACTIVE)
+Goal: Build edge/dpi. This is a high-performance network sensor. Critical Scalability Logic:
+
+Adaptive Driver: Automatically choose between AF_PACKET (Standard/Compatibility) for low-traffic (<1Gbps) and AF_XDP (Zero-Copy) for high-traffic (>1Gbps).
+
+Dynamic Sizing: Do not hardcode thread counts or buffer sizes. Calculate RingBufferSize based on available RAM (196GB vs 4GB).
+
+Active Defense: Include active scanning (ARP/SYN) but gated by strict safety rails.
+
+Target Path: /home/ransomeye/rebuild/edge/dpi/
+
+Dependencies: tokio, aya (eBPF), pnet (packet injection), num_cpus (detection), socket2, sys-info, core_affinity (for pinning threads).
+
+1. SETUP
+Initialize edge/dpi as a Rust Binary crate. Add dependencies: core/bus (reporting), core/kernel (config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+edge/dpi/
+├── Cargo.toml
+├── build.rs                # Compiles eBPF C code
+├── ebpf/
+│   └── xdp_filter.c        # Kernel-side noise filter
+└── src/
+    ├── main.rs
+    ├── lib.rs
+    ├── tuning.rs           # Hardware Detection & Scaling
+    ├── passive/
+    │   ├── mod.rs
+    │   ├── driver_xdp.rs   # High Perf (Zero Copy)
+    │   ├── driver_std.rs   # Low Perf (Compatibility)
+    │   └── stream.rs       # Unified Packet Stream
+    ├── active/
+    │   ├── mod.rs
+    │   ├── scanner.rs      # ARP/SYN Logic
+    │   └── safety.rs       # OT/ICS Guardrails
+    └── parsing/
+        └── protocol.rs     # Zero-Copy Parser
+3. IMPLEMENTATION TASKS
+A. Dynamic Hardware Scaling (src/tuning.rs)
+Logic:
+
+RamGB = sys_info::mem_info().
+
+Cores = num_cpus::get().
+
+Determine Profile:
+
+Small (500Mbps): Use Standard Driver. Ring Buffer = 4MB. Threads = 2.
+
+Massive (40Gbps): Use XDP Driver. Ring Buffer = 256MB. Threads = Cores.
+
+CPU Affinity (Critical for Single-Box):
+
+If running on a shared machine (detected via config or cgroup limits), strictly bind worker threads to the assigned CPU cores to prevent L3 cache thrashing against the DB.
+
+B. The Passive Engine (passive/)
+Kernel Side (ebpf/xdp_filter.c):
+
+Action: Drop "Noise" (Netflix, Youtube, Backup Streams) inside the NIC.
+
+Pass: Only forward DNS, HTTP, TLS, SMB, Kerberos to userspace.
+
+Userspace Side:
+
+XDP Mode: Use aya to map UMEM (Zero-Copy) rings.
+
+Standard Mode: Use pnet::datalink (copies packets, safer for compatibility).
+
+Output: Stream normalized byte slices to parsing/.
+
+C. Zero-Copy Parsing (parsing/protocol.rs)
+Constraint: Do not allocate String unless necessary. Work with &[u8].
+
+Extract:
+
+TLS: ClientHello SNI, JA3 Hash.
+
+DNS: Query Name, RCODE.
+
+HTTP: Method, Host, User-Agent.
+
+D. Active Scanner (active/scanner.rs)
+Modes:
+
+ArpSweep: Rapidly map local subnet.
+
+SynScan: Stealthy port check (Top 100 ports).
+
+Safety Rail (active/safety.rs):
+
+Input: Target IP.
+
+Check: Compare against RE_SAFE_RANGES list.
+
+Rule: If Target is in EXCLUDE_IPS (e.g., Critical PLC) -> DROP & LOG VIOLATION.
+
+Rate Limit: Dynamic based on Profile (Small = 100pps, Massive = 10kpps).
+
+4. ACCEPTANCE CRITERIA
+Small Scale Test: On a 2-Core VM, the probe defaults to Standard Driver and uses < 200MB RAM.
+
+Large Scale Test: On a 48-Core server, the probe activates XDP, binds to 48 RSS queues, and processes packets with < 1% drop rate at high load.
+
+Safety: Attempting to active-scan a blacklisted IP returns SafetyViolation and sends zero packets.
+
+Single-Box Coexistence: When running alongside a CPU stress test (simulating the DB), the Probe stays pinned to its assigned cores and does not crash the system.

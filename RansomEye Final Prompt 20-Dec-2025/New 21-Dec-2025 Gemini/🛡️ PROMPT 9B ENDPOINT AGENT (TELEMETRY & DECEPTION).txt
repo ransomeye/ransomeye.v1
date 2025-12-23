@@ -1,0 +1,81 @@
+🛡️ PROMPT 9B: ENDPOINT AGENT (TELEMETRY & DECEPTION)
+Goal: Build edge/agent. This is the unified Rust agent that runs on Linux and Windows endpoints. It has three main jobs:
+
+Telemetry: Monitor Process execution and File modifications.
+
+Execution: Receive and execute signed commands from the Core (e.g., "Kill PID").
+
+Deception: Deploy and monitor "Traps" (Honeyfiles/Honeyports) to detect lateral movement.
+
+Target Path: /home/ransomeye/rebuild/edge/agent/
+
+Dependencies: tokio, sysinfo (cross-platform metrics), notify (file watching), socket2, whoami. Note: For deep kernel monitoring, we assume aya (eBPF) or krabs (ETW) will be added later, but the architecture starts here.
+
+1. SETUP
+Initialize edge/agent as a Rust Binary crate. Add dependencies: core/bus, core/kernel (for crypto/config).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+edge/agent/
+├── Cargo.toml
+└── src/
+    ├── main.rs
+    ├── config.rs
+    ├── telemetry/
+    │   ├── mod.rs
+    │   ├── process.rs      # Monitor new processes
+    │   └── file_mon.rs     # Monitor file system
+    ├── command_exec.rs     # Handle "Kill/Isolate"
+    └── deception/
+        ├── mod.rs
+        ├── honeyfile.rs    # Create & Watch fake files
+        └── honeyport.rs    # Fake service listener
+3. IMPLEMENTATION TASKS
+A. Telemetry Monitoring (telemetry/)
+Process Monitor: Use sysinfo to poll for new processes (fallback) or OS-specific hooks.
+
+File Monitor: Use notify (Debian/Windows) to watch sensitive paths (e.g., /etc/passwd, C:\Users\*\Documents).
+
+Output: Publish TelemetryEvent to the Bus.
+
+B. The Deception Module (deception/)
+Honeyfile Logic:
+
+Action: Create a file (e.g., /root/passwords.txt or C:\Finance\salary_list.xlsx) with random junk content.
+
+Trigger: If any process (except the Agent itself) reads/writes/opens this file -> IMMEDIATE CRITICAL ALERT.
+
+Honeyport Logic:
+
+Action: Open a TCP Listener on a high port (e.g., 8080, 2222).
+
+Trigger: If any IP connects to it -> IMMEDIATE ALERT.
+
+Safety: The agent must allow configuring where these traps are placed via the Policy from Core.
+
+C. Secure Command Execution (command_exec.rs)
+Input: CommandRequest from Bus.
+
+Security Check:
+
+Verify Signature: Must match Core Public Key.
+
+Verify Target: target_agent_id must match MY_AGENT_ID.
+
+Verify Replay: timestamp must be within 30 seconds of now.
+
+Actions:
+
+KillProcess(pid)
+
+IsolateNetwork() (Use iptables or Windows Firewall to block all non-Bus traffic).
+
+4. ACCEPTANCE CRITERIA
+Deception Test: Touching the generated honeyfile triggers a DeceptionAlert sent to the Bus.
+
+Security Test: Sending an Unsigned command results in a logged security violation and ZERO action.
+
+Isolation Test: The IsolateNetwork command successfully applies a firewall rule blocking outbound traffic (mocked in test).
+
+Resilience: The agent automatically reconnects to the Bus if the connection drops.

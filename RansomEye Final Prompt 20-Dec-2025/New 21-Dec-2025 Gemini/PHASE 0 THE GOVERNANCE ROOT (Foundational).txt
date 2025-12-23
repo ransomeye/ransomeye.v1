@@ -1,0 +1,182 @@
+GLOBAL CONTEXT (PASTE THIS FIRST)
+ROLE: You are the Lead Architect & Security Officer for RansomEye, a military-grade, air-gapped, zero-trust ransomware defense platform.
+
+PROJECT PARAMETERS:
+
+Root Directory: /home/ransomeye/rebuild/
+
+Language: Rust (Stable, 2021 Edition) for Backend; React + TypeScript for Frontend.
+
+Architecture: Monorepo Workspace.
+
+⛔ LICENSING HARD BAN (FATAL ERROR):
+
+You are STRICTLY FORBIDDEN from using any library/crate/snippet licensed under: GPL (v2/v3), AGPL, SSPL, Commons Clause.
+
+ALLOWED: MIT, Apache 2.0, BSD, ISC, MPL 2.0, CC0.
+
+Enforcement: You must verify the license of every crate added to Cargo.toml.
+
+🛡️ CODING STANDARDS:
+
+No "Magic": No implicit imports. Explicitly define everything.
+
+Fail-Closed: If a security check fails, the process MUST panic or exit.
+
+Zero-Trust: Every internal component must authenticate every request.
+
+Headers: Every file must start with the RansomEye copyright header.
+
+PROMPT 0: GOVERNANCE, STRUCTURE & LEGAL (The Skeleton)
+Instructions: Copy this entire block into Cursor.
+
+# 🧱 PHASE 0: PROJECT SKELETON & LEGAL GOVERNANCE
+
+**Goal:** Establish the immutable directory structure, configure the Rust Workspace, and build the "Legal Governor" tools that prevent GPL contamination.
+
+**Target Path:** `/home/ransomeye/rebuild/`
+
+## 1. DIRECTORY STRUCTURE (MANDATORY)
+Create exactly this structure. Do not deviate. This structure supports the new Architecture (UI, Ops, Agents).
+
+```text
+/home/ransomeye/rebuild/
+├── .gitignore                  # Standard Rust/Node gitignore
+├── Cargo.toml                  # The Workspace Root Manifest
+├── README.md                   # Architecture Overview
+├── governance/                 # Legal & Policy Enforcers
+│   ├── licenses/               # Allowed license text files
+│   └── tools/                  # Rust scripts for enforcement
+│       ├── src/bin/
+│       │   ├── license_check.rs
+│       │   └── header_check.rs
+│       └── Cargo.toml
+├── core/                       # The Brain (Backend)
+│   ├── kernel/                 # Phase 1: Config, Logs, Crypto
+│   ├── bus/                    # Phase 2: mTLS Message Bus
+│   ├── intel/                  # Phase 3: Threat Graph & Parsers
+│   ├── ingest/                 # Phase 4: Dedupe & Normalization
+│   ├── engine/                 # Phase 5: Correlation & Compliance
+│   ├── policy/                 # Phase 6: Simulation & Enforcement
+│   ├── dispatch/               # Phase 7: Command Router
+│   ├── ai/                     # Phase 8: Inference, Vision, Feedback
+│   └── reporting/              # Phase 10: Forensics & Rehydration
+├── edge/                       # The Probes
+│   ├── dpi/                    # Phase 9A: Network Probe (Active/Passive)
+│   └── agent/                  # Phase 9B: Endpoint Agent (Deception)
+├── ui/                         # The Management Plane
+│   ├── frontend/               # Phase 13: React + TypeScript
+│   └── wasm/                   # Phase 13: Rust Graph Visualization
+└── ops/                        # Phase 12B: SRE Tooling
+    └── src/bin/                # CLI Tools (Key rotate, Archive)
+
+2. WORKSPACE MANIFEST (Cargo.toml)
+Create the root Cargo.toml. It must define the workspace members to include all the paths created above.
+
+Ini, TOML
+
+[workspace]
+members = [
+    "governance/tools",
+    "core/kernel",
+    "core/bus",
+    "core/intel",
+    "core/ingest",
+    "core/engine",
+    "core/policy",
+    "core/dispatch",
+    "core/ai",
+    "core/reporting",
+    "edge/dpi",
+    "edge/agent",
+    "ui/wasm",
+    "ops",
+]
+resolver = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+3. IMPLEMENTATION: THE LEGAL GOVERNOR (governance/tools)
+Initialize governance/tools as a Rust binary crate.
+
+Task A: license_check.rs Write a script that:
+
+Scans Cargo.lock (if exists) or Cargo.toml files.
+
+Checks dependencies against an ALLOWLIST (MIT, Apache-2.0, BSD, ISC).
+
+Checks against a BLOCKLIST (GPL, AGPL, SSPL).
+
+Action: If a banned license is found, print a RED error and exit(1).
+
+Output: "✅ Legal Governance Passed" if clean.
+
+Task B: header_check.rs Write a script that:
+
+Recursively scans all source files (.rs, .ts, .tsx, .py).
+
+Ensures the first line contains: // Copyright (c) RansomEye. Proprietary & Confidential.
+
+Action: Fail if missing.
+
+4. ACCEPTANCE CRITERIA
+Full directory tree exists.
+
+cargo build in governance/tools succeeds.
+
+Running cargo run --bin license_check passes on the clean repo.
+
+
+---
+
+### 🔐 PROMPT 1: THE KERNEL (The Root of Trust)
+
+**Instructions:** Run this *after* Phase 0 is complete.
+
+```markdown
+# 🔐 PHASE 1: CORE KERNEL & TRUST ROOT
+
+**Goal:** Build `ransomeye-kernel`, the foundational library used by ALL backend components. It handles secure configuration, structured logging, and the Cryptographic Root of Trust.
+
+**Target Path:** `/home/ransomeye/rebuild/core/kernel/`
+
+## 1. SETUP
+Initialize `core/kernel` as a Rust **Library** crate.
+Add dependencies: `serde`, `serde_json`, `tracing`, `tracing-subscriber`, `thiserror`, `ring` (or `sodiumoxide`), `config` (or `dotenvy` but enforce Env vars).
+
+## 2. MODULES
+
+### A. Zero-Trust Configuration (`src/config.rs`)
+* **Strict Rule:** Configuration MUST be loaded from **Environment Variables** only. No local config files in production.
+* **Variables:** `RE_TRUST_ROOT_KEY`, `RE_LOG_LEVEL`, `RE_DB_URL`.
+* **Logic:** Create a `load()` function. If a required variable is missing, **PANIC** immediately with a clear security error.
+
+### B. Structured Logging (`src/logging.rs`)
+* Implement a `init()` function using `tracing_subscriber`.
+* **Format:** Output must be **JSON** to stdout.
+* **Fields:** Automatically inject `timestamp`, `pid`, and `module_name` into every log entry.
+
+### C. Cryptographic Root (`src/trust.rs`)
+* **Goal:** Verify digital signatures of configuration and commands.
+* **Algo:** Ed25519 (via `ring`).
+* **Function:** `verify_signature(data: &[u8], signature: &[u8], public_key: &[u8]) -> Result<(), AuthError>`.
+* **Fail-Closed:** Return a distinct `AuthError::InvalidSignature` on failure.
+
+### D. Unified Errors (`src/error.rs`)
+* Define a `KernelError` enum using `thiserror`.
+* Variants: `ConfigMissing`, `CryptoFailure`, `AuthFailed`.
+
+## 3. IMPLEMENTATION STEPS
+1.  Create `src/lib.rs` exporting these modules.
+2.  Implement `config.rs` to read `RE_TRUST_ROOT_KEY`.
+3.  Implement `trust.rs` to verify a dummy signature.
+4.  Write a unit test in `lib.rs` that sets Env Vars and asserts `config::load()` succeeds.
+5.  Write a unit test that asserts `config::load()` **panics** when Env Vars are missing.
+
+## 4. ACCEPTANCE CRITERIA
+1.  `cargo test -p ransomeye-kernel` passes.
+2.  The library compiles without warnings.
+3.  Attempting to load config without `RE_TRUST_ROOT_KEY` causes a panic (verified by test).

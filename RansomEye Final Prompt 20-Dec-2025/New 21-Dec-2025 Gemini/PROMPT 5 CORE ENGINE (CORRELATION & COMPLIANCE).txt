@@ -1,0 +1,108 @@
+⚙️ PROMPT 5: SCALABLE CORE ENGINE (CORRELATION & COMPLIANCE)
+Goal: Build core/engine. This is the "Brain" of RansomEye. It runs two parallel logic streams:
+
+Real-Time Detection: Correlation logic (State Machine) to catch active attacks.
+
+Compliance (HNMP): Posture assessment (CIS/NIST Benchmarks).
+
+Critical Scalability Logic:
+
+Sharded Actor Model: Events for a specific HostID must always be processed by the same Worker Thread. This eliminates database locking and maximizes L1/L2 cache hits.
+
+Hybrid Threading: Use tokio for IO-bound tasks (DB writes) and rayon for CPU-bound tasks (Rule evaluation, JSON parsing).
+
+Dynamic Tuning: Do not hardcode thread counts. Detect num_cpus and available_ram to size the worker pools dynamically.
+
+Target Path: /home/ransomeye/rebuild/core/engine/
+
+Dependencies: tokio, rayon (parallel compute), serde, serde_json, sqlx (Postgres), num_cpus, dashmap (concurrent cache), sys-info.
+
+1. SETUP
+Initialize core/engine as a Rust Library crate. Add dependencies: core/bus (events), core/intel (graph), core/ingest (types).
+
+2. DIRECTORY STRUCTURE
+Plaintext
+
+core/engine/
+├── Cargo.toml
+└── src/
+    ├── lib.rs
+    ├── tuning.rs               # Dynamic Worker Sizing
+    ├── sharding.rs             # HostID -> Worker Router
+    ├── runner.rs               # Main Event Loop
+    ├── correlation/
+    │   ├── mod.rs
+    │   ├── state_machine.rs    # Host Security State (Clean -> Infected)
+    │   ├── rules.rs            # CPU-Heavy Detection Logic
+    │   └── cache.rs            # In-Memory State (LRU)
+    └── compliance/
+        ├── mod.rs
+        ├── benchmarks.rs       # CIS/NIST Checks
+        └── scoring.rs          # Health Score Calc
+3. IMPLEMENTATION TASKS
+A. Dynamic Tuning & Threading (src/tuning.rs)
+Logic:
+
+Cores = num_cpus::get().
+
+RamGB = sys_info::mem_info().
+
+Determine Profile:
+
+Small (Single Box): Worker Threads = 2. Cache Size = 10,000 Hosts.
+
+Massive (48-Core): Worker Threads = Cores - 4 (Leave room for DB/OS). Cache Size = 1,000,000 Hosts.
+
+Threading Model:
+
+Detection: Run inside the Sharded Worker (Cpu-bound).
+
+Compliance: Run on a separate tokio::spawn task (Low priority IO-bound) so it never blocks an active attack alert.
+
+B. Sharded Event Router (src/sharding.rs)
+Problem: Mutex contention on the DB slows down processing at 50k agents.
+
+Solution:
+
+Create N Channels (where N = Tuned Worker Count).
+
+Router Logic: Target_Worker = Hash(HostID) % Worker_Count.
+
+Send event to that specific channel.
+
+Benefit: Events for "Laptop-A" always hit Thread #5. Thread #5 owns the State Cache for "Laptop-A". Zero Locks required.
+
+C. Correlation Engine (correlation/)
+State Machine (state_machine.rs):
+
+Transitions: Clean -> Suspicious (1 event) -> Probable (3 events) -> Confirmed (Ransomware).
+
+Optimization: Only write to DB if State changes. Otherwise, update in-memory DashMap.
+
+Rules (rules.rs):
+
+Lateral Movement: if LogonType == 3 (Network) AND User != Admin.
+
+Encryption: if FileWrite > 50/sec AND Entropy > 7.5.
+
+D. Compliance & Posture (compliance/)
+Logic:
+
+Receive HostInventory snapshot.
+
+Evaluate: Compare installed packages/config against benchmarks.rs (Embedded CIS Rules).
+
+Score: Calculate % compliance.
+
+Output: Emit ComplianceReport to Bus.
+
+Load Shedding: If Process CPU > 90%, skip Compliance checks (drop the event) to prioritize active threat detection.
+
+4. ACCEPTANCE CRITERIA
+Sharding Test: Send 100 events for "Host-A". Verify via logs that ALL 100 events were processed by the same Worker Thread ID.
+
+Scalability Test (Large): On a 48-Core system, the engine spawns ~44 workers and processes 100k events/sec without DB lock errors.
+
+Stability Test (Small): On a 2-Core system, the engine spawns 2 workers and drops "Compliance" tasks when CPU hits 95%, ensuring Detection stays live.
+
+State Persistence: A "Suspicious" state in memory is flushed to the DB within 1 second or on shutdown.
