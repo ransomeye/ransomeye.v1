@@ -1,5 +1,5 @@
 // Path and File Name : /home/ransomeye/rebuild/edge/sentinel/tests/lateral_movement_tests.rs
-// Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7bQk7OxYQylg8CMw1iGsq7gU
+// Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
 // Details of functionality of this file: Tests for lateral movement detection - credential reuse, token replay, SMB abuse, SSH brute force
 
 use chrono::Utc;

@@ -13,6 +13,8 @@ pub mod retention;
 pub mod errors;
 pub mod formats;
 pub mod deception_report;
+pub mod intel_report;
+pub mod forensic_report;
 
 pub use collector::EvidenceCollector;
 pub use evidence_store::EvidenceStore;

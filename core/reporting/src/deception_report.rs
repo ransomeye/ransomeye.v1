@@ -6,11 +6,9 @@ use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::path::Path;
-use tracing::{info, error, debug};
+use tracing::info;
 
 use crate::errors::ReportingError;
-use crate::exporter::ReportExporter;
-use crate::report_builder::ForensicReport;
 
 /// Deception event for reporting
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -120,12 +118,13 @@ impl DeceptionReportBuilder {
         
         let mut attacker_sessions = Vec::new();
         for (session_id, session_events) in sessions_map {
+            let event_count = session_events.len();
             let mut hosts = Vec::new();
             let mut artifacts = Vec::new();
             let mut first_seen = session_events[0].timestamp;
             let mut last_seen = session_events[0].timestamp;
             
-            for event in session_events {
+            for event in &session_events {
                 if !hosts.contains(&event.host_id) {
                     hosts.push(event.host_id.clone());
                 }
@@ -146,7 +145,7 @@ impl DeceptionReportBuilder {
                 last_seen,
                 hosts,
                 artifacts,
-                event_count: session_events.len() as u64,
+                event_count: event_count as u64,
             });
         }
         

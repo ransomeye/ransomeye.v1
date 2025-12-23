@@ -26,6 +26,7 @@ dependencies = [
  "base64 0.21.7",
  "bpf-sys",
  "chrono",
+ "crossbeam-channel",
  "ed25519-dalek",
  "hex",
  "hostname",
@@ -41,6 +42,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -339,6 +341,24 @@ dependencies = [
 [[package]]
 name = "audit"
 version = "1.0.0"
+dependencies = [
+ "base64 0.21.7",
+ "chrono",
+ "ed25519-dalek",
+ "hex",
+ "parking_lot",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tokio-test",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
 
 [[package]]
 name = "auditor"
@@ -1231,6 +1251,24 @@ checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
 [[package]]
 name = "forensics"
 version = "1.0.0"
+dependencies = [
+ "base64 0.21.7",
+ "chrono",
+ "ed25519-dalek",
+ "hex",
+ "parking_lot",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tokio-test",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
 
 [[package]]
 name = "form_urlencoded"
@@ -1760,6 +1798,19 @@ dependencies = [
 [[package]]
 name = "intel"
 version = "1.0.0"
+dependencies = [
+ "chrono",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tokio-test",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
 
 [[package]]
 name = "ipnet"
@@ -3248,13 +3299,18 @@ checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
 name = "sentinel"
 version = "1.0.0"
 dependencies = [
+ "chrono",
  "hex",
+ "parking_lot",
+ "serde",
+ "serde_json",
  "sha2",
  "tempfile",
  "thiserror",
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -3597,6 +3653,23 @@ dependencies = [
 [[package]]
 name = "threat_feed"
 version = "1.0.0"
+dependencies = [
+ "base64 0.21.7",
+ "chrono",
+ "hex",
+ "parking_lot",
+ "ring",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tokio-test",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
 
 [[package]]
 name = "time"

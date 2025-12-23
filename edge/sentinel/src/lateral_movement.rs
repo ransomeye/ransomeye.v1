@@ -4,11 +4,11 @@
 
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use parking_lot::RwLock;
-use tracing::{info, warn, error, debug};
+use tracing::warn;
 
 /// Lateral movement event
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,7 +26,7 @@ pub struct LateralMovementEvent {
 }
 
 /// Types of lateral movement attempts
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum LateralMovementType {
     CredentialReuse,
     TokenReplay,
@@ -87,10 +87,10 @@ impl LateralMovementDetector {
         
         // Check if credential was used on different host recently
         if let Some(uses) = history.get(credential_hash) {
-            for use in uses.iter() {
-                if use.host != source_host && use.host != target_host {
+            for cred_use in uses.iter() {
+                if cred_use.host != source_host && cred_use.host != target_host {
                     // Credential used on different host - potential reuse
-                    let time_diff = timestamp.signed_duration_since(use.timestamp);
+                    let time_diff = timestamp.signed_duration_since(cred_use.timestamp);
                     if time_diff.num_seconds() < self.event_window.as_secs() as i64 {
                         // Within time window - high confidence
                         let session_id = self.get_or_create_session(source_host, target_host, timestamp);
@@ -111,7 +111,7 @@ impl LateralMovementDetector {
                         self.update_session(&session_id, source_host, target_host, timestamp, "credential_reuse");
                         
                         warn!("LATERAL MOVEMENT DETECTED: Credential reuse from {} to {} (credential used on {} previously)", 
-                              source_host, target_host, use.host);
+                              source_host, target_host, cred_use.host);
                         
                         return Some(event);
                     }
