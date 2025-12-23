@@ -44,7 +44,7 @@ impl AdvisoryInference {
     }
     
     /// Run advisory inference (NO actions, advisory only)
-    pub async fn infer(&self, model_name: &str, input_features: &[f64]) -> Result<AdvisoryInferenceResult, InferenceError> {
+    pub fn infer(&self, model_name: &str, input_features: &[f64]) -> Result<AdvisoryInferenceResult, InferenceError> {
         debug!("Running advisory inference with model: {}", model_name);
         
         // Load model if not already loaded

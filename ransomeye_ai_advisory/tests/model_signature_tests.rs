@@ -2,10 +2,10 @@
 // Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
 // Details of functionality of this file: Model signature verification tests - RSA-4096 verification
 
-use std::path::PathBuf;
 use tempfile::TempDir;
 use std::fs;
 use std::io::Write;
+use sha2::{Sha256, Digest};
 
 #[test]
 fn test_model_loader_verifies_signature() {
@@ -39,7 +39,8 @@ fn test_model_loader_verifies_signature() {
     fs::write(&model_path, vec![0u8; 100]).unwrap();
     
     // Test loader initialization
-    let loader = ransomeye_ai_advisory::inference::loader::ModelLoader::new(
+    use ransomeye_ai_advisory_inference::ModelLoader;
+    let loader = ModelLoader::new(
         models_dir.clone(),
         public_key_path.clone(),
     );
@@ -86,7 +87,8 @@ fn test_model_integrity_check() {
     fs::write(&model_path, model_data).unwrap();
     
     // Test integrity checker
-    let checker = ransomeye_ai_advisory::security::integrity::IntegrityChecker::new();
+    use ransomeye_ai_advisory::security::IntegrityChecker;
+    let checker = IntegrityChecker::new();
     let computed_hash = checker.compute_hash(&model_path).unwrap();
     
     // Hash should match

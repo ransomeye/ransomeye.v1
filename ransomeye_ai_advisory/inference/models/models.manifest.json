@@ -1,35 +1,10 @@
 {
-  "models": [
-    {
-      "model_name": "ransomware_behavior.model",
-      "model_version": "1.0.0",
-      "model_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "model_size_bytes": 1048576,
-      "signature": "dummy_signature_base64_encoded",
-      "trained_on": "2024-01-01",
-      "model_type": "advisory_classifier",
-      "features": ["file_entropy", "process_tree_depth", "network_connections", "registry_modifications"]
-    },
-    {
-      "model_name": "anomaly_baseline.model",
-      "model_version": "1.0.0",
-      "model_hash": "1111111111111111111111111111111111111111111111111111111111111111",
-      "model_size_bytes": 2097152,
-      "signature": "dummy_signature_base64_encoded",
-      "trained_on": "2024-01-01",
-      "model_type": "anomaly_detector",
-      "features": ["cpu_usage", "memory_usage", "disk_io", "network_traffic"]
-    },
-    {
-      "model_name": "confidence_calibration.model",
-      "model_version": "1.0.0",
-      "model_hash": "2222222222222222222222222222222222222222222222222222222222222222",
-      "model_size_bytes": 524288,
-      "signature": "dummy_signature_base64_encoded",
-      "trained_on": "2024-01-01",
-      "model_type": "calibration",
-      "features": ["raw_confidence", "feature_count", "baseline_deviation"]
-    }
-  ]
+  "model_name": "ransomware_behavior",
+  "model_version": "1.0.0",
+  "model_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "model_size_bytes": 1024,
+  "signature": "dummy_signature_base64_placeholder",
+  "trained_on": "2024-01-01",
+  "model_type": "advisory_only",
+  "features": ["feature_0", "feature_1", "feature_2", "feature_3", "feature_4"]
 }
-

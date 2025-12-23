@@ -94,7 +94,7 @@ impl SHAPExplainer {
                 feature_name: feature_name.clone(),
                 contribution,
                 signal_reference: Some(format!("signal_{}", i)),
-                timestamp_reference: Some(chrono::Utc::now().to_rfc3339()),
+                timestamp_reference: Some(chrono::Utc::now().to_rfc3339().to_string()),
             });
         }
         

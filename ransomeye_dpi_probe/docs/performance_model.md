@@ -1,152 +1,62 @@
-# DPI Probe Performance Model
+# Path and File Name : /home/ransomeye/rebuild/ransomeye_dpi_probe/docs/performance_model.md
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Performance model and design notes
 
-**Path and File Name:** `/home/ransomeye/rebuild/ransomeye_dpi_probe/docs/performance_model.md`  
-**Author:** nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7OxYQylg8CMw1iGsq7gU  
-**Details:** Performance characteristics and scalability model for DPI Probe
+# Performance Model
 
----
+## Design Goals
 
-## Performance Targets
+- **≥10 Gbps Sustained Capture**: Designed for high-throughput networks
+- **Zero Allocations in Hot Path**: No heap allocations during packet processing
+- **Lock-Free or Bounded Locks**: Minimal contention
+- **Bounded Memory**: All data structures have size limits
 
-### Throughput
-- **Minimum**: 1 Gbps sustained
-- **Target**: 10 Gbps sustained
-- **Peak**: 40 Gbps (with packet drops)
+## Hot Path Components
 
-### Latency
-- **Per-packet**: < 1ms processing time
-- **Flow export**: < 100ms from flow completion
-- **Telemetry transmission**: < 50ms (excluding network)
+### Packet Capture
+- Zero-copy packet access
+- Atomic statistics (lock-free)
+- Non-blocking I/O
 
-### Resource Usage
-- **Memory**: Bounded by `MAX_BUFFER_SIZE_MB`
-- **CPU**: Efficient packet parsing (< 20% on 4-core system)
-- **Disk**: Minimal (buffering only)
-- **Network**: mTLS connection to Core
-
-## Bottlenecks
-
-### 1. Packet Capture
-- **Constraint**: libpcap/AF_PACKET throughput
-- **Mitigation**: Zero-copy capture where possible
-- **Fallback**: Drop packets if queue full
-
-### 2. Flow Assembly
-- **Constraint**: Hash map lookup performance
-- **Mitigation**: Efficient hash functions, lock-free structures
-- **Scaling**: O(1) flow lookup
-
-### 3. Feature Extraction
-- **Constraint**: CPU-intensive metadata extraction
-- **Mitigation**: Minimal processing, no AI/ML
-- **Optimization**: Pre-computed statistics
-
-### 4. Event Signing
-- **Constraint**: RSA-4096 signing performance (~10ms per event)
-- **Mitigation**: Batch signing, async processing
-- **Limitation**: ~100 events/second signing rate
-
-### 5. Transport
-- **Constraint**: Network bandwidth to Core
-- **Mitigation**: Compression, batching
-- **Backpressure**: Core signals when overloaded
-
-## Scalability Model
-
-### Horizontal Scaling
-- **Multiple instances**: One per network interface
-- **Independent operation**: No coordination required
-- **Load distribution**: Core handles aggregation
-
-### Vertical Scaling
-- **CPU**: Linear scaling with cores (multi-threaded capture)
-- **Memory**: Bounded by buffer configuration
-- **Network**: Limited by interface bandwidth
-
-## Performance Monitoring
-
-### Key Metrics
-- **Packets captured/second**: Throughput indicator
-- **Flows exported/second**: Flow assembly rate
-- **Events signed/second**: Signing throughput
-- **Events transmitted/second**: Transport rate
-- **Buffer utilization**: Memory usage
-- **Drop rate**: Packet/event drops
-
-### Performance Degradation
-
-#### High Packet Rate
-- **Symptom**: Packet queue full, packets dropped
-- **Mitigation**: Increase queue size, optimize parsing
-- **Threshold**: > 80% queue utilization
-
-#### High Flow Count
-- **Symptom**: Memory pressure, slow lookups
-- **Mitigation**: Reduce flow timeout, cleanup more frequently
-- **Threshold**: > 1M active flows
-
-#### Signing Bottleneck
-- **Symptom**: Events queued, buffer fills
-- **Mitigation**: Batch signing, optimize key operations
-- **Threshold**: > 50 events queued for signing
-
-#### Transport Bottleneck
-- **Symptom**: Backpressure signals, buffer fills
-- **Mitigation**: Increase buffer size, optimize compression
-- **Threshold**: > 80% buffer utilization
-
-## Optimization Strategies
-
-### 1. Zero-Copy Capture
-- Use AF_PACKET ring buffers
-- Minimize packet copying
+### Protocol Parsing
+- Zero allocation parsing
 - Direct memory access
+- Deterministic results
 
-### 2. Lock-Free Data Structures
-- DashMap for flow storage
-- Atomic counters
-- RCU-style updates
+### Flow Tracking
+- Bounded hash map (max 1M flows)
+- LRU eviction at 90% capacity
+- Lock-free reads, bounded lock for writes
 
-### 3. Batch Processing
-- Batch event signing
-- Batch transport transmission
-- Reduce syscall overhead
+### Feature Extraction
+- Bounded feature count (max 100)
+- No dynamic allocations
+- Deterministic extraction
 
-### 4. Memory Pooling
-- Pre-allocate packet buffers
-- Reuse flow structures
-- Reduce allocations
+## Memory Bounds
 
-### 5. Async I/O
-- Non-blocking network I/O
-- Async file I/O for buffering
-- Parallel processing pipelines
+- **Flow Table**: Max 1,000,000 flows (configurable)
+- **Queue Size**: Max 100,000 events (configurable)
+- **Feature Count**: Max 100 features per packet
+- **Packet Buffer**: 64MB capture buffer
 
-## Benchmarking
+## Performance Characteristics
 
-### Test Scenarios
-1. **Low rate**: 100 Mbps, 1K flows/sec
-2. **Medium rate**: 1 Gbps, 10K flows/sec
-3. **High rate**: 10 Gbps, 100K flows/sec
-4. **Peak rate**: 40 Gbps, 400K flows/sec (with drops)
+- **Latency**: <1ms per packet (hot path)
+- **Throughput**: ≥10 Gbps sustained
+- **CPU Usage**: Optimized for multi-core
+- **Memory Usage**: Bounded and predictable
 
-### Success Criteria
-- **Throughput**: Sustained target rate
-- **Latency**: P99 < 10ms
-- **Drops**: < 0.1% packet drop rate
-- **Memory**: < configured buffer size
-- **CPU**: < 50% utilization
+## Backpressure Handling
 
-## Performance Tuning
+- **Drop Threshold**: 80% of queue size
+- **Deactivation**: 50% of threshold
+- **Never Blocks**: Always returns immediately
+- **Signal**: Non-blocking alert mechanism
 
-### Configuration Parameters
-- `MAX_BUFFER_SIZE_MB`: Increase for high throughput
-- `BACKPRESSURE_THRESHOLD`: Tune for transport rate
-- `FLOW_TIMEOUT_SECONDS`: Reduce for high flow count
-- `CAPTURE_IFACE`: Optimize interface settings
+## Rate Limiting
 
-### System Tuning
-- Increase network interface ring buffer size
-- Tune kernel network stack parameters
-- Optimize CPU affinity
-- Use NUMA-aware memory allocation
+- **Token Bucket**: Lock-free implementation
+- **Refill Rate**: Configurable (tokens/second)
+- **Max Tokens**: Configurable
+- **Non-Blocking**: Immediate return

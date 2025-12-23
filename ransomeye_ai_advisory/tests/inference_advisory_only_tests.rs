@@ -3,7 +3,6 @@
 // Details of functionality of this file: Tests proving advisory-only behavior - NO enforcement
 
 use std::sync::Arc;
-use std::path::PathBuf;
 use tempfile::TempDir;
 use std::fs;
 use std::io::Write;
@@ -22,29 +21,29 @@ fn test_inference_returns_advisory_only() {
     key_file.write_all(b"dummy key").unwrap();
     
     // Initialize components
+    use ransomeye_ai_advisory_inference::{ModelLoader, FeatureExtractor, ConfidenceCalibrator, ThresholdManager, AdvisoryInference};
+    
     let loader = Arc::new(
-        ransomeye_ai_advisory::inference::loader::ModelLoader::new(
+        ModelLoader::new(
             models_dir.clone(),
             public_key_path.clone(),
         ).unwrap()
     );
     
-    let feature_extractor = Arc::new(ransomeye_ai_advisory::inference::features::FeatureExtractor::new());
-    let calibrator = Arc::new(ransomeye_ai_advisory::inference::calibration::ConfidenceCalibrator::new());
-    let threshold_manager = Arc::new(ransomeye_ai_advisory::inference::thresholds::ThresholdManager::new());
+    let feature_extractor = Arc::new(FeatureExtractor::new());
+    let calibrator = Arc::new(ConfidenceCalibrator::new());
+    let threshold_manager = Arc::new(ThresholdManager::new());
     
-    let inference = ransomeye_ai_advisory::inference::inference::AdvisoryInference::new(
+    let inference = AdvisoryInference::new(
         loader,
         feature_extractor,
         calibrator,
         threshold_manager,
     );
     
-    // Run inference
+    // Run inference (synchronous)
     let features = vec![0.5, 0.6, 0.7, 0.8, 0.9];
-    let result = tokio::runtime::Runtime::new().unwrap().block_on(
-        inference.infer("test_model", &features)
-    );
+    let result = inference.infer("test_model", &features);
     
     // Verify result is advisory-only (contains confidence, recommendation, NO enforcement)
     assert!(result.is_ok());
@@ -67,7 +66,8 @@ fn test_inference_returns_advisory_only() {
 
 #[test]
 fn test_feature_extraction_bounded() {
-    let extractor = ransomeye_ai_advisory::inference::features::FeatureExtractor::new();
+    use ransomeye_ai_advisory_inference::FeatureExtractor;
+    let extractor = FeatureExtractor::new();
     
     // Test normal features
     let features = vec![0.1, 0.2, 0.3];
