@@ -5,9 +5,9 @@
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use thiserror::Error;
-use tracing::{error, warn, info, debug};
+use tracing::{error, warn, info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Error)]
@@ -35,7 +35,7 @@ pub enum FunctionCriticality {
     Critical, // Security functions
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ComponentStatus {
     pub component: String,
     pub state: ComponentState,
@@ -44,7 +44,7 @@ pub struct ComponentStatus {
     pub critical_functions_operational: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct DegradationEvent {
     pub timestamp: Instant,
     pub component: String,
@@ -53,7 +53,7 @@ pub struct DegradationEvent {
     pub critical_functions_affected: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct DegradationMetrics {
     pub component_states: HashMap<String, ComponentState>,
     pub degradation_events: Vec<DegradationEvent>,
@@ -245,6 +245,7 @@ impl DegradationGovernor {
             status.degradation_reason = Some(reason.clone());
             status.degraded_at = Some(Instant::now());
             
+            let reason_clone = reason.clone();
             events.push(DegradationEvent {
                 timestamp: Instant::now(),
                 component: component.to_string(),
@@ -253,7 +254,7 @@ impl DegradationGovernor {
                 critical_functions_affected: false,
             });
             
-            error!("Component shutdown: {} (reason: {})", component, reason);
+            error!("Component shutdown: {} (reason: {})", component, reason_clone);
         }
         
         Ok(())

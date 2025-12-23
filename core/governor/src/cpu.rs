@@ -6,7 +6,7 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use sysinfo::{CpuExt, System, SystemExt};
+use sysinfo::System;
 use thiserror::Error;
 use tracing::{error, warn, info, debug};
 use serde::{Deserialize, Serialize};
@@ -29,13 +29,14 @@ pub enum ComponentPriority {
     Critical = 3,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct CpuQuota {
     pub component: String,
     pub priority: ComponentPriority,
     pub max_cpu_percent: f32,
     pub window_seconds: u64,
     pub current_usage: f32,
+    // Note: window_start is not serialized (Instant doesn't implement Serialize)
     pub window_start: Instant,
     pub backpressure_threshold: f32,
 }
@@ -112,7 +113,7 @@ impl CpuGovernor {
 
         // Check system-wide CPU exhaustion
         let system = self.system.read();
-        let cpu_usage = system.global_cpu_info().cpu_usage();
+        let cpu_usage = system.global_cpu_info().cpu_usage() as f32;
         
         if cpu_usage > self.exhaustion_threshold {
             warn!("CPU exhaustion detected: {:.2}% (threshold: {:.2}%)", 

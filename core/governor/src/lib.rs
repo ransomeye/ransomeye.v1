@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use thiserror::Error;
-use tracing::{error, warn, info};
+use tracing::{error, info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Error)]
@@ -76,13 +76,14 @@ pub struct ComponentResourceLimits {
     pub is_critical: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ResourceGovernanceMetrics {
     pub cpu_metrics: cpu::CpuMetrics,
     pub memory_metrics: memory::MemoryMetrics,
     pub disk_metrics: disk::DiskMetrics,
     pub network_metrics: network::NetworkMetrics,
     pub degradation_metrics: degradation::DegradationMetrics,
+    // Note: timestamp is not serialized (Instant doesn't implement Serialize)
     pub timestamp: Instant,
 }
 

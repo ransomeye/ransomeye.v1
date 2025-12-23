@@ -29,6 +29,7 @@ members = [
     "ops/portguard",
     "ops/dr",
     "qa/auditor",
+    "qa/lifecycle",
 ]
 resolver = "2"
 

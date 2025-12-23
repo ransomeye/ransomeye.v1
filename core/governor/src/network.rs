@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use thiserror::Error;
-use tracing::{error, warn, info, debug};
+use tracing::{error, warn, info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Error)]
@@ -36,13 +36,14 @@ pub struct ConnectionQuota {
     pub current_connections: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct RateLimit {
     pub component: String,
     pub priority: TrafficPriority,
     pub max_requests_per_second: u64,
     pub window_seconds: u64,
     pub current_count: u64,
+    // Note: window_start is not serialized (Instant doesn't implement Serialize)
     pub window_start: Instant,
 }
 

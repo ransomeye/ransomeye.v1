@@ -8,9 +8,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use sysinfo::{DiskExt, System, SystemExt};
+use sysinfo::{System, Disks};
 use thiserror::Error;
-use tracing::{error, warn, info, debug};
+use tracing::{error, warn, info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Error)]
@@ -75,8 +75,7 @@ pub struct DiskGovernor {
 impl DiskGovernor {
     pub fn new(fd_warning_threshold: f32, disk_full_threshold: f32) -> Self {
         let mut system = System::new_all();
-        system.refresh_disks_list();
-        system.refresh_disks();
+        system.refresh_all();
         
         Self {
             quotas: Arc::new(RwLock::new(HashMap::new())),
@@ -108,14 +107,15 @@ impl DiskGovernor {
             },
         );
         
+        let path_display = path.to_string_lossy().to_string();
         if is_audit {
             let mut audit_paths = self.audit_paths.write();
             audit_paths.push(path);
-            info!("Registered audit-protected disk quota for component: {} (max: {}MB, path: {:?})", 
-                  component, max_disk_mb, path);
+            info!("Registered audit-protected disk quota for component: {} (max: {}MB, path: {})", 
+                  component, max_disk_mb, path_display);
         } else {
-            info!("Registered disk quota for component: {} (max: {}MB, path: {:?})", 
-                  component, max_disk_mb, path);
+            info!("Registered disk quota for component: {} (max: {}MB, path: {})", 
+                  component, max_disk_mb, path_display);
         }
     }
 
@@ -135,7 +135,8 @@ impl DiskGovernor {
             // Check disk space availability
             if quota.is_audit {
                 // CRITICAL: Audit partitions must always be writable
-                if let Err(e) = self.verify_audit_write(&quota.path) {
+                let path_clone = quota.path.clone();
+                if let Err(e) = self.verify_audit_write(&path_clone) {
                     error!("Audit partition write verification failed: {}", e);
                     return Err(DiskGovernanceError::AuditWriteFailed(
                         format!("Cannot write to audit partition: {:?}", quota.path)
@@ -143,7 +144,8 @@ impl DiskGovernor {
                 }
             } else {
                 // Check disk space for non-audit partitions
-                if let Err(e) = self.check_disk_space(&quota.path, requested_mb) {
+                let path_clone = quota.path.clone();
+                if let Err(e) = self.check_disk_space(&path_clone, requested_mb) {
                     return Err(e);
                 }
             }
@@ -155,7 +157,7 @@ impl DiskGovernor {
     /// Verify audit partition is writable (FAIL-CLOSED)
     fn verify_audit_write(&self, path: &Path) -> Result<(), DiskGovernanceError> {
         // Try to create a test file to verify write capability
-        let test_file = path.join(".ransomeye_audit_write_test");
+        let test_file = path.to_path_buf().join(".ransomeye_audit_write_test");
         
         match fs::write(&test_file, b"test") {
             Ok(_) => {
@@ -164,9 +166,10 @@ impl DiskGovernor {
                 Ok(())
             }
             Err(e) => {
-                error!("Audit partition write test failed: {} (path: {:?})", e, path);
+                let path_display = path.to_string_lossy().to_string();
+                error!("Audit partition write test failed: {} (path: {})", e, path_display);
                 Err(DiskGovernanceError::AuditWriteFailed(
-                    format!("Cannot write to audit partition: {:?} - {}", path, e)
+                    format!("Cannot write to audit partition: {} - {}", path_display, e)
                 ))
             }
         }
@@ -175,23 +178,23 @@ impl DiskGovernor {
     /// Check disk space availability
     fn check_disk_space(&self, path: &Path, requested_mb: u64) -> Result<(), DiskGovernanceError> {
         self.update_system_metrics();
-        
-        let system = self.system.read();
         let requested_gb = requested_mb as f64 / 1024.0;
+        let path_buf = path.to_path_buf();
         
         // Find the disk for this path
-        for disk in system.disks() {
+        let disks = Disks::new_with_refreshed_list();
+        for disk in disks.list() {
             let mount_point = disk.mount_point();
             
-            if path.starts_with(mount_point) {
+            if path_buf.starts_with(mount_point) {
                 let total_space = disk.total_space() as f64 / (1024.0 * 1024.0 * 1024.0);
                 let available_space = disk.available_space() as f64 / (1024.0 * 1024.0 * 1024.0);
                 let usage_percent = ((total_space - available_space) / total_space) * 100.0;
                 
                 // Check if disk is full
-                if usage_percent > self.disk_full_threshold {
+                if usage_percent > self.disk_full_threshold as f64 {
                     return Err(DiskGovernanceError::DiskFull(
-                        usage_percent,
+                        usage_percent as f32,
                         mount_point.to_string_lossy().to_string()
                     ));
                 }
@@ -283,13 +286,10 @@ impl DiskGovernor {
 
     /// Update system disk metrics
     fn update_system_metrics(&self) {
-        let mut system = self.system.write();
         let mut last_update = self.last_update.write();
-        
         let now = Instant::now();
         if now.duration_since(*last_update) >= Duration::from_secs(5) {
-            system.refresh_disks_list();
-            system.refresh_disks();
+            // Disks are refreshed on-demand via Disks::new_with_refreshed_list()
             *last_update = now;
         }
     }
@@ -305,8 +305,6 @@ impl DiskGovernor {
     /// Get current disk metrics
     pub fn get_metrics(&self) -> Result<DiskMetrics, DiskGovernanceError> {
         self.update_system_metrics();
-        
-        let system = self.system.read();
         let quotas = self.quotas.read();
         let audit_paths = self.audit_paths.read();
         
@@ -314,7 +312,8 @@ impl DiskGovernor {
         let mut disk_info = Vec::new();
         let mut disk_full_detected = false;
         
-        for disk in system.disks() {
+        let disks = Disks::new_with_refreshed_list();
+        for disk in disks.list() {
             let total = disk.total_space() as f64 / (1024.0 * 1024.0 * 1024.0);
             let available = disk.available_space() as f64 / (1024.0 * 1024.0 * 1024.0);
             let used = total - available;
@@ -323,7 +322,7 @@ impl DiskGovernor {
             // Check if this is an audit partition
             let is_audit = audit_paths.iter().any(|p| p.starts_with(disk.mount_point()));
             
-            if usage_percent > self.disk_full_threshold {
+            if usage_percent > self.disk_full_threshold as f64 {
                 disk_full_detected = true;
             }
             
@@ -332,7 +331,7 @@ impl DiskGovernor {
                 total_gb: total,
                 available_gb: available,
                 used_gb: used,
-                usage_percent,
+                usage_percent: usage_percent as f32,
                 is_audit,
             });
         }

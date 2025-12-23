@@ -6,9 +6,9 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 use thiserror::Error;
-use tracing::{error, warn, info, debug};
+use tracing::{error, warn, info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Error)]
@@ -40,7 +40,7 @@ pub struct MemoryInfo {
     pub total_swap_gb: f64,
     pub used_swap_gb: f64,
     pub available_swap_gb: f64,
-    pub swap_utilization_percent: f32,
+    pub swap_utilization_percent: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -157,7 +157,7 @@ impl MemoryGovernor {
         // Check system-wide OOM early-warning
         let ram_utilization = (memory_info.used_ram_gb / memory_info.total_ram_gb) * 100.0;
         
-        if ram_utilization > self.oom_warning_threshold {
+        if ram_utilization > self.oom_warning_threshold as f64 {
             warn!("OOM early-warning: {:.2}% RAM used (threshold: {:.2}%)", 
                   ram_utilization, self.oom_warning_threshold);
             
@@ -171,7 +171,7 @@ impl MemoryGovernor {
             // Trigger workload shedding for non-critical components
             self.shed_workload(component)?;
             
-            return Err(MemoryGovernanceError::OomEarlyWarning(ram_utilization));
+            return Err(MemoryGovernanceError::OomEarlyWarning(ram_utilization as f32));
         }
 
         // Check component-specific quota
@@ -258,7 +258,7 @@ impl MemoryGovernor {
             .collect();
         
         let ram_utilization = (memory_info.used_ram_gb / memory_info.total_ram_gb) * 100.0;
-        let oom_warning_active = ram_utilization > self.oom_warning_threshold;
+        let oom_warning_active = ram_utilization > self.oom_warning_threshold as f64;
         
         let shed = self.shed_components.read();
         let workload_shedding_active = !shed.is_empty();
