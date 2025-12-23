@@ -26,6 +26,7 @@ use suites::{
     fault_injection::FaultInjectionSuite,
     compliance::ComplianceSuite,
     regression::RegressionSuite,
+    lifecycle::LifecycleSuite,
 };
 
 #[derive(Debug, Error)]
@@ -42,6 +43,8 @@ pub enum ValidationError {
     ComplianceFailed(String),
     #[error("Regression validation failed: {0}")]
     RegressionFailed(String),
+    #[error("Lifecycle validation failed: {0}")]
+    LifecycleFailed(String),
     #[error("Report generation failed: {0}")]
     ReportFailed(String),
 }
@@ -123,6 +126,12 @@ impl ValidationOrchestrator {
         let regression_result = RegressionSuite::new().run().await
             .map_err(|e| ValidationError::RegressionFailed(e.to_string()))?;
         results.push(("regression".to_string(), regression_result));
+        
+        // Lifecycle validation
+        info!("Running lifecycle validation suite");
+        let lifecycle_result = LifecycleSuite::new().run().await
+            .map_err(|e| ValidationError::LifecycleFailed(e.to_string()))?;
+        results.push(("lifecycle".to_string(), lifecycle_result));
         
         let duration = start_time.elapsed();
         info!("Validation completed in {:?}", duration);

@@ -7,9 +7,6 @@ name = "ransomeye_core"
 version = "1.0.0"
 edition = "2021"
 
-[workspace]
-members = ["correlation"]
-
 [lib]
 name = "ransomeye_core"
 path = "correlation/src/lib.rs"

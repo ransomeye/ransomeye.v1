@@ -8,4 +8,5 @@ pub mod stress;
 pub mod fault_injection;
 pub mod compliance;
 pub mod regression;
+pub mod lifecycle;
 

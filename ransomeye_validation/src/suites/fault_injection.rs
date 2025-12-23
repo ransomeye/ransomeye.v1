@@ -97,9 +97,24 @@ impl FaultInjectionSuite {
     }
     
     async fn test_service_crash(&self) -> Result<(), String> {
-        // Simulate service crash test
-        self._chaos.crash_service("ransomeye_core").await
-            .map_err(|e| format!("Service crash test failed: {}", e))?;
+        // Test service crash recovery across critical modules
+        // Target: ingestion, policy, dispatcher (enforcement) as specified
+        
+        // Test 1: Ingestion service crash
+        info!("Testing ingestion service crash recovery");
+        self._chaos.crash_service("ransomeye-ingestion").await
+            .map_err(|e| format!("Ingestion service crash test failed: {}", e))?;
+        
+        // Test 2: Policy service crash
+        info!("Testing policy service crash recovery");
+        self._chaos.crash_service("ransomeye-policy").await
+            .map_err(|e| format!("Policy service crash test failed: {}", e))?;
+        
+        // Test 3: Dispatcher (enforcement) service crash
+        info!("Testing dispatcher (enforcement) service crash recovery");
+        self._chaos.crash_service("ransomeye-enforcement").await
+            .map_err(|e| format!("Dispatcher service crash test failed: {}", e))?;
+        
         Ok(())
     }
     

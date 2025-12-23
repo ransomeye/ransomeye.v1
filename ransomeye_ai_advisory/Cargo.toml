@@ -5,13 +5,6 @@ edition = "2021"
 authors = ["nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU"]
 description = "RansomEye AI Advisory - Advisory-only AI recommendations without enforcement"
 
-[workspace]
-members = [
-    "inference",
-    "explainability",
-    "rag",
-]
-
 [lib]
 name = "ransomeye_ai_advisory"
 path = "src/lib.rs"
