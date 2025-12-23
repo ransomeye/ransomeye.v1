@@ -1,0 +1,8 @@
+[package]
+name = "bus"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "bus"
+path = "src/lib.rs"

@@ -1,0 +1,8 @@
+[package]
+name = "sentinel"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "sentinel"
+path = "src/lib.rs"

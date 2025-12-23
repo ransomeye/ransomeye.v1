@@ -1,0 +1,33 @@
+[package]
+name = "ai"
+version = "1.0.0"
+edition = "2021"
+authors = ["nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU"]
+description = "RansomEye AI Advisory - Advisory-only AI recommendations without enforcement"
+
+[lib]
+name = "ai"
+path = "src/lib.rs"
+
+[dependencies]
+ai_inference = { path = "inference" }
+ai_explainability = { path = "explainability" }
+ai_rag = { path = "rag" }
+ring = "0.17"
+base64 = "0.21"
+sha2 = "0.10"
+hex = "0.4"
+parking_lot = "0.12"
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["full"] }
+ai_inference = { path = "inference" }
+ai_explainability = { path = "explainability" }
+ai_rag = { path = "rag" }
+sha2 = "0.10"
+hex = "0.4"
+
