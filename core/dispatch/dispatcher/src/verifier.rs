@@ -80,7 +80,18 @@ impl DirectiveVerifier {
             ));
         }
         
-        // Step 8: Verify preconditions hash (if system state changed, hash won't match)
+        // Step 8: Explicit governor role check (MANDATORY)
+        // Only GOVERNOR role may dispatch commands
+        // Signature verification alone is insufficient
+        let issuer_role_upper = directive.issuer_role.to_uppercase();
+        if issuer_role_upper != "GOVERNOR" {
+            error!("SECURITY VIOLATION: Non-governor role attempted dispatch: {}", directive.issuer_role);
+            return Err(DispatcherError::InvalidDirective(
+                format!("Only GOVERNOR role may dispatch commands, got: {}", directive.issuer_role)
+            ));
+        }
+        
+        // Step 9: Verify preconditions hash (if system state changed, hash won't match)
         // This is a placeholder - actual implementation would check system state
         debug!("Preconditions hash verified: {}", directive.preconditions_hash);
         

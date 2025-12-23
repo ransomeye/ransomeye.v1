@@ -21,6 +21,7 @@ use crate::rate_limit::RateLimiter;
 use crate::backpressure::BackpressureController;
 use crate::buffer::EventBuffer;
 use crate::ordering::OrderingManager;
+use crate::dedupe::ContentDeduplicator;
 use crate::dispatcher::EventDispatcher;
 use crate::config::Config;
 use crate::security::{TrustStore, IdentityVerifier, TrustChainValidator, RevocationChecker, ReplayProtector};
@@ -65,6 +66,7 @@ impl IngestionServer {
         let backpressure = Arc::new(BackpressureController::new(&config)?);
         let buffer = Arc::new(EventBuffer::new(&config)?);
         let ordering = Arc::new(OrderingManager::new(&config)?);
+        let deduplicator = Arc::new(ContentDeduplicator::new(&config)?);
         let dispatcher = Arc::new(EventDispatcher::new(&config)?);
         
         // Initialize listener
@@ -77,6 +79,7 @@ impl IngestionServer {
             backpressure.clone(),
             buffer.clone(),
             ordering.clone(),
+            deduplicator.clone(),
             dispatcher.clone(),
         ).await?);
         

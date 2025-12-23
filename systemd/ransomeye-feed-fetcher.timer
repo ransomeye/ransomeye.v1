@@ -1,0 +1,22 @@
+# Path and File Name : /home/ransomeye/rebuild/systemd/ransomeye-feed-fetcher.timer
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Systemd timer for daily threat intelligence feed fetching with hourly retries
+
+[Unit]
+Description=RansomEye Threat Intelligence Feed Fetcher Timer
+Documentation=https://ransomeye.tech
+Requires=ransomeye-feed-fetcher.service
+
+[Timer]
+# Run daily at 2 AM
+OnCalendar=*-*-* 02:00:00
+# Also run every hour for retries (if previous fetch failed)
+OnCalendar=*-*-* *:00:00
+# Run immediately if missed
+Persistent=true
+# Randomize start time by up to 5 minutes to avoid thundering herd
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
+

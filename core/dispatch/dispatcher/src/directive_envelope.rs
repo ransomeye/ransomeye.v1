@@ -65,6 +65,9 @@ pub struct DirectiveEnvelope {
     
     /// Reasoning
     pub reasoning: String,
+    
+    /// Issuer role (must be "GOVERNOR" for dispatch)
+    pub issuer_role: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -119,6 +122,7 @@ impl DirectiveEnvelope {
         kill_chain_stage: String,
         severity: String,
         reasoning: String,
+        issuer_role: String,
     ) -> Self {
         Self {
             directive_id: Uuid::now_v7().to_string(),
@@ -139,6 +143,7 @@ impl DirectiveEnvelope {
             kill_chain_stage,
             severity,
             reasoning,
+            issuer_role,
         }
     }
     

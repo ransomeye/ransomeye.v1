@@ -27,3 +27,11 @@ path = "replay_attack_tests.rs"
 name = "backpressure_tests"
 path = "backpressure_tests.rs"
 
+[[test]]
+name = "content_dedupe_tests"
+path = "content_dedupe_tests.rs"
+
+[[test]]
+name = "priority_rate_limit_tests"
+path = "priority_rate_limit_tests.rs"
+

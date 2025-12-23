@@ -40,6 +40,15 @@ pub struct EventEnvelope {
     
     /// Event data (JSON string)
     pub event_data: String,
+    
+    /// Event priority (INFO, WARN, CRITICAL)
+    /// Defaults to INFO if not specified
+    #[serde(default = "default_priority")]
+    pub priority: String,
+}
+
+fn default_priority() -> String {
+    "INFO".to_string()
 }
 
 impl EventEnvelope {

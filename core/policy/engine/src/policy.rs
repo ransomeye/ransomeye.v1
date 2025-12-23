@@ -96,6 +96,10 @@ pub struct PolicyLoader {
     signature_verifier: PolicySignatureVerifier,
     hash_verifier: PolicyVerifier,
     policies_path: String,
+    // Track highest version per policy ID (for rollback prevention)
+    highest_versions: HashMap<String, String>,
+    // Persist version state to file (in-memory is insufficient)
+    version_state_path: String,
 }
 
 impl PolicyLoader {
@@ -112,16 +116,120 @@ impl PolicyLoader {
                 ))?;
         }
 
+        // Load version state from persistent storage
+        let version_state_path = std::env::var("RANSOMEYE_POLICY_VERSION_STATE_PATH")
+            .unwrap_or_else(|_| "/var/lib/ransomeye/policy_versions.json".to_string());
+        
+        let highest_versions = Self::load_version_state_static(&version_state_path)?;
+
         let mut loader = Self {
             policies: HashMap::new(),
             signature_verifier,
             hash_verifier: PolicyVerifier::new(),
             policies_path: policies_path.to_string(),
+            highest_versions,
+            version_state_path,
         };
 
         loader.load_policies()?;
 
         Ok(loader)
+    }
+    
+    /// Load version state from persistent storage (static method for initialization)
+    fn load_version_state_static(path: &str) -> Result<HashMap<String, String>, PolicyError> {
+        use std::fs;
+        use std::path::Path;
+        
+        let path_obj = Path::new(path);
+        
+        if !path_obj.exists() {
+            // First run - no state file, return empty map
+            return Ok(HashMap::new());
+        }
+        
+        let content = fs::read_to_string(path)
+            .map_err(|e| PolicyError::ConfigurationError(
+                format!("Failed to read version state file: {}", e)
+            ))?;
+        
+        let versions: HashMap<String, String> = serde_json::from_str(&content)
+            .map_err(|e| PolicyError::ConfigurationError(
+                format!("Failed to parse version state: {}", e)
+            ))?;
+        
+        Ok(versions)
+    }
+    
+    /// Save version state to persistent storage
+    fn save_version_state(&self) -> Result<(), PolicyError> {
+        use std::fs;
+        use std::path::Path;
+        
+        let path_obj = Path::new(&self.version_state_path);
+        
+        // Create parent directory if it doesn't exist
+        if let Some(parent) = path_obj.parent() {
+            fs::create_dir_all(parent)
+                .map_err(|e| PolicyError::ConfigurationError(
+                    format!("Failed to create version state directory: {}", e)
+                ))?;
+        }
+        
+        let content = serde_json::to_string_pretty(&self.highest_versions)
+            .map_err(|e| PolicyError::ConfigurationError(
+                format!("Failed to serialize version state: {}", e)
+            ))?;
+        
+        fs::write(&self.version_state_path, content)
+            .map_err(|e| PolicyError::ConfigurationError(
+                format!("Failed to write version state file: {}", e)
+            ))?;
+        
+        Ok(())
+    }
+    
+    /// Check if policy version is allowed (strictly increasing only)
+    fn check_version_rollback(&mut self, policy_id: &str, version: &str) -> Result<(), PolicyError> {
+        if let Some(highest_version) = self.highest_versions.get(policy_id) {
+            // Compare versions (semantic versioning)
+            if self.compare_versions(version, highest_version) <= 0 {
+                return Err(PolicyError::EngineRefusedToStart(
+                    format!("Policy version rollback detected: policy {} version {} is not greater than highest version {}", 
+                        policy_id, version, highest_version)
+                ));
+            }
+        }
+        
+        // Update highest version
+        self.highest_versions.insert(policy_id.to_string(), version.to_string());
+        
+        // Persist state
+        self.save_version_state()?;
+        
+        Ok(())
+    }
+    
+    /// Compare two semantic versions
+    /// Returns: -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2
+    fn compare_versions(&self, v1: &str, v2: &str) -> i32 {
+        let v1_parts: Vec<&str> = v1.split('.').collect();
+        let v2_parts: Vec<&str> = v2.split('.').collect();
+        
+        let max_len = v1_parts.len().max(v2_parts.len());
+        
+        for i in 0..max_len {
+            let v1_part = v1_parts.get(i).and_then(|s| s.parse::<u32>().ok()).unwrap_or(0);
+            let v2_part = v2_parts.get(i).and_then(|s| s.parse::<u32>().ok()).unwrap_or(0);
+            
+            if v1_part < v2_part {
+                return -1;
+            } else if v1_part > v2_part {
+                return 1;
+            }
+        }
+        
+        0
     }
 
     pub fn load_policies(&mut self) -> Result<(), PolicyError> {
@@ -149,6 +257,12 @@ impl PolicyLoader {
                path.extension().and_then(|s| s.to_str()) == Some("yml") {
                 match self.load_policy_file(&path) {
                     Ok(policy) => {
+                        // Check version rollback prevention (MANDATORY)
+                        if let Err(e) = self.check_version_rollback(&policy.id, &policy.version) {
+                            error!("Version rollback detected for policy {}: {}", policy.id, e);
+                            return Err(e);
+                        }
+                        
                         info!("Loaded policy: {} (version: {})", policy.id, policy.version);
                         self.policies.insert(policy.id.clone(), policy);
                     }

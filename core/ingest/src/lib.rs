@@ -6,6 +6,7 @@ pub mod auth;
 pub mod backpressure;
 pub mod buffer;
 pub mod config;
+pub mod dedupe;
 pub mod dispatcher;
 pub mod listener;
 pub mod normalization;

@@ -23,6 +23,7 @@ use crate::rate_limit::RateLimiter;
 use crate::backpressure::BackpressureController;
 use crate::buffer::EventBuffer;
 use crate::ordering::OrderingManager;
+use crate::dedupe::ContentDeduplicator;
 use crate::dispatcher::EventDispatcher;
 use crate::protocol::event_envelope::EventEnvelope;
 use crate::config::Config;
@@ -36,6 +37,7 @@ pub struct EventListener {
     backpressure: Arc<BackpressureController>,
     buffer: Arc<EventBuffer>,
     ordering: Arc<OrderingManager>,
+    deduplicator: Arc<ContentDeduplicator>,
     dispatcher: Arc<EventDispatcher>,
     listener: Arc<RwLock<Option<TcpListener>>>,
     shutdown: Arc<RwLock<bool>>,
@@ -51,6 +53,7 @@ impl EventListener {
         backpressure: Arc<BackpressureController>,
         buffer: Arc<EventBuffer>,
         ordering: Arc<OrderingManager>,
+        deduplicator: Arc<ContentDeduplicator>,
         dispatcher: Arc<EventDispatcher>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         Ok(Self {
@@ -62,6 +65,7 @@ impl EventListener {
             backpressure,
             buffer,
             ordering,
+            deduplicator,
             dispatcher,
             listener: Arc::new(RwLock::new(None)),
             shutdown: Arc::new(RwLock::new(false)),
@@ -96,6 +100,7 @@ impl EventListener {
                     let backpressure = self.backpressure.clone();
                     let buffer = self.buffer.clone();
                     let ordering = self.ordering.clone();
+                    let deduplicator = self.deduplicator.clone();
                     let dispatcher = self.dispatcher.clone();
                     
                     tokio::spawn(async move {
@@ -109,6 +114,7 @@ impl EventListener {
                             backpressure,
                             buffer,
                             ordering,
+                            deduplicator,
                             dispatcher,
                         ).await {
                             error!("Connection handler error: {}", e);
@@ -135,6 +141,7 @@ impl EventListener {
         backpressure: Arc<BackpressureController>,
         buffer: Arc<EventBuffer>,
         ordering: Arc<OrderingManager>,
+        deduplicator: Arc<ContentDeduplicator>,
         dispatcher: Arc<EventDispatcher>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Read event data
@@ -153,8 +160,16 @@ impl EventListener {
         // Step 3: Validate schema
         schema_validator.validate(&envelope).await?;
         
-        // Step 4: Check rate limit (including component quota)
-        if !rate_limiter.check_limit(&producer_id, &envelope.component_type).await? {
+        // Step 3.5: Content hash deduplication (before normalization side effects)
+        if !deduplicator.should_process(&envelope).await? {
+            // Duplicate content - drop deterministically
+            let response = b"DUPLICATE_CONTENT\n";
+            stream.write_all(response).await?;
+            return Err("Duplicate content detected".into());
+        }
+        
+        // Step 4: Check rate limit (priority-aware, including component quota)
+        if !rate_limiter.check_limit(&producer_id, &envelope.component_type, &envelope.priority).await? {
             // Rate limit exceeded - send backpressure signal
             backpressure.signal_backpressure(&producer_id).await;
             let response = b"RATE_LIMIT_EXCEEDED\n";

@@ -1,0 +1,27 @@
+# Path and File Name : /home/ransomeye/rebuild/systemd/ransomeye-feed-fetcher.service
+# Author: nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU
+# Details of functionality of this file: Systemd service for automatic threat intelligence feed fetching
+
+[Unit]
+Description=RansomEye Threat Intelligence Feed Fetcher
+Documentation=https://ransomeye.tech
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ransomeye
+Group=ransomeye
+WorkingDirectory=/home/ransomeye/rebuild
+Environment="MALWARBAZAAR_AUTH_KEY=483ce60ba7c8a3d7358e3c8afd6e6d23a746eb2a5a42479f"
+Environment="RANSOMWARE_LIVE_API_KEY=6c0cca08-3419-43e6-8014-0a4f87f353a3"
+Environment="PYTHONPATH=/home/ransomeye/rebuild"
+ExecStart=/usr/bin/python3 /home/ransomeye/rebuild/ransomeye_intelligence/threat_intel/ingestion/auto_feed_fetcher.py
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=3600
+
+[Install]
+WantedBy=multi-user.target
+

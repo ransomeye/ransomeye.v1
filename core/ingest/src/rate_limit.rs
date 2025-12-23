@@ -65,26 +65,125 @@ impl RateLimiter {
         })
     }
     
-    pub async fn check_limit(&self, producer_id: &str, component_type: &str) -> Result<bool, Box<dyn std::error::Error>> {
-        // Check global cap
-        if !self.check_global_cap().await {
-            warn!("Global rate limit exceeded");
-            return Ok(false);
+    pub async fn check_limit(&self, producer_id: &str, component_type: &str, priority: &str) -> Result<bool, Box<dyn std::error::Error>> {
+        // Validate priority (fail-closed on invalid priority)
+        let priority_upper = priority.to_uppercase();
+        if priority_upper != "INFO" && priority_upper != "WARN" && priority_upper != "CRITICAL" {
+            warn!("Invalid priority: {}, defaulting to INFO", priority);
+            // Fail-closed: treat invalid priority as INFO (lowest)
         }
         
-        // Check producer limit
-        if !self.check_producer_limit(producer_id).await {
-            warn!("Producer rate limit exceeded: {}", producer_id);
-            return Ok(false);
+        // Check global cap (priority-aware)
+        let global_result = self.check_global_cap_priority(&priority_upper).await;
+        if !global_result {
+            // Rate limit exceeded - check if we can drop this priority
+            if priority_upper == "CRITICAL" {
+                // CRITICAL never dropped - force through
+                warn!("Global rate limit exceeded but CRITICAL priority - forcing through");
+                return Ok(true);
+            } else if priority_upper == "WARN" {
+                // Check if we should drop WARN
+                if self.should_drop_warn().await {
+                    warn!("Rate limit exceeded - dropping WARN priority event");
+                    return Ok(false);
+                } else {
+                    // Force through WARN if we haven't dropped too many
+                    return Ok(true);
+                }
+            } else {
+                // INFO - drop first
+                warn!("Rate limit exceeded - dropping INFO priority event");
+                return Ok(false);
+            }
         }
         
-        // Check component quota
-        if !self.check_component_quota(component_type).await {
-            warn!("Component quota exceeded: {}", component_type);
-            return Ok(false);
+        // Check producer limit (priority-aware)
+        if !self.check_producer_limit_priority(producer_id, &priority_upper).await {
+            if priority_upper == "CRITICAL" {
+                warn!("Producer rate limit exceeded but CRITICAL priority - forcing through");
+                return Ok(true);
+            } else if priority_upper == "WARN" {
+                if self.should_drop_warn().await {
+                    warn!("Producer rate limit exceeded - dropping WARN priority event");
+                    return Ok(false);
+                } else {
+                    return Ok(true);
+                }
+            } else {
+                warn!("Producer rate limit exceeded - dropping INFO priority event");
+                return Ok(false);
+            }
+        }
+        
+        // Check component quota (priority-aware)
+        if !self.check_component_quota_priority(component_type, &priority_upper).await {
+            if priority_upper == "CRITICAL" {
+                warn!("Component quota exceeded but CRITICAL priority - forcing through");
+                return Ok(true);
+            } else if priority_upper == "WARN" {
+                if self.should_drop_warn().await {
+                    warn!("Component quota exceeded - dropping WARN priority event");
+                    return Ok(false);
+                } else {
+                    return Ok(true);
+                }
+            } else {
+                warn!("Component quota exceeded - dropping INFO priority event");
+                return Ok(false);
+            }
         }
         
         Ok(true)
+    }
+    
+    async fn check_global_cap_priority(&self, priority: &str) -> bool {
+        let mut cap = self.global_cap.write();
+        let now = Instant::now();
+        
+        // Reset window if expired
+        if now.duration_since(cap.window_start) >= cap.window_duration {
+            cap.count = 0;
+            cap.window_start = now;
+        }
+        
+        // CRITICAL always passes
+        if priority == "CRITICAL" {
+            return true;
+        }
+        
+        // Check limit
+        if cap.count >= cap.cap {
+            return false;
+        }
+        
+        cap.count += 1;
+        true
+    }
+    
+    async fn should_drop_warn(&self) -> bool {
+        // Drop WARN only if we're really overloaded
+        // For now, use a simple heuristic: drop WARN if global cap is > 90%
+        let cap = self.global_cap.read();
+        let utilization = (cap.count as f64) / (cap.cap as f64);
+        utilization > 0.9
+    }
+    
+    async fn check_producer_limit_priority(&self, producer_id: &str, priority: &str) -> bool {
+        // CRITICAL always passes
+        if priority == "CRITICAL" {
+            return true;
+        }
+        
+        self.check_producer_limit(producer_id).await
+    }
+    
+    async fn check_component_quota_priority(&self, component_type: &str, priority: &str) -> bool {
+        // CRITICAL always passes
+        if priority == "CRITICAL" {
+            return true;
+        }
+        
+        self.check_component_quota(component_type).await
     }
     
     async fn check_global_cap(&self) -> bool {

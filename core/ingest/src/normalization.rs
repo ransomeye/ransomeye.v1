@@ -9,7 +9,7 @@
  * Ensures consistent event structure.
  */
 
-use crate::protocol::EventEnvelope;
+use crate::protocol::event_envelope::EventEnvelope;
 
 pub struct EventNormalizer;
 

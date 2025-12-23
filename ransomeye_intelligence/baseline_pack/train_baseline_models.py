@@ -222,11 +222,28 @@ def save_model(model, model_path: Path, metadata: Dict) -> str:
 
 def main():
     """Main training pipeline."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='RansomEye Baseline Model Training')
+    parser.add_argument('--use-feeds', action='store_true',
+                       help='Enhance training data with threat intelligence feeds')
+    parser.add_argument('--feed-only', action='store_true',
+                       help='Use only threat intelligence feeds (no synthetic data)')
+    
+    args = parser.parse_args()
+    
     print("=" * 80)
     print("RansomEye Baseline Intelligence Pack - Model Training")
     print("=" * 80)
     print()
-    print("Training models using SYNTHETIC + RED-TEAM data only")
+    
+    if args.use_feeds:
+        print("Training models using SYNTHETIC + RED-TEAM + THREAT INTELLIGENCE FEEDS")
+    elif args.feed_only:
+        print("Training models using THREAT INTELLIGENCE FEEDS only")
+    else:
+        print("Training models using SYNTHETIC + RED-TEAM data only")
+    
     print("No customer data used")
     print()
     
@@ -238,7 +255,24 @@ def main():
     
     # 1. Train Ransomware Behavior Model
     print("Training ransomware behavior classifier...")
-    X_ransomware, y_ransomware = generate_synthetic_ransomware_data(n_samples=100000, n_features=256)
+    
+    if args.use_feeds or args.feed_only:
+        # Use enhanced data generator with threat intelligence feeds
+        try:
+            from enhance_training_with_feeds import generate_enhanced_ransomware_data
+            X_ransomware, y_ransomware = generate_enhanced_ransomware_data(
+                n_samples=100000,
+                n_features=256,
+                use_feeds=True
+            )
+            print("  ✓ Using enhanced training data with threat intelligence feeds")
+        except Exception as e:
+            print(f"  ⚠ Warning: Failed to load threat intelligence feeds: {e}")
+            print("  Falling back to synthetic data only")
+            X_ransomware, y_ransomware = generate_synthetic_ransomware_data(n_samples=100000, n_features=256)
+    else:
+        X_ransomware, y_ransomware = generate_synthetic_ransomware_data(n_samples=100000, n_features=256)
+    
     model_ransomware, metrics_ransomware = train_ransomware_behavior_model(X_ransomware, y_ransomware)
     
     model_path = MODELS_DIR / "ransomware_behavior.model"
