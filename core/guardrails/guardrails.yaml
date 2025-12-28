@@ -121,11 +121,11 @@ allowed_phases:
   notes: Implemented as core/ai (advisory functionality)
 - id: 16
   name: Deception Framework
-  path: /home/ransomeye/rebuild/ransomeye_deception/
-  status: NOT_IMPLEMENTED
+  path: /home/ransomeye/rebuild/core/deception/
+  status: IMPLEMENTED
   installable: false
   runnable: false
-  notes: Phase 16 - Not yet created per MODULE_PHASE_MAP.yaml
+  notes: Phase 16 - Deception Framework with signed assets, safe deployment, high-confidence signals, correlation and playbook integration
 - id: 17
   name: AI Assistant (Governor Mode)
   path: /home/ransomeye/rebuild/core/governor/
@@ -187,6 +187,7 @@ allowed_modules:
 - core/forensics
 - core/governor
 - core/guardrails
+- core/deception
 - core/ingest
 - core/intel
 - core/kernel

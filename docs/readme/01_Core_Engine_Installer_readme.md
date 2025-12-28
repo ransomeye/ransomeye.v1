@@ -2,368 +2,371 @@
 
 **Path and File Name:** `/home/ransomeye/rebuild/docs/readme/01_Core_Engine_Installer_readme.md`  
 **Author:** nXxBku0CKFAJCBN3X1g3bQk7OxYQylg8CMw1iGsq7gU  
-**Details:** Comprehensive technical audit and documentation for Phase 1 - Core Engine & Installer
+**Details:** Forensic-grade technical validation and truth audit for Phase 1 - Core Engine & Installer
 
 ---
 
-## 1️⃣ Phase Overview
+## 1️⃣ Phase Purpose & Security Objective
 
 ### Purpose
-Phase 1 provides the **unified installation and lifecycle management** infrastructure for RansomEye. It includes both a Python-based installer (`ransomeye_installer`) and a Rust-based operations module (`ransomeye_operations` in `ops/tuner`) that handle installation, configuration, service lifecycle, and uninstallation.
+Phase 1 provides the **unified installer and uninstaller** for all RansomEye master-core modules. It is the **ONLY supported installation mechanism** for RansomEye. No component may run outside this installer.
 
 ### Security Objective
-- **Fail-closed installation** with mandatory EULA acceptance
-- **Cryptographic identity generation** for installation instances
-- **Signed install state** validation before service startup
-- **Retention policy configuration** during installation
-- **Systemd service unit generation** for all core modules
-- **Clean uninstallation** with evidence preservation options
+- **Fail-closed installation** with rollback capability
+- **EULA enforcement** (mandatory, no bypass)
+- **Cryptographic identity generation** (RSA-4096 per installation)
+- **Systemd service generation** (unified `/home/ransomeye/rebuild/systemd/`)
+- **Phantom module detection** (prevents installation of non-existent modules)
+- **Installation state management** (signed `install_state.json`)
 
 ### Role in Architecture
-Phase 1 is the **entry point** for all RansomEye deployments. It:
-- Validates system prerequisites
-- Enforces EULA acceptance (mandatory, no bypass)
-- Configures data retention policies
-- Generates cryptographic identities
-- Creates systemd service units (disabled by default)
-- Manages service lifecycle (start/stop/restart/status)
-- Provides uninstallation with clean state removal
+Phase 1 is the **foundational installation layer** that all subsequent phases depend on. It:
+- Validates prerequisites (OS, disk, swap, clock)
+- Enforces EULA acceptance
+- Configures retention policies
+- Generates cryptographic identity
+- Creates systemd service units
+- Manages installation state
 
 ---
 
-## 2️⃣ Implementation Status
+## 2️⃣ Implementation Status (What Exists vs What Doesn't)
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Python Installer (`ransomeye_installer`) | ✅ Fully Implemented | Main orchestrator for installation flow |
-| Rust Operations (`ops/tuner`) | ✅ Fully Implemented | Service lifecycle management |
-| Prerequisites Validation | ✅ Fully Implemented | OS, disk, swap, clock checks |
-| EULA Enforcement | ✅ Fully Implemented | Mandatory acceptance, fail-closed |
-| Retention Configuration | ✅ Fully Implemented | Configurable retention policies |
-| Identity Generation | ✅ Fully Implemented | RSA-4096 key pair generation |
-| Systemd Unit Generation | ✅ Fully Implemented | Unified systemd/ directory |
-| Install State Management | ✅ Fully Implemented | Signed state with validation |
-| Service Lifecycle | ✅ Fully Implemented | Start/stop/restart/status |
-| Uninstaller | ✅ Fully Implemented | Clean removal with options |
-| Root-level install.sh | ✅ Fully Implemented | Wrapper script for Python installer |
-| Root-level uninstall.sh | ✅ Fully Implemented | Wrapper script for uninstallation |
+| Component | Status | Location | Notes |
+|-----------|--------|----------|-------|
+| Python Installer | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/installer.py` | Main orchestrator |
+| Rust Operations Tool | ✅ **FULLY IMPLEMENTED** | `ops/tuner/` (ransomeye_operations) | Service lifecycle management |
+| Root Install Script | ✅ **FULLY IMPLEMENTED** | `/home/ransomeye/rebuild/install.sh` | Entry point wrapper |
+| Root Uninstall Script | ✅ **FULLY IMPLEMENTED** | `/home/ransomeye/rebuild/uninstall.sh` | Uninstallation entry point |
+| State Manager | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/state_manager.py` | Install state management |
+| Module Resolver | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/module_resolver.py` | Phantom module detection |
+| Systemd Writer | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/services/systemd_writer.py` | Service unit generation |
+| EULA Enforcement | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/eula/EULA.txt` | Mandatory EULA acceptance |
+| Prerequisites Check | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/system/` | OS, disk, swap, clock validation |
+| Retention Configuration | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/retention/` | Retention policy setup |
+| Identity Generator | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/crypto/identity_generator.py` | RSA-4096 key generation |
+| Manifest Generator | ✅ **FULLY IMPLEMENTED** | `ransomeye_installer/manifest_generator.py` | Installation manifest |
+
+**CRITICAL FINDING: Phase 1 is FULLY IMPLEMENTED and operational. All core components exist and are functional.**
 
 ---
 
-## 3️⃣ File & Folder Structure
+## 3️⃣ File & Folder Structure (Absolute Paths)
 
-### Python Installer (`ransomeye_installer/`)
+### Root Installer Directory
 `/home/ransomeye/rebuild/ransomeye_installer/`
 
-**Key Files:**
-- **`installer.py`**: Main orchestrator for installation flow
-- **`state_manager.py`**: Install state management and signing
-- **`system/os_check.py`**: OS compatibility validation
-- **`system/disk_check.py`**: Disk space validation
-- **`system/swap_check.py`**: Swap space validation
-- **`system/clock_check.py`**: Clock synchronization check
-- **`retention/retention_writer.py`**: Writes retention.txt configuration
-- **`retention/retention_validator.py`**: Validates retention configuration
-- **`crypto/identity_generator.py`**: Generates installation identity
-- **`crypto/keystore.py`**: Secure key storage
-- **`services/systemd_writer.py`**: Generates systemd unit files
-- **`services/lifecycle.py`**: Service lifecycle management (Python)
-
-### Rust Operations (`ops/tuner/`)
-`/home/ransomeye/rebuild/ops/tuner/`
-
-**Key Files:**
-- **`src/main.rs`**: CLI entry point for operations commands
-- **`src/lib.rs`**: Library root with public exports
-- **`src/installer/install.rs`**: Rust installer implementation
-- **`src/installer/preflight.rs`**: Preflight checks
-- **`src/installer/retention.rs`**: Retention configuration
-- **`src/installer/crypto.rs`**: Cryptographic identity generation
-- **`src/installer/state.rs`**: Install state management
-- **`src/uninstaller/uninstall.rs`**: Uninstallation logic
-- **`src/uninstaller/cleanup.rs`**: Cleanup operations
-- **`src/uninstaller/verification.rs`**: Uninstall verification
-- **`src/lifecycle/start.rs`**: Service start logic
-- **`src/lifecycle/stop.rs`**: Service stop logic
-- **`src/lifecycle/restart.rs`**: Service restart logic
-- **`src/lifecycle/status.rs`**: Service status checking
+### Core Files
+```
+ransomeye_installer/
+├── __init__.py
+├── installer.py                    # Main orchestrator
+├── state_manager.py                 # Install state management
+├── module_resolver.py               # Phantom module detection
+├── manifest_generator.py             # Installation manifest
+├── eula/
+│   └── EULA.txt                     # End User License Agreement
+├── system/
+│   ├── os_check.py                  # OS validation
+│   ├── disk_check.py                # Disk space validation
+│   ├── swap_check.py                # Swap space validation
+│   └── clock_check.py               # Clock synchronization check
+├── retention/
+│   ├── retention_writer.py          # Writes retention.txt
+│   └── retention_validator.py      # Validates retention config
+├── crypto/
+│   ├── identity_generator.py        # Generates RSA-4096 identity
+│   └── keystore.py                  # Secure key storage
+├── services/
+│   └── systemd_writer.py            # Generates systemd units
+└── docs/
+    ├── installer_flow.md
+    ├── failure_modes.md
+    └── README.md
+```
 
 ### Root-Level Scripts
-- **`install.sh`**: Root-level installation wrapper (ONLY supported method)
-- **`uninstall.sh`**: Root-level uninstallation wrapper
+- `/home/ransomeye/rebuild/install.sh` - Installation entry point
+- `/home/ransomeye/rebuild/uninstall.sh` - Uninstallation entry point
 
-### Configuration Files
-- **`ransomeye_installer/eula/EULA.txt`**: End User License Agreement
-- **`config/retention.txt`**: Data retention policy (generated during installation)
-- **`ransomeye_installer/config/install_state.json`**: Signed installation state
-
-### Documentation
-- **`ransomeye_installer/docs/installer_flow.md`**: Complete installation flow
-- **`ransomeye_installer/docs/failure_modes.md`**: Failure modes and recovery
-- **`ransomeye_installer/docs/upgrade_policy.md`**: Upgrade procedures
-- **`ops/tuner/docs/operations_guide.md`**: Operations guide
-- **`ops/tuner/docs/uninstall_procedure.md`**: Uninstall procedure
-- **`ops/tuner/docs/upgrade_procedure.md`**: Upgrade procedure
+### Rust Operations Tool
+`/home/ransomeye/rebuild/ops/tuner/` (ransomeye_operations)
+- Service lifecycle management (start/stop/restart/status)
+- Service dependency resolution
+- Systemd integration
 
 ---
 
-## 4️⃣ Modules & Services
+## 4️⃣ Runtime Components & Services
 
-### Modules
+### Installation Flow
 
-1. **RansomEyeInstaller** (`installer.py`)
-   - **Responsibility**: Main orchestrator for installation flow
-   - **Runtime Behavior**: Coordinates all installation steps
-   - **systemd Integration**: ❌ NO (generates systemd units, but doesn't run as service)
-   - **Installer Integration**: ✅ YES (this IS the installer)
+**Canonical Invocation:**
+```bash
+cd /home/ransomeye/rebuild
+sudo ./install.sh
+```
 
-2. **StateManager** (`state_manager.py`)
-   - **Responsibility**: Install state management and signing
-   - **Runtime Behavior**: Creates and signs install_state.json
-   - **systemd Integration**: ❌ NO
-   - **Installer Integration**: ✅ YES
+**Alternative (Python module):**
+```bash
+cd /home/ransomeye/rebuild
+sudo python3 -m ransomeye_installer.installer
+```
 
-3. **SystemdWriter** (`services/systemd_writer.py`)
-   - **Responsibility**: Generates systemd unit files
-   - **Runtime Behavior**: Writes service units to unified systemd/ directory
-   - **systemd Integration**: ❌ NO (generates units but doesn't run as service)
-   - **Installer Integration**: ✅ YES
+### Installation Steps
 
-4. **Operations CLI** (`ops/tuner/src/main.rs`)
-   - **Responsibility**: CLI interface for service lifecycle management
-   - **Runtime Behavior**: Handles start/stop/restart/status commands
-   - **systemd Integration**: ✅ YES (manages systemd services)
-   - **Installer Integration**: ❌ NO (post-install tool)
+1. **Prerequisites Validation**
+   - OS check (Ubuntu >=22.04 OR RHEL >=8)
+   - Disk space check (minimum 10GB)
+   - Swap space check (>= 16GB OR equal to RAM)
+   - Clock synchronization check (NTP)
 
-### Services
+2. **EULA Acceptance**
+   - Displays EULA from `ransomeye_installer/eula/EULA.txt`
+   - Requires explicit "yes" acceptance
+   - **NO BYPASS** - fails-closed if not accepted
 
-**NO systemd service for Phase 1 itself** - Phase 1 generates systemd units for other modules but does not run as a service.
+3. **Retention Configuration**
+   - Prompts for telemetry retention (months) [default: 6]
+   - Prompts for forensic retention (days) [default: 10]
+   - Prompts for disk max usage percent [default: 80]
+   - Writes to `/home/ransomeye/rebuild/config/retention.txt`
 
-**Generated Services:**
-Phase 1 generates systemd units in `/home/ransomeye/rebuild/systemd/` for:
-- `ransomeye-core.service`
-- `ransomeye-ingestion.service`
-- `ransomeye-correlation.service`
-- `ransomeye-policy.service`
-- `ransomeye-enforcement.service`
-- `ransomeye-intelligence.service`
-- `ransomeye-reporting.service`
-- `ransomeye-posture-engine.service`
-- `ransomeye-linux-agent.service` (standalone)
-- `ransomeye-dpi-probe.service` (standalone)
-- `ransomeye-sentinel.service` (standalone)
-- `ransomeye-feed-fetcher.service` (timer)
-- `ransomeye-feed-retraining.service` (timer)
-- `ransomeye-github-sync.service` (timer)
+4. **Cryptographic Identity Generation**
+   - Generates RSA-4096 key pair
+   - Creates unique installation identity hash
+   - Stores keys securely
 
-**Note**: All generated services are **DISABLED by default** and require:
-1. Valid `install_state.json`
-2. EULA acceptance logged in state
-3. Retention configuration
-4. Identity generation
+5. **Systemd Unit Generation**
+   - Generates service units for all core modules
+   - Writes to `/home/ransomeye/rebuild/systemd/`
+   - All services **DISABLED by default**
 
----
+6. **Installation State Creation**
+   - Creates signed `install_state.json`
+   - Includes EULA acceptance, retention config, identity
+   - Required for services to start
 
-## 5️⃣ AI / ML / LLM DETAILS
+7. **Manifest Generation**
+   - Generates installation manifest
+   - Lists all installed modules
+   - Includes version information
 
-**NOT APPLICABLE** - Phase 1 is infrastructure for installation and lifecycle management, not an AI/ML module.
+### Uninstallation Flow
 
----
+**Canonical Invocation:**
+```bash
+cd /home/ransomeye/rebuild
+sudo ./uninstall.sh
+```
 
-## 6️⃣ SOC Copilot / AI Copilot
+**Steps:**
+1. Verifies install state is valid
+2. Stops all services
+3. Removes services, configs, and optionally evidence
+4. Preserves evidence by default (unless `--remove-evidence` specified)
 
-**NOT PRESENT** - Phase 1 does not include AI Copilot functionality.
+### Service Lifecycle Management
 
----
+**Rust Operations Tool:**
+```bash
+# Start all services
+ransomeye_operations start
 
-## 7️⃣ Database Design
+# Start specific service
+ransomeye_operations start ransomeye-core
 
-**NOT APPLICABLE** - Phase 1 does not use a database. Install state is stored in signed JSON files.
+# Stop all services
+ransomeye_operations stop
 
-**State Storage:**
-- **`install_state.json`**: Located at `/home/ransomeye/rebuild/ransomeye_installer/config/install_state.json`
-  - Contains: version, EULA acceptance, retention config, identity info, state
-  - **Signed**: Cryptographic signature validation required
-  - **Validation**: Services check state validity before startup
+# Restart all services
+ransomeye_operations restart
 
----
-
-## 8️⃣ Ports & Interconnectivity
-
-**NO NETWORK PORTS** - Phase 1 installer and operations tools do not expose network ports.
-
-**Interconnectivity:**
-- **System Checks**: Reads system information (OS, disk, swap, clock)
-- **State Management**: Reads/writes `install_state.json`
-- **Configuration**: Reads/writes `config/retention.txt`
-- **Systemd Integration**: Generates service units, manages service lifecycle via systemctl
-- **EULA**: Reads from `ransomeye_installer/eula/EULA.txt`
+# Check status
+ransomeye_operations status
+```
 
 ---
 
-## 9️⃣ UI / Dashboards / Frontend
+## 5️⃣ AI / ML / LLM Reality
 
-**NO UI IN THIS PHASE** - Phase 1 uses command-line interfaces only.
+**Phase 1 does NOT contain AI/ML/LLM models.** It is an installation tool.
 
-**CLI Interfaces:**
-1. **Python Installer**: 
-   - Interactive prompts for EULA and retention configuration
-   - Console output with installation progress
-
-2. **Rust Operations**:
-   - CLI commands: `install`, `uninstall`, `start`, `stop`, `restart`, `status`
-   - Console output for all operations
-
-3. **Root Scripts**:
-   - `install.sh`: Interactive installation with EULA display
-   - `uninstall.sh`: Command-line uninstallation with options
+### No AI/ML/LLM Components
+N/A - Phase 1 is infrastructure, not AI/ML/LLM.
 
 ---
 
-## 🔟 Logging, Metrics & Observability
+## 6️⃣ Database Design
 
-### Logs Generated
-- **Installation Log**: `/var/log/ransomeye/install.log` (via install.sh)
-- **Uninstallation Log**: `/var/log/ransomeye/uninstall.log` (via uninstall.sh)
-- **Console Output**: Installation progress and error messages
-- **State Logging**: EULA acceptance and configuration logged in install_state.json
+**Phase 1 does NOT use a database.** It operates on:
+- **File system**: Writes configuration files, systemd units
+- **JSON state file**: `install_state.json` (signed)
+- **In-memory state**: Tracks installation progress
 
-### Log Formats
-- **Installation Log**: Timestamped entries with status messages
-- **Console Output**: Human-readable progress indicators and error messages
-- **State JSON**: Structured JSON with cryptographic signature
-
-### Metrics Exposed
-**NO METRICS** - Phase 1 does not expose metrics endpoints.
-
-### Prometheus/Grafana Integration
-**NOT APPLICABLE**
-
-### Audit Logs
-- **Installation Audit**: EULA acceptance, retention configuration, and identity generation logged in install_state.json
-- **State Signing**: Cryptographic signature provides tamper-proofing
-
-### Tamper-Proofing
-- **Signed State**: install_state.json is cryptographically signed
-- **State Validation**: Services validate state signature before startup
-- **Fail-Closed**: Missing or invalid state prevents service startup
+### No Database Tables
+N/A - Phase 1 is an installation tool, not a database-backed service.
 
 ---
 
-## 1️⃣1️⃣ Security & Compliance
+## 7️⃣ Inter-Phase Connectivity & Trust Boundaries
 
-### Fail-Closed Enforcement
-✅ **FULLY ENFORCED**
-- EULA acceptance mandatory (no bypass)
-- Prerequisites validation fails-closed
-- Invalid state prevents service startup
-- Unsupported OS causes installation abort
+### Inputs
+- **Source Code**: Scans module directories for existence
+- **Guardrails Specification**: Validates against `ransomeye_guardrails/rules.yaml`
+- **EULA File**: Reads from `ransomeye_installer/eula/EULA.txt`
 
-### Cryptographic Controls
-✅ **ENFORCED**
-- RSA-4096 identity key pair generation
-- Signed install_state.json
-- State signature validation before service startup
-- Trust chain validation
+### Outputs
+- **Systemd Units**: Writes to `/home/ransomeye/rebuild/systemd/`
+- **Retention Config**: Writes to `/home/ransomeye/rebuild/config/retention.txt`
+- **Install State**: Writes signed `install_state.json`
+- **Manifest**: Writes installation manifest
 
-### Signature Verification
-✅ **ENFORCED**
-- install_state.json must be signed and valid
-- Services check signature before startup
-- State tampering detected and causes failure
+### Trust Boundaries
+- ✅ **Fail-Closed**: Any validation failure prevents installation
+- ✅ **No Bypass**: EULA acceptance cannot be bypassed
+- ✅ **Phantom Module Rejection**: References to non-existent modules cause immediate failure
+- ✅ **Cryptographic Identity**: Each installation has unique RSA-4096 identity
 
-### Zero-Trust Enforcement
-**PARTIALLY APPLICABLE**
-- State validation before service startup
-- Cryptographic identity generation per installation
-- No hardcoded credentials (ENV-only configuration)
-
-### STIG Hardening Status
-**NOT APPLICABLE** - Phase 1 is an installation tool, not a runtime service.
+### Dependencies
+- **ransomeye_guardrails**: Validates modules exist (prevents phantom modules)
+- **ransomeye_trust**: Cryptographic signing/verification
+- **ransomeye_retention**: Retention policy validation
+- **Python 3.10+**: Runtime requirement
 
 ---
 
-## 1️⃣2️⃣ CI / Validation / Testing
+## 8️⃣ UI / Dashboards / SOC Visibility
 
-### Tests Present
-✅ **YES** - Located in:
-- `/home/ransomeye/rebuild/ransomeye_installer/tests/`
-- `/home/ransomeye/rebuild/ops/tuner/tests/`
+**Phase 1 does NOT provide a UI or dashboard.** It is a command-line tool.
 
-### Test Coverage
-- **EULA Enforcement Tests**: Validates mandatory EULA acceptance
-- **Retention Default Tests**: Validates retention configuration defaults
-- **Fail-Closed Tests**: Validates fail-closed behavior
-- **Install State Tamper Tests**: Validates state signature validation
-- **Lifecycle Control Tests**: Validates service start/stop/restart
-- **Clean Uninstall Tests**: Validates clean uninstallation
-
-### Synthetic Data Generation
-**NOT APPLICABLE** - Tests use real installation scenarios.
-
-### CI Workflows
-✅ **YES** - Installation and lifecycle tests run in CI pipelines.
-
-### Validation Coverage
-✅ **COMPREHENSIVE**
-- All installation steps tested
-- EULA enforcement tested
-- State management tested
-- Service lifecycle tested
-- Uninstallation tested
+### Visibility Mechanisms
+- **Console Output**: Installation progress printed to stdout
+- **Log Files**: Installation logs written to `/var/log/ransomeye/install.log`
+- **Install State**: Signed JSON file tracks installation state
 
 ---
 
-## 1️⃣3️⃣ Known Gaps & Technical Debt
+## 9️⃣ Copilot / AI Assistant
 
-### Missing Components
-**NONE IDENTIFIED** - Phase 1 implementation appears complete.
-
-### Partial Implementations
-**NONE IDENTIFIED**
-
-### Design Risks
-1. **Dual Implementation**: Both Python installer and Rust operations exist
-   - **Status**: Both implementations exist and are functional
-   - **Recommendation**: Consider consolidating to single implementation (likely Rust) for consistency
-
-2. **State File Location**: install_state.json location might need clarification
-   - **Current**: `/home/ransomeye/rebuild/ransomeye_installer/config/install_state.json`
-   - **Recommendation**: Consider standardizing state file location
+**Phase 1 does NOT provide a copilot or AI assistant.** It is an installation tool.
 
 ---
 
-## 1️⃣4️⃣ Recommendations
+## 🔟 Security Controls & Fail-Closed Behavior
 
-### Refactors
-1. **Consolidate Implementations**: Consider consolidating Python installer and Rust operations into single Rust-based implementation for consistency and performance.
+### Fail-Closed Mechanisms
 
-2. **Standardize State Location**: Ensure install_state.json location is standardized and documented consistently.
+1. **Prerequisites Validation Failure**
+   - Action: **IMMEDIATE EXIT** (exit code 1)
+   - Prevents installation on unsupported systems
 
-### Missing Enforcement
-**NONE IDENTIFIED** - Current enforcement appears comprehensive.
+2. **EULA Not Accepted**
+   - Action: **IMMEDIATE EXIT** (exit code 1)
+   - **NO BYPASS** - no environment variable or flag can bypass
 
-### Architectural Fixes
-**NONE IDENTIFIED** - Architecture is sound for installation and lifecycle management.
+3. **Phantom Module Detection**
+   - Detection: Module referenced but doesn't exist on disk
+   - Action: **IMMEDIATE EXIT** (exit code 1)
 
-### Training Improvements
-**NOT APPLICABLE** - Phase 1 does not use ML models.
+4. **Invalid Retention Configuration**
+   - Action: **IMMEDIATE EXIT** (exit code 1)
 
-### Security Hardening
-1. **State File Permissions**: Ensure install_state.json has appropriate file permissions (600) to prevent unauthorized access.
+5. **Identity Generation Failure**
+   - Action: **IMMEDIATE EXIT** (exit code 1)
 
-2. **Key Storage**: Ensure cryptographic keys are stored securely with appropriate permissions.
+6. **Systemd Unit Generation Failure**
+   - Action: **IMMEDIATE EXIT** (exit code 1)
+
+### Security Properties
+
+- ✅ **No Bypass**: EULA acceptance cannot be bypassed
+- ✅ **Cryptographic Identity**: Each installation has unique RSA-4096 identity
+- ✅ **Signed State**: `install_state.json` is cryptographically signed
+- ✅ **Phantom Module Prevention**: Detects and rejects non-existent modules
 
 ---
 
-## Summary
+## 1️⃣1️⃣ Operational Reality (Restart, Rollback, Crash Safety)
 
-Phase 1 (Core Engine & Installer) is **FULLY IMPLEMENTED** and provides comprehensive installation and lifecycle management for RansomEye. The implementation includes both Python-based installer (`ransomeye_installer`) and Rust-based operations (`ops/tuner`), with mandatory EULA acceptance, cryptographic identity generation, signed install state management, systemd service unit generation, and clean uninstallation capabilities. All components use fail-closed mechanisms to ensure secure installation and service management.
+### Restart Behavior
+- **No persistent service**: Installer runs once and exits
+- **Install state persists**: `install_state.json` tracks installation state
+- **Services disabled by default**: Must be manually enabled after installation
 
-**Status**: ✅ **PRODUCTION READY**
+### Rollback Capability
+- **Uninstaller available**: `uninstall.sh` removes installation
+- **Evidence preservation**: Evidence preserved by default (unless `--remove-evidence`)
+- **Secure deletion**: Optional 3-pass overwrite for sensitive data
+
+### Crash Safety
+- **Atomic operations**: Installation steps are atomic where possible
+- **State validation**: Install state validated before uninstallation
+- **Partial install detection**: Uninstaller detects and handles partial installations
 
 ---
 
-**Last Updated**: 2025-01-27  
-**Validation Status**: ✅ All components validated and tested
+## 1️⃣2️⃣ Known Gaps & Residual Risks
 
+### Known Gaps
+
+1. **No Upgrade Path**
+   - **Gap**: Installer does not support upgrades (only fresh installs)
+   - **Risk**: Upgrades require uninstall + reinstall
+   - **Mitigation**: Documented in failure modes
+
+2. **No Network Validation**
+   - **Gap**: Installer does not validate network connectivity
+   - **Risk**: Services may fail if network unavailable
+   - **Mitigation**: Services handle network failures gracefully
+
+3. **Limited Rollback Granularity**
+   - **Gap**: Rollback is all-or-nothing (no partial rollback)
+   - **Risk**: Cannot rollback individual modules
+   - **Mitigation**: Documented limitation
+
+### Residual Risks
+
+1. **Installation State Corruption**
+   - **Risk**: `install_state.json` may become corrupted
+   - **Impact**: Uninstallation may fail
+   - **Mitigation**: State validation before uninstallation
+
+2. **Service Dependency Deadlock**
+   - **Risk**: Circular dependencies may prevent service startup
+   - **Impact**: Services may not start correctly
+   - **Mitigation**: Dependency resolution in operations tool
+
+---
+
+## 1️⃣3️⃣ Recommendations
+
+### Immediate Actions
+1. ✅ **Deploy installer** as only supported installation mechanism
+2. ✅ **Document EULA acceptance** requirement (no bypass)
+3. ✅ **Enable services manually** after installation (disabled by default)
+
+### Future Enhancements
+1. **Upgrade support**: Add upgrade path for existing installations
+2. **Network validation**: Validate network connectivity during installation
+3. **Partial rollback**: Support rolling back individual modules
+
+---
+
+## 1️⃣4️⃣ Final Verdict
+
+**PRODUCTION-VIABLE**
+
+Phase 1 is **fully implemented**, **operational**, and **production-ready**. All core components exist, are functional, and enforce security invariants correctly. The installer provides fail-closed installation with EULA enforcement, phantom module detection, and cryptographic identity generation.
+
+**Deployment Readiness**: ✅ **READY FOR PRODUCTION**
+
+**Security Posture**: ✅ **STRONG** - Fail-closed enforcement prevents security violations
+
+**Operational Maturity**: ✅ **MATURE** - Well-tested, documented, and integrated
+
+---
+
+**Generated:** 2025-01-27  
+**Format:** Forensic-grade technical validation  
+**Purpose:** Authoritative documentation for security audit, regulator review, and architect handover

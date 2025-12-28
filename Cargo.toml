@@ -21,6 +21,7 @@ members = [
     "core/trainer",
     "core/audit",
     "core/guardrails",
+    "core/deception",
     "edge/dpi",
     "edge/agent",
     "edge/sentinel",

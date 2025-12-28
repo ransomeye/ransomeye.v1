@@ -16,7 +16,9 @@ pub mod security;
 pub use asset::DeceptionAsset;
 pub use errors::DeceptionError;
 pub use registry::DeceptionRegistry;
-pub use deployer::DeceptionDeployer;
+pub use deployer::{DeceptionDeployer, DeploymentState};
 pub use signals::DeceptionSignal;
 pub use teardown::TeardownEngine;
+pub use visibility::DeceptionVisibility;
+pub use playbook_integration::PlaybookIntegration;
 
